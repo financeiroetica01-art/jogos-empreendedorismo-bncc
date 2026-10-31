@@ -3,675 +3,551 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mercado Virtual — Jogos de Empreendedorismo</title>
-<script src="https://cdn.tailwindcss.com/3.4.1"></script>
+<title>Feirinha Sergipana — Mercado Virtual</title>
 <style>
-  :root {
-    --brand: #0891b2;
-    --bg: #05101a;
-    --card: #0d1f2d;
-    --border: #1a3549;
-    --text: #e2e8f0;
-    --muted: #94a3b8;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    min-height: 100vh;
-    display: flex; flex-direction: column;
-  }
-
-  /* ── NAVBAR ── */
-  #navbar {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
-    background: rgba(5,16,26,0.92); backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 1rem; height: 48px;
-  }
-  #navbar .nav-back {
-    background: rgba(8,145,178,0.15); border: 1px solid rgba(8,145,178,0.3);
-    color: #67e8f9; border-radius: 6px; padding: 4px 10px; font-size: 12px;
-    text-decoration: none; transition: all .2s; cursor: pointer;
-  }
-  #navbar .nav-back:hover { background: rgba(8,145,178,0.25); }
-  #navbar .nav-badge {
-    background: rgba(8,145,178,0.2); border: 1px solid rgba(8,145,178,0.4);
-    color: #a5f3fc; border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 600;
-  }
-  #navbar .nav-logo { font-size: 12px; font-weight: 700; color: #67e8f9; letter-spacing: 0.05em; }
-
-  /* ── PROGRESS BAR ── */
-  #progress-bar {
-    position: fixed; top: 48px; left: 0; right: 0; z-index: 49;
-    height: 3px; background: rgba(8,145,178,0.15);
-  }
-  #progress-fill { height: 100%; background: linear-gradient(90deg, #0891b2, #10b981); transition: width 0.6s ease; width: 0%; }
-
-  /* ── STAT BARS ── */
-  #statbar {
-    position: fixed; top: 51px; left: 0; right: 0; z-index: 48;
-    background: rgba(5,16,26,0.95); border-bottom: 1px solid var(--border);
-    padding: 6px 1rem; display: flex; gap: 0.5rem; align-items: center;
-  }
-  .stat-item { flex: 1; display: flex; flex-direction: column; gap: 3px; }
-  .stat-label { display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: var(--muted); }
-  .stat-label span:first-child { display: flex; align-items: center; gap: 3px; }
-  .stat-val { font-weight: 700; font-size: 10px; }
-  .stat-track { height: 5px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
-  .stat-fill { height: 100%; border-radius: 3px; transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1); }
-  #stat-lucro       .stat-fill { background: linear-gradient(90deg, #0891b2, #38bdf8); }
-  #stat-reputacao   .stat-fill { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
-  #stat-sustentab   .stat-fill { background: linear-gradient(90deg, #059669, #34d399); }
-  #stat-clientes    .stat-fill { background: linear-gradient(90deg, #d97706, #fbbf24); }
-
-  /* ── MAIN ── */
-  #main { margin-top: 100px; flex: 1; display: flex; flex-direction: column; align-items: center; padding: 1rem; min-height: calc(100vh - 100px); }
-
-  /* ── SCREENS ── */
-  .screen { width: 100%; max-width: 640px; animation: screenIn 0.4s cubic-bezier(0.22,1,0.36,1) both; }
-  @keyframes screenIn { from { opacity:0; transform:translateY(24px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
-  @keyframes chapterPop { 0% { opacity:0; transform:scale(0.7) rotate(-3deg); } 60% { transform:scale(1.08) rotate(1deg); } 100% { opacity:1; transform:scale(1) rotate(0deg); } }
-  @keyframes statPop { 0% { transform:scale(1); } 40% { transform:scale(1.15); } 100% { transform:scale(1); } }
-  @keyframes spinIn { from { transform:rotate(-180deg) scale(0); opacity:0; } to { transform:rotate(0) scale(1); opacity:1; } }
-
-  /* ── CARD BASE ── */
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 1rem; }
-
-  /* ── SCENE BACKGROUNDS ── */
-  .scene-abertura    { background: linear-gradient(135deg, #001a2e 0%, #00090f 100%); border: 1px solid #003050; }
-  .scene-operacoes   { background: linear-gradient(135deg, #001a15 0%, #00090a 100%); border: 1px solid #003020; }
-  .scene-crise       { background: linear-gradient(135deg, #1a0a00 0%, #0a0500 100%); border: 1px solid #2a1200; }
-  .scene-expansao    { background: linear-gradient(135deg, #00101a 0%, #000810 100%); border: 1px solid #001830; }
-
-  /* ── INTRO ── */
-  #screen-intro { display:flex; flex-direction:column; align-items:center; text-align:center; padding:2rem 1rem; }
-  .intro-icon { font-size:5rem; margin-bottom:1rem; animation:spinIn 0.8s cubic-bezier(0.34,1.56,0.64,1) both; animation-delay:0.2s; }
-  .intro-title { font-size:2rem; font-weight:800; color:#67e8f9; margin-bottom:0.5rem; }
-  .intro-sub { color:var(--muted); font-size:0.95rem; line-height:1.6; max-width:460px; margin:0 auto 1.5rem; }
-  .intro-tags { display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap; margin-bottom:2rem; }
-  .intro-tag { background:rgba(8,145,178,0.15); border:1px solid rgba(8,145,178,0.3); color:#a5f3fc; border-radius:20px; padding:4px 12px; font-size:11px; font-weight:600; }
-  .intro-stats { display:grid; grid-template-columns:repeat(2,1fr); gap:0.75rem; width:100%; max-width:360px; margin-bottom:2rem; }
-  .intro-stat { background:rgba(8,145,178,0.08); border:1px solid rgba(8,145,178,0.2); border-radius:10px; padding:0.75rem; text-align:center; }
-  .intro-stat .is-emoji { font-size:1.5rem; }
-  .intro-stat .is-name  { font-size:11px; color:var(--muted); margin-top:2px; }
-  .btn-primary { background:linear-gradient(135deg,#0891b2,#0369a1); color:white; border:none; border-radius:12px; padding:14px 40px; font-size:1rem; font-weight:700; cursor:pointer; transition:all .2s; letter-spacing:0.02em; box-shadow:0 4px 20px rgba(8,145,178,0.4); }
-  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 6px 28px rgba(8,145,178,0.5); }
-
-  /* ── CHAPTER ── */
-  #screen-chapter { display:flex; flex-direction:column; align-items:center; text-align:center; padding:2.5rem 1.5rem; border-radius:20px; }
-  .ch-number { font-size:11px; font-weight:700; letter-spacing:0.15em; color:var(--muted); text-transform:uppercase; margin-bottom:0.5rem; }
-  .ch-emoji { font-size:4rem; margin-bottom:1rem; animation:chapterPop 0.6s cubic-bezier(0.34,1.56,0.64,1) both; animation-delay:0.15s; }
-  .ch-title { font-size:1.6rem; font-weight:800; color:#a5f3fc; margin-bottom:0.5rem; }
-  .ch-tag { display:inline-block; background:rgba(8,145,178,0.25); border:1px solid rgba(8,145,178,0.4); color:#67e8f9; border-radius:20px; padding:3px 12px; font-size:11px; font-weight:700; letter-spacing:0.08em; margin-bottom:1rem; }
-  .ch-desc { color:var(--muted); font-size:0.9rem; line-height:1.6; max-width:380px; margin:0 auto 2rem; }
-  .ch-time { font-size:11px; color:#0891b2; font-weight:600; margin-bottom:1.5rem; }
-  .btn-chapter { background:rgba(8,145,178,0.2); border:1px solid rgba(8,145,178,0.4); color:#a5f3fc; border-radius:10px; padding:10px 28px; font-size:0.9rem; font-weight:700; cursor:pointer; transition:all .2s; }
-  .btn-chapter:hover { background:rgba(8,145,178,0.35); }
-
-  /* ── QUESTION ── */
-  #screen-question { border-radius:16px; padding:1.25rem; }
-  .q-header { display:flex; align-items:center; gap:0.75rem; margin-bottom:1.25rem; }
-  .q-char-emoji { font-size:2.5rem; flex-shrink:0; }
-  .q-char-name  { font-size:0.85rem; font-weight:700; color:#a5f3fc; }
-  .q-char-role  { font-size:11px; color:var(--muted); }
-  .q-speech { background:rgba(8,145,178,0.1); border:1px solid rgba(8,145,178,0.25); border-radius:10px; padding:0.85rem 1rem; margin-bottom:1rem; font-size:0.9rem; color:#cffafe; line-height:1.55; font-style:italic; }
-  .q-context { font-size:0.8rem; color:var(--muted); line-height:1.5; margin-bottom:1rem; padding:0.6rem 0.75rem; background:rgba(255,255,255,0.03); border-radius:8px; border-left:2px solid rgba(8,145,178,0.4); }
-  .q-question { font-size:1rem; font-weight:700; color:var(--text); margin-bottom:1rem; line-height:1.4; }
-  .options-grid { display:flex; flex-direction:column; gap:0.6rem; }
-
-  .opt-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:0.85rem 1rem; cursor:pointer; transition:all 0.2s; display:flex; flex-direction:column; gap:6px; }
-  .opt-card:hover:not(.picked):not(.disabled) { background:rgba(8,145,178,0.15); border-color:rgba(8,145,178,0.4); transform:translateX(3px); }
-  .opt-top { display:flex; align-items:flex-start; gap:0.5rem; }
-  .opt-letter { background:rgba(8,145,178,0.2); color:#67e8f9; border-radius:6px; padding:2px 7px; font-size:11px; font-weight:800; flex-shrink:0; margin-top:1px; }
-  .opt-label { font-size:0.88rem; font-weight:600; color:var(--text); line-height:1.4; flex:1; }
-  .opt-desc  { font-size:0.78rem; color:var(--muted); line-height:1.4; padding-left:calc(1.5rem + 0.5rem); }
-  .opt-fx    { display:flex; gap:4px; flex-wrap:wrap; padding-left:calc(1.5rem + 0.5rem); }
-  .fx-chip   { font-size:10px; font-weight:700; border-radius:4px; padding:2px 6px; opacity:0.7; }
-  .fx-pos { background:rgba(52,211,153,0.15); color:#34d399; }
-  .fx-neg { background:rgba(248,113,113,0.15); color:#f87171; }
-
-  .opt-card.picked-good  { background:rgba(52,211,153,0.12); border-color:rgba(52,211,153,0.5); }
-  .opt-card.picked-ok    { background:rgba(250,204,21,0.1);  border-color:rgba(250,204,21,0.4); }
-  .opt-card.picked-bad   { background:rgba(248,113,113,0.1); border-color:rgba(248,113,113,0.4); }
-  .opt-card.disabled     { opacity:0.4; pointer-events:none; }
-
-  /* ── FEEDBACK ── */
-  #feedback-box { margin-top:1rem; padding:1rem; background:rgba(8,145,178,0.08); border:1px solid rgba(8,145,178,0.25); border-radius:12px; display:none; }
-  .fb-quality { font-size:0.85rem; font-weight:700; margin-bottom:0.4rem; }
-  .fb-text    { font-size:0.82rem; color:#a5f3fc; line-height:1.5; margin-bottom:0.6rem; }
-  .fb-stats   { display:flex; gap:6px; flex-wrap:wrap; }
-  .fb-stat    { font-size:11px; font-weight:700; border-radius:6px; padding:3px 8px; }
-  .fb-stat-pos { background:rgba(52,211,153,0.2); color:#34d399; }
-  .fb-stat-neg { background:rgba(248,113,113,0.2); color:#f87171; }
-  .bncc-badge { display:inline-flex; align-items:center; gap:4px; background:rgba(8,145,178,0.1); border:1px solid rgba(8,145,178,0.25); color:#67e8f9; border-radius:20px; padding:2px 8px; font-size:10px; font-weight:600; margin-top:0.4rem; }
-
-  .btn-next { display:block; width:100%; margin-top:1rem; background:linear-gradient(135deg,#0891b2,#0369a1); color:white; border:none; border-radius:10px; padding:12px; font-size:0.9rem; font-weight:700; cursor:pointer; transition:all .2s; }
-  .btn-next:hover { opacity:0.9; transform:translateY(-1px); }
-
-  /* ── RESULT ── */
-  #screen-result { border-radius:20px; padding:2rem 1.5rem; text-align:center; }
-  .result-badge-emoji { font-size:5rem; display:block; margin-bottom:0.75rem; animation:spinIn 0.8s cubic-bezier(0.34,1.56,0.64,1) both; animation-delay:0.2s; }
-  .result-title { font-size:1.6rem; font-weight:800; color:#67e8f9; margin-bottom:0.25rem; }
-  .result-sub   { font-size:0.9rem; color:var(--muted); margin-bottom:1.5rem; }
-  .result-pct   { font-size:3rem; font-weight:900; color:#a5f3fc; line-height:1; margin-bottom:0.25rem; }
-  .result-pct-label { font-size:0.8rem; color:var(--muted); margin-bottom:1.5rem; }
-  .result-stats { display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.5rem; text-align:left; }
-  .rs-label { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:3px; }
-  .rs-bar  { height:8px; background:rgba(255,255,255,0.08); border-radius:4px; overflow:hidden; }
-  .rs-fill { height:100%; border-radius:4px; transition:width 1s cubic-bezier(0.34,1.56,0.64,1); animation:statPop 0.6s ease both; }
-  .rs-fill.f-lucr { background:linear-gradient(90deg,#0891b2,#38bdf8); }
-  .rs-fill.f-repu { background:linear-gradient(90deg,#7c3aed,#a78bfa); }
-  .rs-fill.f-sust { background:linear-gradient(90deg,#059669,#34d399); }
-  .rs-fill.f-clie { background:linear-gradient(90deg,#d97706,#fbbf24); }
-
-  .result-bncc { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-bottom:1.5rem; }
-  .result-msg  { font-size:0.85rem; color:#a5f3fc; line-height:1.6; margin-bottom:1.5rem; background:rgba(8,145,178,0.08); border-radius:10px; padding:0.9rem; }
-  .btn-restart { background:rgba(8,145,178,0.2); border:1px solid rgba(8,145,178,0.4); color:#a5f3fc; border-radius:10px; padding:10px 28px; font-size:0.9rem; font-weight:700; cursor:pointer; transition:all .2s; margin-right:0.5rem; }
-  .btn-restart:hover { background:rgba(8,145,178,0.35); }
-  .btn-home { background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); color:#6ee7b7; border-radius:10px; padding:10px 28px; font-size:0.9rem; font-weight:700; cursor:pointer; transition:all .2s; text-decoration:none; display:inline-block; }
-  .btn-home:hover { background:rgba(16,185,129,0.25); }
+:root{--brand:#0891b2;--bg:#0a1628;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;color:#e2e8f0;}
+#wrap{display:flex;flex-direction:column;height:100vh;}
+#hud{flex-shrink:0;display:flex;align-items:center;gap:.6rem;padding:7px 14px;background:rgba(10,22,40,.96);border-bottom:1px solid rgba(8,145,178,.3);flex-wrap:wrap;}
+#hud .htit{font-weight:700;color:#38bdf8;font-size:.9rem;margin-right:.3rem;}
+.hst{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.05);padding:3px 9px;border-radius:7px;font-size:.8rem;}
+.hv{font-weight:700;color:#38bdf8;}
+#htmr{color:#f97316;}
+#htmr.urg{color:#ef4444;animation:urg .5s infinite;}
+@keyframes urg{0%,100%{opacity:1}50%{opacity:.35}}
+#gc{flex:1;display:block;width:100%;}
+#btns{flex-shrink:0;display:flex;gap:5px;padding:7px 10px;background:rgba(10,22,40,.96);border-top:1px solid rgba(8,145,178,.3);flex-wrap:wrap;justify-content:center;}
+.pb{display:flex;flex-direction:column;align-items:center;gap:1px;background:rgba(8,145,178,.1);border:1px solid rgba(8,145,178,.28);border-radius:9px;padding:5px 12px;cursor:pointer;transition:all .15s;min-width:72px;}
+.pb:hover{background:rgba(8,145,178,.25);transform:translateY(-2px);}
+.pb:active{transform:scale(.95);}
+.pb .pe{font-size:1.5rem;}
+.pb .pn{font-size:.62rem;color:#94a3b8;}
+.pb .ps{font-size:.68rem;font-weight:700;color:#38bdf8;}
+.pb.empty{opacity:.35;pointer-events:none;}
+.pb.hi{border-color:#22c55e;background:rgba(34,197,94,.13);animation:glw .7s infinite;}
+@keyframes glw{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.3)}50%{box-shadow:0 0 7px 2px rgba(34,197,94,.25)}}
+.ovl{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,22,40,.93);backdrop-filter:blur(5px);z-index:100;gap:.9rem;padding:1.4rem;text-align:center;}
+.ovl.hi2{opacity:0;pointer-events:none;}
+.stit{font-size:clamp(1.7rem,5.5vw,2.8rem);font-weight:900;}
+.sdsc{color:#94a3b8;max-width:430px;line-height:1.65;font-size:.92rem;}
+.sbtn{background:linear-gradient(135deg,#0891b2,#38bdf8);border:none;color:#fff;font-size:1rem;font-weight:700;padding:.75rem 1.9rem;border-radius:50px;cursor:pointer;transition:transform .15s,filter .15s;}
+.sbtn:hover{transform:scale(1.05);filter:brightness(1.1);}
+.tg{background:rgba(8,145,178,.15);border:1px solid rgba(8,145,178,.3);padding:3px 9px;border-radius:18px;font-size:.7rem;color:#38bdf8;display:inline-block;}
+.shg{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;width:100%;max-width:480px;}
+.shi{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:9px;padding:9px 7px;text-align:center;cursor:pointer;transition:all .15s;}
+.shi:hover{border-color:#38bdf8;background:rgba(8,145,178,.12);}
+.shi.bgt{border-color:#22c55e;background:rgba(34,197,94,.08);}
+.shi .sem{font-size:1.8rem;}
+.shi .snm{font-size:.72rem;margin-top:1px;}
+.shi .spr{font-size:.72rem;font-weight:700;color:#fbbf24;}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 </style>
 </head>
 <body>
-
-<!-- NAVBAR -->
-<div id="navbar">
-  <div style="display:flex;align-items:center;gap:0.5rem">
-    <a href="../index.html" class="nav-back">← Voltar</a>
-    <span id="nav-badge" class="nav-badge">Fase 1 · Decisão 1/12</span>
+<div id="wrap">
+  <div id="hud">
+    <span class="htit">🌴 Feirinha Sergipana</span>
+    <div class="hst">💰 <span class="hv" id="hmn">R$50</span></div>
+    <div class="hst">📅 Dia <span class="hv" id="hdy">1</span>/4</div>
+    <div class="hst">⏱ <span class="hv" id="htmr">60</span>s</div>
+    <div class="hst">🛒 <span class="hv" id="hsl">0</span> vendas</div>
+    <div style="margin-left:auto;font-size:.65rem;color:#334155;">BNCC 1,5,7 · EF II</div>
   </div>
-  <span class="nav-logo">🛒 Mercado Virtual</span>
+  <canvas id="gc"></canvas>
+  <div id="btns"></div>
 </div>
 
-<!-- PROGRESS BAR -->
-<div id="progress-bar"><div id="progress-fill"></div></div>
-
-<!-- STAT BARS -->
-<div id="statbar">
-  <div class="stat-item" id="stat-lucro">
-    <div class="stat-label"><span>💰 <span>Lucro</span></span><span class="stat-val" id="val-lucro">45</span></div>
-    <div class="stat-track"><div class="stat-fill" id="fill-lucro" style="width:45%"></div></div>
+<!-- TELA INICIAL -->
+<div id="s0" class="ovl">
+  <div style="font-size:3.5rem;animation:fl 3s ease-in-out infinite">🌴</div>
+  <div class="stit" style="background:linear-gradient(135deg,#fff,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Feirinha Sergipana</div>
+  <div class="sdsc">Você abriu uma barraca no <strong>Mercado Municipal de Aracaju</strong>! Atenda os clientes sergipanos, gerencie seu estoque e fature bastante em 4 dias de feira! 🦐🧀🥭</div>
+  <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:center">
+    <span class="tg">🥭 Caju</span><span class="tg">🍈 Mangaba</span><span class="tg">🧀 Queijo Coalho</span><span class="tg">🫓 Tapioca</span><span class="tg">🦐 Camarão</span><span class="tg">🐚 Sururu</span>
   </div>
-  <div class="stat-item" id="stat-reputacao">
-    <div class="stat-label"><span>⭐ <span>Reputação</span></span><span class="stat-val" id="val-reputacao">50</span></div>
-    <div class="stat-track"><div class="stat-fill" id="fill-reputacao" style="width:50%"></div></div>
-  </div>
-  <div class="stat-item" id="stat-sustentab">
-    <div class="stat-label"><span>🌱 <span>Sustentab.</span></span><span class="stat-val" id="val-sustentab">40</span></div>
-    <div class="stat-track"><div class="stat-fill" id="fill-sustentab" style="width:40%"></div></div>
-  </div>
-  <div class="stat-item" id="stat-clientes">
-    <div class="stat-label"><span>👥 <span>Clientes</span></span><span class="stat-val" id="val-clientes">35</span></div>
-    <div class="stat-track"><div class="stat-fill" id="fill-clientes" style="width:35%"></div></div>
-  </div>
+  <button class="sbtn" onclick="startGame()">Abrir a Barraca! 🛒</button>
+  <div style="font-size:.68rem;color:#334155">BNCC Competências 1, 5 e 7 · Empreendedorismo e Regionalidade Sergipana</div>
 </div>
 
-<!-- MAIN -->
-<div id="main">
-  <!-- INTRO -->
-  <div id="screen-intro" class="screen" style="display:none">
-    <div class="intro-icon">🛒</div>
-    <h1 class="intro-title">Mercado Virtual</h1>
-    <p class="intro-sub">Você acaba de abrir sua loja online! Gerencie produtos, clientes, fornecedores e crises. Cada decisão afeta seu lucro, reputação e impacto no planeta.</p>
-    <div class="intro-tags">
-      <span class="intro-tag">📚 Conhecimento de Negócios</span>
-      <span class="intro-tag">🌍 Sustentabilidade</span>
-      <span class="intro-tag">12 Decisões</span>
-      <span class="intro-tag">4 Fases</span>
-    </div>
-    <div class="intro-stats">
-      <div class="intro-stat"><div class="is-emoji">💰</div><div class="is-name">Lucro</div></div>
-      <div class="intro-stat"><div class="is-emoji">⭐</div><div class="is-name">Reputação</div></div>
-      <div class="intro-stat"><div class="is-emoji">🌱</div><div class="is-name">Sustentabilidade</div></div>
-      <div class="intro-stat"><div class="is-emoji">👥</div><div class="is-name">Clientes</div></div>
-    </div>
-    <button class="btn-primary" onclick="startGame()">🛒 Abrir a Loja</button>
-  </div>
+<!-- DIA - INICIO -->
+<div id="s1" class="ovl hi2">
+  <div id="d1n" style="font-size:.8rem;letter-spacing:.18em;color:#475569;text-transform:uppercase"></div>
+  <div id="d1e" style="font-size:3.5rem"></div>
+  <div id="d1t" class="stit"></div>
+  <div id="d1d" class="sdsc"></div>
+  <div id="d1p" style="background:rgba(8,145,178,.1);border:1px solid rgba(8,145,178,.28);border-radius:9px;padding:9px 16px;font-size:.82rem;color:#7dd3fc;max-width:380px"></div>
+  <button class="sbtn" onclick="startDay()">Vamos lá! 🚀</button>
+</div>
 
-  <!-- CHAPTER TRANSITION -->
-  <div id="screen-chapter" class="screen" style="display:none">
-    <div class="ch-number" id="ch-number"></div>
-    <div class="ch-emoji"  id="ch-emoji"></div>
-    <div class="ch-tag"    id="ch-tag"></div>
-    <h2 class="ch-title"  id="ch-title"></h2>
-    <div class="ch-time"  id="ch-time"></div>
-    <p class="ch-desc"    id="ch-desc"></p>
-    <button class="btn-chapter" onclick="nextScreen()">Continuar →</button>
-  </div>
+<!-- DIA - FIM / REESTOQUE -->
+<div id="s2" class="ovl hi2">
+  <div id="d2t" class="stit"></div>
+  <div id="d2s" style="display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center"></div>
+  <div style="font-size:.82rem;color:#94a3b8">Reabastecendo para o próximo dia — use seu capital:</div>
+  <div class="shg" id="d2sh"></div>
+  <div id="d2m" style="font-weight:700;color:#fbbf24;font-size:.9rem"></div>
+  <button class="sbtn" id="d2btn">Próximo Dia →</button>
+</div>
 
-  <!-- QUESTION -->
-  <div id="screen-question" class="screen" style="display:none">
-    <div class="q-header">
-      <div class="q-char-emoji" id="q-char-emoji"></div>
-      <div>
-        <div class="q-char-name" id="q-char-name"></div>
-        <div class="q-char-role" id="q-char-role"></div>
-      </div>
-    </div>
-    <div class="q-speech"   id="q-speech"></div>
-    <div class="q-context"  id="q-context"></div>
-    <div class="q-question" id="q-question"></div>
-    <div class="options-grid" id="options-grid"></div>
-    <div id="feedback-box">
-      <div class="fb-quality" id="fb-quality"></div>
-      <div class="fb-text"    id="fb-text"></div>
-      <div class="fb-stats"   id="fb-stats"></div>
-      <div id="fb-bncc"></div>
-    </div>
-    <button class="btn-next" id="btn-next" onclick="nextScreen()" style="display:none">Próxima Decisão →</button>
-  </div>
-
-  <!-- RESULT -->
-  <div id="screen-result" class="screen" style="display:none">
-    <span class="result-badge-emoji" id="res-emoji"></span>
-    <div class="result-title" id="res-title"></div>
-    <div class="result-sub"   id="res-sub"></div>
-    <div class="result-pct"   id="res-pct"></div>
-    <div class="result-pct-label">pontuação final</div>
-    <div class="result-stats" id="res-stats"></div>
-    <div class="result-bncc"  id="res-bncc"></div>
-    <div class="result-msg"   id="res-msg"></div>
-    <div>
-      <button class="btn-restart" onclick="restartGame()">🔄 Jogar Novamente</button>
-      <a href="../index.html" class="btn-home">🏠 Início</a>
-    </div>
-  </div>
+<!-- RESULTADO FINAL -->
+<div id="s3" class="ovl hi2">
+  <div id="r0" style="font-size:4.5rem"></div>
+  <div id="r1" class="stit"></div>
+  <div id="r2" class="sdsc"></div>
+  <div id="r3" style="width:100%;max-width:360px;display:flex;flex-direction:column;gap:5px;font-size:.86rem"></div>
+  <div style="font-size:.68rem;color:#334155;max-width:390px">BNCC: Competência 1 (Linguagem), 5 (Cultura digital), 7 (Autogestão e projetos de vida)</div>
+  <button class="sbtn" onclick="restart()">🔄 Jogar Novamente</button>
+  <a href="../index.html" style="color:#475569;font-size:.8rem;text-decoration:underline">← Voltar ao Menu</a>
 </div>
 
 <script>
-const CHAPTERS = [
-  { num:'Capítulo 1', emoji:'🏪', tag:'ABERTURA',   title:'Abrindo as Portas',   time:'⏱ ~15 min', tagCss:'scene-abertura',
-    desc:'Sua loja online acabou de ser criada. As primeiras decisões definem o posicionamento, os produtos e o modelo de negócio — a base de tudo que vem a seguir.' },
-  { num:'Capítulo 2', emoji:'⚙️', tag:'OPERAÇÕES',  title:'Por Trás do Balcão',  time:'⏱ ~15 min', tagCss:'scene-operacoes',
-    desc:'A loja está funcionando. Agora você precisa gerenciar fornecedores, logística, atendimento ao cliente e as operações diárias que fazem ou quebram um negócio.' },
-  { num:'Capítulo 3', emoji:'🔥', tag:'CRISE',      title:'Apagando Incêndios',  time:'⏱ ~15 min', tagCss:'scene-crise',
-    desc:'Toda empresa passa por crises. Como você reage a problemas de produto, reclamações públicas e concorrência predatória vai definir a sobrevivência da sua loja.' },
-  { num:'Capítulo 4', emoji:'📈', tag:'EXPANSÃO',   title:'Próximo Nível',       time:'⏱ ~15 min', tagCss:'scene-expansao',
-    desc:'Você sobreviveu à fase mais difícil. Agora as decisões estratégicas de longo prazo vão determinar se sua loja se torna uma referência ou apenas mais uma no mercado.' }
+if(!CanvasRenderingContext2D.prototype.roundRect){
+  CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){
+    r=Math.min(r,w/2,h/2);
+    this.beginPath();this.moveTo(x+r,y);
+    this.arcTo(x+w,y,x+w,y+h,r);this.arcTo(x+w,y+h,x,y+h,r);
+    this.arcTo(x,y+h,x,y,r);this.arcTo(x,y,x+w,y,r);this.closePath();
+  };
+}
+
+const PR=[
+  {id:'caju',    nm:'Caju',         em:'🥭',clr:'#f97316',cost:1.0,sell:2.5,stk:10},
+  {id:'mangaba', nm:'Mangaba',      em:'🍈',clr:'#84cc16',cost:1.5,sell:3.5,stk:8},
+  {id:'queijo',  nm:'Queijo Coalho',em:'🧀',clr:'#fbbf24',cost:2.5,sell:6.0,stk:6},
+  {id:'tapioca', nm:'Tapioca',      em:'🫓',clr:'#e2e8f0',cost:1.0,sell:4.0,stk:8},
+  {id:'camarao', nm:'Camarão',      em:'🦐',clr:'#fb923c',cost:4.0,sell:9.0,stk:4},
+  {id:'sururu',  nm:'Sururu',       em:'🐚',clr:'#94a3b8',cost:2.0,sell:5.0,stk:5},
 ];
 
-const STEPS = [
-  // ── CAPÍTULO 1: ABERTURA ──
-  { chapter:0, scene:'Abrindo as Portas', sceneClass:'scene-abertura',
-    char:{ emoji:'👩‍💼', name:'Beatriz', role:'Consultora de E-commerce' },
-    speech:'"Parabéns pela loja! Mas antes de vender qualquer coisa — qual será o seu nicho? Generalista ou especializado?"',
-    context:'Você está configurando sua loja virtual. Beatriz é consultora experiente e te alerta: escolher o nicho errado é o erro número um de lojas online.',
-    question:'Qual será o foco da sua loja virtual?',
-    options:[
-      { l:'Nicho especializado: produtos sustentáveis', d:'Você vende produtos ecológicos e de baixo impacto ambiental.', fx:{lucro:5,reputacao:10,sustentab:20,clientes:5}, q:'good',
-        fb:'Nicho com propósito e crescimento! O mercado sustentável cresce 15% ao ano e clientes fiéis pagam mais por produtos alinhados aos seus valores.', bncc:'BNCC 1' },
-      { l:'Loja generalista: um pouco de tudo', d:'Você vende eletrônicos, roupas, acessórios e mais.', fx:{lucro:10,reputacao:5,sustentab:-5,clientes:20}, q:'ok',
-        fb:'Alto volume, baixa diferenciação. Generalistas competem com gigantes como Mercado Livre e Shopee. Difícil se destacar sem um motivo específico para o cliente te escolher.', bncc:'BNCC 1' },
-      { l:'Produtos locais de artesãos e pequenos produtores', d:'Você conecta artesãos da sua região com compradores online.', fx:{lucro:5,reputacao:15,sustentab:15,clientes:10}, q:'good',
-        fb:'Modelo com impacto social genuíno! Apoiar pequenos produtores diferencia sua loja e cria uma comunidade leal em torno do negócio.', bncc:'BNCC 7' },
-      { l:'Dropshipping de produtos importados baratos', d:'Você revende produtos sem estoque, com margem alta e qualidade incerta.', fx:{lucro:20,reputacao:-10,sustentab:-15,clientes:10}, q:'bad',
-        fb:'Lucro rápido, reputação frágil. Dropshipping de má qualidade gera reclamações e chargebacks. Sustentabilidade zero — produto vem de longe com embalagem excessiva.', bncc:'BNCC 1' }
-    ]
-  },
-  { chapter:0, scene:'Abrindo as Portas', sceneClass:'scene-abertura',
-    char:{ emoji:'📦', name:'Diego', role:'Fornecedor Regional' },
-    speech:'"Posso te fornecer produtos locais, entrega rápida. Mas é 20% mais caro que importar de fornecedores asiáticos. Como ficamos?"',
-    context:'Diego representa fornecedores locais da sua região. A alternativa é importar barato da China, mas a diferença de custo é significativa.',
-    question:'Quem serão seus fornecedores?',
-    options:[
-      { l:'Fornecedores locais (mais caro, mas próximo)', d:'Qualidade maior, entrega ágil, apoio à economia local.', fx:{lucro:-5,reputacao:15,sustentab:15,clientes:10}, q:'good',
-        fb:'Decisão alinhada com valores! Fornecedores locais reduzem pegada de carbono, têm entrega mais rápida e a reputação de apoiar o comércio regional atrai clientes conscientes.', bncc:'BNCC 7' },
-      { l:'Fornecedores internacionais (mais barato, mas distante)', d:'Margem maior, mas prazo longo e impacto ambiental elevado.', fx:{lucro:15,reputacao:-5,sustentab:-15,clientes:5}, q:'ok',
-        fb:'Maior margem no curto prazo, mas logística internacional gera reclamações de prazo e embalagens excessivas aumentam o lixo. Clientes conscientes vão perceber.', bncc:'BNCC 7' },
-      { l:'Mix de ambos conforme o produto', d:'Você equilibra custo e sustentabilidade caso a caso.', fx:{lucro:10,reputacao:10,sustentab:5,clientes:10}, q:'good',
-        fb:'Abordagem pragmática e equilibrada! Diversificar fornecedores reduz risco e permite ajustar conforme os valores de cada categoria de produto.', bncc:'BNCC 7' },
-      { l:'Produção própria de pequena escala', d:'Você mesmo cria e vende os produtos artesanalmente.', fx:{lucro:-10,reputacao:20,sustentab:10,clientes:5}, q:'ok',
-        fb:'Autenticidade máxima! Mas produção própria limita o volume e é difícil de escalar. Funciona melhor como diferencial de linha especial, não como único modelo.', bncc:'BNCC 1' }
-    ]
-  },
-  { chapter:0, scene:'Abrindo as Portas', sceneClass:'scene-abertura',
-    char:{ emoji:'💳', name:'Fernanda', role:'Especialista em Marketing Digital' },
-    speech:'"Sua loja está no ar mas ninguém sabe. Você tem R$500 de orçamento para marketing. Como vai gastar?"',
-    context:'Uma loja sem visitantes não vende. Fernanda tem R$500 para alocar em marketing e precisa de você para decidir a estratégia.',
-    question:'Como você investe os R$500 iniciais em marketing?',
-    options:[
-      { l:'Conteúdo orgânico: redes sociais e blog', d:'Você cria posts, reels e artigos para atrair clientes gratuitamente.', fx:{lucro:0,reputacao:15,sustentab:5,clientes:15}, q:'good',
-        fb:'Marketing com propósito! Conteúdo orgânico constrói autoridade e atrai clientes alinhados com seus valores. Resultado lento mas duradouro.', bncc:'BNCC 4' },
-      { l:'Anúncios pagos no Instagram e Google', d:'Investimento direto em tráfego pago para acelerar as primeiras vendas.', fx:{lucro:5,reputacao:5,sustentab:0,clientes:20}, q:'ok',
-        fb:'Resultado rápido! Mas anúncios pagos custam dinheiro contínuo. Quando parar de pagar, o fluxo para. Bom para começar, ruim como única estratégia.', bncc:'BNCC 4' },
-      { l:'Parcerias com escolas e comunidades locais', d:'Você divulga em grupos de whatsapp, feiras escolares e eventos da comunidade.', fx:{lucro:5,reputacao:20,sustentab:10,clientes:10}, q:'good',
-        fb:'Marketing de base! Conexões comunitárias geram confiança e boca a boca. Muito eficiente para produtos com propósito social e sustentável.', bncc:'BNCC 4' },
-      { l:'Influenciadores grandes para exposição máxima', d:'Você paga um influenciador com 100k+ seguidores para divulgar.', fx:{lucro:-5,reputacao:10,sustentab:0,clientes:25}, q:'ok',
-        fb:'Alto alcance, baixa conversão. Influenciadores grandes têm audiência genérica. Para nichos específicos, micro-influenciadores (~5k seguidores) costumam converter muito mais.', bncc:'BNCC 4' }
-    ]
-  },
-
-  // ── CAPÍTULO 2: OPERAÇÕES ──
-  { chapter:1, scene:'Por Trás do Balcão', sceneClass:'scene-operacoes',
-    char:{ emoji:'🚚', name:'Ricardo', role:'Gestor de Logística' },
-    speech:'"Precisamos definir como as entregas funcionam. Frete grátis atrai clientes mas pressiona a margem. O que você decide?"',
-    context:'Ricardo apresenta 4 estratégias de frete. A decisão afeta diretamente o lucro, satisfação do cliente e competitividade da loja.',
-    question:'Qual política de frete sua loja vai adotar?',
-    options:[
-      { l:'Frete grátis para compras acima de R$80', d:'Incentiva o aumento do ticket médio e satisfaz o cliente.', fx:{lucro:5,reputacao:10,sustentab:0,clientes:20}, q:'good',
-        fb:'Estratégia clássica que funciona! Pedido mínimo para frete grátis aumenta o ticket médio em média 30%. Clientes percebem valor sem comprometer muito a margem.', bncc:'BNCC 1' },
-      { l:'Frete sempre grátis (absorvido no preço)', d:'Você embute o custo de entrega no preço do produto.', fx:{lucro:-10,reputacao:15,sustentab:0,clientes:25}, q:'ok',
-        fb:'"Frete grátis" é poderoso psicologicamente, mas se mal calculado destrói a margem. Funciona em produtos com alta margem bruta.', bncc:'BNCC 1' },
-      { l:'Frete calculado por distância e peso', d:'Cada cliente paga o custo real da entrega.', fx:{lucro:15,reputacao:0,sustentab:5,clientes:-5}, q:'ok',
-        fb:'Justo e transparente! Mas frete alto abandona carrinhos. Pesquisa mostra que 70% dos abandonos de carrinho são por causa do frete no checkout.', bncc:'BNCC 1' },
-      { l:'Entrega local gratuita + retirada na loja', d:'Você faz entregas pessoais na cidade e tem ponto de retirada.', fx:{lucro:10,reputacao:15,sustentab:10,clientes:15}, q:'good',
-        fb:'Solução criativa e sustentável! Entregas locais reduzem pegada de carbono, criam relacionamento presencial e eliminam o custo de transportadoras.', bncc:'BNCC 7' }
-    ]
-  },
-  { chapter:1, scene:'Por Trás do Balcão', sceneClass:'scene-operacoes',
-    char:{ emoji:'👩‍🎓', name:'Larissa', role:'Compradora Frequente' },
-    speech:'"Quero comprar, mas preciso de garantia. O que acontece se o produto não servir ou vier com defeito?"',
-    context:'Larissa representa seus clientes. Uma boa política de devolução aumenta a confiança na compra, mas mal gerenciada pode ser cara.',
-    question:'Qual será a política de troca e devolução da sua loja?',
-    options:[
-      { l:'7 dias para devolução sem questionamentos', d:'Mínimo legal — você aceita qualquer devolução no prazo.', fx:{lucro:0,reputacao:15,sustentab:0,clientes:15}, q:'good',
-        fb:'Lei do Consumidor! É o mínimo obrigatório. Lojas que cumprem a lei sem dificultar ganham reputação de confiança e reduzem chargeback.', bncc:'BNCC 1' },
-      { l:'30 dias para troca com facilidade total', d:'Política generosa: o cliente pode devolver mesmo sem defeito.', fx:{lucro:-10,reputacao:20,sustentab:-5,clientes:20}, q:'ok',
-        fb:'Política premium! Cria muita confiança, mas pode gerar "devolucionismo" — clientes que compram para experimentar e devolvem. Funciona para produtos de alto valor.', bncc:'BNCC 1' },
-      { l:'Troca só com defeito comprovado', d:'Você exige prova do defeito antes de aceitar qualquer devolução.', fx:{lucro:10,reputacao:-15,sustentab:0,clientes:-10}, q:'bad',
-        fb:'Proteção excessiva que afasta clientes. Dificultar devoluções gera reclamações no Reclame Aqui e comentários negativos que destroem reputação online.', bncc:'BNCC 1' },
-      { l:'Troca por crédito na loja em qualquer caso', d:'Devolução sempre aceita, mas só como crédito para outra compra.', fx:{lucro:5,reputacao:10,sustentab:0,clientes:10}, q:'good',
-        fb:'Equilíbrio inteligente! Mantém a receita na loja e o cliente satisfeito. Ideal para lojas com catálogo variado onde o cliente tem mais opções para trocar.', bncc:'BNCC 1' }
-    ]
-  },
-  { chapter:1, scene:'Por Trás do Balcão', sceneClass:'scene-operacoes',
-    char:{ emoji:'🌍', name:'Professor Marcos', role:'Educador Ambiental' },
-    speech:'"Seus produtos chegam em caixas de papelão com muita proteção de plástico bolha. Você já pensou nas embalagens?"',
-    context:'As embalagens são um ponto crítico de sustentabilidade. Professor Marcos, parceiro da escola, te desafia a repensar como seus produtos chegam ao cliente.',
-    question:'Como você vai gerenciar as embalagens da sua loja?',
-    options:[
-      { l:'Embalagens 100% recicláveis e mínimas', d:'Você usa papel reciclado e elimina o plástico desnecessário.', fx:{lucro:-5,reputacao:15,sustentab:25,clientes:10}, q:'good',
-        fb:'Compromisso real com sustentabilidade! Clientes conscientes valorizam e divulgam. O custo extra é compensado pela fidelidade e diferenciação de marca.', bncc:'BNCC 7' },
-      { l:'Embalagem padrão de mercado (plástico bolha)', d:'Você usa o que é mais barato e protege melhor o produto.', fx:{lucro:10,reputacao:-5,sustentab:-20,clientes:0}, q:'bad',
-        fb:'Custo baixo, impacto alto. Plástico bolha é sintético e não reciclável. Clientes conscientes vão registrar fotos das embalagens e compartilhar nas redes.', bncc:'BNCC 7' },
-      { l:'Programa de reutilização de embalagens', d:'Você incentiva clientes a devolver embalagens para reutilização com desconto.', fx:{lucro:-5,reputacao:20,sustentab:20,clientes:15}, q:'good',
-        fb:'Inovação circular! Criar um programa de reutilização gera lealdade, reduz custo de longo prazo e coloca sua loja em uma posição de liderança em sustentabilidade.', bncc:'BNCC 7' },
-      { l:'Embalagem bonita e instagramável', d:'Você investe em design atraente para o cliente fotografar o unboxing.', fx:{lucro:-5,reputacao:10,sustentab:-10,clientes:15}, q:'ok',
-        fb:'Marketing orgânico! Unboxing atrativo gera posts espontâneos. Mas embalagem excessiva e plástico decorativo contradizem valores sustentáveis.', bncc:'BNCC 4' }
-    ]
-  },
-
-  // ── CAPÍTULO 3: CRISE ──
-  { chapter:2, scene:'Apagando Incêndios', sceneClass:'scene-crise',
-    char:{ emoji:'😡', name:'Cliente Anônimo', role:'Reclame Aqui' },
-    speech:'"NUNCA MAIS COMPRO AQUI. Produto com defeito, ninguém responde. Vou processar e fazer reviews negativos em todos os lugares!"',
-    context:'Um post viral no Twitter e 3 estrelas no Reclame Aqui. Um cliente furioso está destruindo sua reputação online depois de um produto com defeito. Você precisa agir.',
-    question:'Como você gerencia a crise de reputação online?',
-    options:[
-      { l:'Responde publicamente com solução imediata', d:'Você comenta a reclamação pública oferecendo reposição e desculpas.', fx:{lucro:-5,reputacao:20,sustentab:0,clientes:15}, q:'good',
-        fb:'Gestão de crise exemplar! Resposta pública rápida e solucionadora transforma críticos em defensores. Outros clientes veem que você trata bem quem tem problema.', bncc:'BNCC 9' },
-      { l:'Ignora e espera o barulho passar', d:'Você não responde publicamente esperando o post ser esquecido.', fx:{lucro:0,reputacao:-20,sustentab:0,clientes:-15}, q:'bad',
-        fb:'Estratégia suicida! Na internet, silêncio é culpa. O post continuará visível e outros clientes usarão como referência antes de comprar.', bncc:'BNCC 9' },
-      { l:'Entra em contato privado e resolve', d:'Você resolve o problema no privado sem responder ao post público.', fx:{lucro:0,reputacao:5,sustentab:0,clientes:5}, q:'ok',
-        fb:'Resolve o problema individual, mas a crise pública continua. Outros clientes que viram o post ainda veem a reclamação sem resposta.', bncc:'BNCC 9' },
-      { l:'Pede que o cliente remova a reclamação como condição', d:'Você oferece solução apenas se ele apagar o post negativo.', fx:{lucro:0,reputacao:-25,sustentab:0,clientes:-20}, q:'bad',
-        fb:'Tática proibida e contraproducente! Condicionar solução à remoção de reclamação é antiético e ilegal (CDC). Se divulgado, a crise se torna catastrófica.', bncc:'BNCC 9' }
-    ]
-  },
-  { chapter:2, scene:'Apagando Incêndios', sceneClass:'scene-crise',
-    char:{ emoji:'🏷️', name:'Mega Loja Online', role:'Concorrente' },
-    speech:'"Acabamos de lançar a mesma linha de produtos que vocês, mas 40% mais barato. Boa sorte!"',
-    context:'Uma grande loja virtual lançou produtos idênticos aos seus com preço 40% menor. Você perde clientes rapidamente. Como reagir?',
-    question:'Um concorrente grande entra no seu nicho com preço menor. Como você responde?',
-    options:[
-      { l:'Diferencia pela experiência e valores da marca', d:'Você reforça o que te diferencia: sustentabilidade, atendimento, história.', fx:{lucro:0,reputacao:20,sustentab:10,clientes:10}, q:'good',
-        fb:'Estratégia de diferenciação inteligente! Competir por preço contra grande empresa é guerra que pequenos sempre perdem. Competir por valores e experiência é vantagem durável.', bncc:'BNCC 1' },
-      { l:'Reduz preços para competir diretamente', d:'Você abaixa os preços até o limite da sua margem.', fx:{lucro:-20,reputacao:0,sustentab:0,clientes:10}, q:'bad',
-        fb:'Armadilha clássica! Guerra de preços com empresa maior drena sua margem antes de afetar a deles. Menores nunca vencem guerras de preço contra gigantes.', bncc:'BNCC 1' },
-      { l:'Lança linha exclusiva que a concorrência não tem', d:'Você desenvolve produtos únicos que não podem ser copiados facilmente.', fx:{lucro:5,reputacao:15,sustentab:5,clientes:15}, q:'good',
-        fb:'Inovação como resposta! Criar produtos exclusivos cria barreira de entrada e mantém sua proposta de valor única. Difícil de copiar, fácil de comunicar.', bncc:'BNCC 1' },
-      { l:'Forma parceria com outros pequenos lojistas', d:'Você une forças com outros pequenos para comprar em volume e competir.', fx:{lucro:10,reputacao:10,sustentab:10,clientes:5}, q:'good',
-        fb:'Solidariedade competitiva! Cooperativas e redes de pequenos negócios têm poder de escala que individualmente seria impossível. Modelo sustentável e comunitário.', bncc:'BNCC 7' }
-    ]
-  },
-  { chapter:2, scene:'Apagando Incêndios', sceneClass:'scene-crise',
-    char:{ emoji:'📦', name:'Diego', role:'Fornecedor Regional' },
-    speech:'"Preciso aumentar meus preços em 25% por causa da inflação. Sei que complica para vocês, mas é isso ou paro de fornecer."',
-    context:'Seu principal fornecedor — que você escolheu por ser local e sustentável — anuncia reajuste de 25%. É preciso decidir rápido.',
-    question:'Seu fornecedor anuncia reajuste de 25%. Como você reage?',
-    options:[
-      { l:'Negocia parcelamento do reajuste em 6 meses', d:'Você propõe diluir o aumento ao longo do tempo para se adaptar.', fx:{lucro:5,reputacao:10,sustentab:5,clientes:0}, q:'good',
-        fb:'Negociação ganha-ganha! Parcelamento do reajuste permite que ambos sobrevivam. Fornecedores locais valorizam parceiros que negociam em vez de abandonar.', bncc:'BNCC 1' },
-      { l:'Aceita o reajuste e repassa ao cliente', d:'Você mantém a margem repassando o aumento para o preço de venda.', fx:{lucro:10,reputacao:-5,sustentab:5,clientes:-10}, q:'ok',
-        fb:'Transparência é chave! Se repassar, comunique o motivo — clientes conscientes entendem e até apoiam fornecedores locais que precisam de preço justo.', bncc:'BNCC 1' },
-      { l:'Troca para fornecedor mais barato (importado)', d:'Você abandona o fornecedor local e busca preço no exterior.', fx:{lucro:15,reputacao:-10,sustentab:-20,clientes:5}, q:'bad',
-        fb:'Decisão que contradiz seus valores! Se sua loja foi construída em cima da proposta sustentável e local, mudar de fornecedor por preço destrói credibilidade.', bncc:'BNCC 7' },
-      { l:'Desenvolve fornecedores alternativos locais', d:'Você usa a crise para diversificar e não depender de um único fornecedor.', fx:{lucro:-5,reputacao:10,sustentab:10,clientes:5}, q:'good',
-        fb:'Resiliência estratégica! Dependência de único fornecedor é um risco. A crise vira oportunidade de fortalecer a cadeia de fornecimento local.', bncc:'BNCC 7' }
-    ]
-  },
-
-  // ── CAPÍTULO 4: EXPANSÃO ──
-  { chapter:3, scene:'Próximo Nível', sceneClass:'scene-expansao',
-    char:{ emoji:'🧑‍💻', name:'Thales', role:'Desenvolvedor Web' },
-    speech:'"Sua loja está crescendo. Para escalar, precisamos melhorar a tecnologia. Qual feature priorizamos?"',
-    context:'A loja está funcionando bem e gerando lucro consistente. Thales, desenvolvedor, apresenta opções para o próximo investimento tecnológico.',
-    question:'Em qual melhoria tecnológica você investe primeiro?',
-    options:[
-      { l:'Sistema de recomendação personalizada', d:'IA que sugere produtos baseados no histórico do cliente.', fx:{lucro:15,reputacao:5,sustentab:0,clientes:20}, q:'good',
-        fb:'Conversão turbinada! Recomendações personalizadas aumentam o ticket médio e a frequência de compra. Netflix e Amazon construíram fortunas nesse modelo.', bncc:'BNCC 5' },
-      { l:'Calculadora de pegada de carbono', d:'Mostra o impacto ambiental de cada compra e como compensá-lo.', fx:{lucro:0,reputacao:20,sustentab:25,clientes:10}, q:'good',
-        fb:'Inovação de impacto! Transparência ambiental diferencia sua loja e cria engajamento de clientes que se importam com o planeta. Funcionalidade única no mercado.', bncc:'BNCC 7' },
-      { l:'App mobile da loja', d:'Versão mobile para facilitar compras no celular.', fx:{lucro:10,reputacao:10,sustentab:0,clientes:15}, q:'ok',
-        fb:'Crescimento de mobile é real! 70% das compras online acontecem no celular. App dedicado aumenta conversão e facilita remarketing.', bncc:'BNCC 5' },
-      { l:'Sistema de assinatura mensal', d:'Cliente assina para receber produtos todo mês automaticamente.', fx:{lucro:20,reputacao:5,sustentab:0,clientes:10}, q:'good',
-        fb:'Receita recorrente é o sonho! Assinaturas criam previsibilidade financeira e fidelidade. Reduz custo de aquisição de cliente porque você não precisa convencer de novo.', bncc:'BNCC 1' }
-    ]
-  },
-  { chapter:3, scene:'Próximo Nível', sceneClass:'scene-expansao',
-    char:{ emoji:'🌍', name:'Professor Marcos', role:'Educador Ambiental' },
-    speech:'"Sua loja cresceu! Que tal um projeto de impacto real? Você pode fazer mais do que vender — pode mudar a comunidade."',
-    context:'Professor Marcos propõe que sua loja assuma um papel de impacto social mais amplo. Você tem faturamento para investir em algo além do negócio puro.',
-    question:'Como sua loja vai gerar impacto além das vendas?',
-    options:[
-      { l:'1% do faturamento para projetos ambientais locais', d:'Você destina 1% da receita para reflorestamento e limpeza de rios.', fx:{lucro:-5,reputacao:20,sustentab:25,clientes:15}, q:'good',
-        fb:'Modelo 1% for the Planet! Empresas que adotam esse compromisso têm crescimento médio 30% maior. Clientes escolhem marcas com propósito quando o preço é similar.', bncc:'BNCC 7' },
-      { l:'Programa de bolsas para jovens empreendedores', d:'Você financia jovens da escola para criar seus próprios negócios.', fx:{lucro:-5,reputacao:20,sustentab:5,clientes:10}, q:'good',
-        fb:'Impacto circular! Você recebe a mesma oportunidade que está dando. Cria uma rede de empreendedores locais que apoiam sua loja e fortalecem o ecossistema.', bncc:'BNCC 7' },
-      { l:'Foca em crescer sem programas sociais agora', d:'Você prioriza consolidar o negócio antes de fazer filantropia.', fx:{lucro:15,reputacao:-5,sustentab:0,clientes:0}, q:'ok',
-        fb:'Pragmático mas arriscado. Empresas sem propósito claro perdem para concorrentes com valores definidos no mercado atual. Sustentabilidade virou vantagem competitiva.', bncc:'BNCC 7' },
-      { l:'Workshops gratuitos de e-commerce na escola', d:'Você ensina outros jovens a criar lojas virtuais usando sua experiência.', fx:{lucro:0,reputacao:25,sustentab:5,clientes:5}, q:'good',
-        fb:'Liderança comunitária! Compartilhar conhecimento cria autoridade, gera marketing gratuito e fortalece o ecossistema de negócios da sua comunidade.', bncc:'BNCC 4' }
-    ]
-  },
-  { chapter:3, scene:'Próximo Nível', sceneClass:'scene-expansao',
-    char:{ emoji:'💼', name:'Investidor Paulo', role:'Fundo de Impacto' },
-    speech:'"Sua loja tem algo especial. Quero investir R$100k, mas em troca quero que você escale para 5 cidades em 6 meses. Aceita o desafio?"',
-    context:'Paulo representa um fundo de impacto social. O investimento é real e significativo, mas com uma meta agressiva de expansão. Esta é a decisão final.',
-    question:'Você recebe uma proposta de investimento de R$100k. Como responde?',
-    options:[
-      { l:'Aceita com plano de expansão sustentável próprio', d:'Você aceita o dinheiro mas negocia um prazo de 12 meses ao invés de 6.', fx:{lucro:20,reputacao:15,sustentab:15,clientes:20}, q:'good',
-        fb:'Negociação inteligente! Crescimento forçado destrói qualidade. Ao negociar prazo realista, você protege os valores da empresa e garante expansão sustentável.', bncc:'BNCC 1' },
-      { l:'Aceita tudo e corre para bater a meta', d:'Você aceita os termos e faz tudo para expandir em 6 meses.', fx:{lucro:25,reputacao:-5,sustentab:-10,clientes:15}, q:'ok',
-        fb:'Pressão de crescimento intenso! Expansão rápida demais costuma comprometer qualidade, cultura da empresa e valores sustentáveis. Risco alto de "queimar" a marca.', bncc:'BNCC 1' },
-      { l:'Recusa e busca investidores mais alinhados', d:'Você acredita que pode encontrar investimento sem metas agressivas.', fx:{lucro:-5,reputacao:10,sustentab:10,clientes:0}, q:'ok',
-        fb:'Integridade estratégica! Dinheiro de investidores desalinhados pode destruir uma empresa. Mas recusar R$100k exige ter alternativas reais no horizonte.', bncc:'BNCC 8' },
-      { l:'Aceita parte do investimento com metas menores', d:'Você propõe receber R$50k com meta de 2 cidades em 12 meses.', fx:{lucro:15,reputacao:15,sustentab:10,clientes:15}, q:'good',
-        fb:'Contra-proposta equilibrada! Crescimento controlado preserva a essência do negócio. Investidores de impacto geralmente preferem parceiros que conhecem seus limites.', bncc:'BNCC 1' }
-    ]
-  }
+const DIAS=[
+  {nm:'Mercado Municipal',em:'🏪',
+   d:'Mercado Municipal de Aracaju — primeiro dia! O povo sergipano já tá chegando pra comprar.',
+   p:'💡 Dica: Mangaba e Caju são muito pedidos. Fique atento ao balãozinho dos clientes!',
+   spd:.65,rate:3400,dur:60},
+  {nm:'Orla da Atalaia',em:'🌊',
+   d:'Na beira da Orla tem muito turista e morador! Movimento maior do que ontem.',
+   p:'💡 Dica: Tapioca e Queijo Coalho fazem sucesso na orla. Os clientes ficam menos tempo esperando!',
+   spd:.85,rate:2700,dur:60},
+  {nm:'Arraial do São João',em:'🎉',
+   d:'Festa Junina sergipana! O forró tá animado, o povo quer comer muito. Movimento altíssimo!',
+   p:'💡 Dica: Queijo Coalho é o campeão das festas juninas. Reabasteça bem antes de começar!',
+   spd:1.05,rate:2100,dur:60},
+  {nm:'Feira Agroecológica',em:'🌿',
+   d:'Grande Feira Agroecológica de SE — compradores de todo estado! Última chance de faturar!',
+   p:'💡 Dica: Mangaba e Sururu são os mais valorizados. Venda tudo que puder — é o dia final!',
+   spd:1.25,rate:1700,dur:60},
 ];
 
-const STATS_INIT = { lucro:45, reputacao:50, sustentab:40, clientes:35 };
-let stats = {}, step = 0, chShown = -1, answered = false;
+const NOMES=['Zé do Rio','Dona Joana','Seu Valdemar','Rosinha','Caboca Maria','Biu Pescador','Nenzinha','Seu Chico','Mariinha','Neto Lata','Dona Graça','Zé Lagosta'];
+const MSG_OK=['Valha!','Axé!','Oxente bão!','Maravilha!','Iúpi, obrigada!','Muito bom!'];
+const MSG_NAO=['Oxente!','Eita!','Puxa vida!','Não é isso não...'];
+const SKINS=['#f4a261','#d4956a','#c8956a','#f4c4a0','#b5825a'];
+const CLOTHS=['#3b82f6','#ef4444','#10b981','#f59e0b','#8b5cf6','#ec4899','#0891b2','#16a34a'];
 
-function clamp(v) { return Math.max(0, Math.min(100, v)); }
+let G={};
+let STK={};
+let custs=[];
+let ftxt=[];
+let spawnT=0;
+let dayT=0;
+let running=false;
+let raf=null;
+let lt=0;
 
-function updateStatBars(animate) {
-  ['lucro','reputacao','sustentab','clientes'].forEach(k => {
-    const v = stats[k];
-    document.getElementById('val-'+k).textContent = v;
-    const fill = document.getElementById('fill-'+k);
-    fill.style.width = v + '%';
-    if (animate) { fill.style.animation = 'none'; void fill.offsetWidth; fill.style.animation = 'statPop 0.5s ease both'; }
+const cv=document.getElementById('gc');
+const cx=cv.getContext('2d');
+
+function GY(){return cv.height*0.61;}
+function SX(){return Math.min(215,cv.width*0.27)+10;}
+
+function startGame(){
+  STK={};PR.forEach(p=>STK[p.id]=p.stk);
+  G={day:1,money:50,totSales:0,totRev:0,daySales:0,dayRev:0,log:[]};
+  hide('s0');showDayStart();
+}
+
+function showDayStart(){
+  const d=DIAS[G.day-1];
+  $('d1n').textContent=`Dia ${G.day} de 4`;
+  $('d1e').textContent=d.em;
+  $('d1t').textContent=d.nm;
+  $('d1d').textContent=d.d;
+  $('d1p').textContent=d.p;
+  show('s1');
+}
+
+function startDay(){
+  hide('s1');
+  custs=[];ftxt=[];spawnT=0;
+  dayT=DIAS[G.day-1].dur*1000;
+  G.daySales=0;G.dayRev=0;
+  running=true;
+  buildBtns();updHUD();resize();
+  cancelAnimationFrame(raf);lt=performance.now();
+  loop(lt);
+}
+
+function endDay(){
+  running=false;cancelAnimationFrame(raf);
+  G.log.push({day:G.day,s:G.daySales,r:G.dayRev});
+  if(G.day>=4){showResults();return;}
+  showDayEnd();
+}
+
+function showDayEnd(){
+  $('d2t').textContent=`Dia ${G.day} encerrado! ${DIAS[G.day-1].em}`;
+  $('d2s').innerHTML=`
+    <div class="hst">💰 Faturado: <span class="hv">R$${G.dayRev.toFixed(0)}</span></div>
+    <div class="hst">🛒 Vendas: <span class="hv">${G.daySales}</span></div>
+    <div class="hst">💵 Capital: <span class="hv">R$${G.money.toFixed(0)}</span></div>`;
+  const sh=$('d2sh');sh.innerHTML='';
+  PR.forEach(p=>{
+    const c5=p.cost*5;
+    const div=document.createElement('div');
+    div.className='shi';
+    div.innerHTML=`<div class="sem">${p.em}</div><div class="snm">${p.nm}</div><div class="spr">5un = R$${c5.toFixed(0)}</div><div style="font-size:.6rem;color:#64748b">Estoque: <span id="stk-${p.id}">${STK[p.id]}</span></div>`;
+    if(G.money<c5)div.style.opacity='.35';
+    else div.onclick=()=>{
+      if(G.money<c5)return;
+      G.money-=c5;STK[p.id]+=5;
+      div.classList.add('bgt');
+      $(`stk-${p.id}`).textContent=STK[p.id];
+      $('d2m').textContent=`💵 Capital: R$${G.money.toFixed(0)}`;
+      buildBtns();
+    };
+    sh.appendChild(div);
+  });
+  $('d2m').textContent=`💵 Capital disponível: R$${G.money.toFixed(0)}`;
+  const nb=$('d2btn');
+  nb.textContent=`Dia ${G.day+1}: ${DIAS[G.day].nm} →`;
+  nb.onclick=()=>{hide('s2');G.day++;showDayStart();};
+  show('s2');
+}
+
+function showResults(){
+  const pf=G.money-50;
+  let bd,ti,dc;
+  if(pf>=150){bd='🦁';ti='Rei da Feirinha Sergipana!';dc='Oxente! Que resultado! Você dominou o mercado local. Sua barraca vai virar franquia em Sergipe!';}
+  else if(pf>=80){bd='⭐';ti='Empreendedor Sergipano!';dc='Valha, muito bem! Você entendeu o mercado local e faturou com inteligência. Sucesso garantido!';}
+  else if(pf>=25){bd='🌱';ti='Feirante em Crescimento!';dc='Bom começo! Com mais atenção ao estoque e às preferências dos clientes, você vai longe!';}
+  else{bd='🐚';ti='Aprendiz do Mercado!';dc='Eita! Cada dia na feira ensina algo novo. Tente novamente com mais estratégia de estoque!';}
+  $('r0').textContent=bd;$('r1').textContent=ti;$('r2').textContent=dc;
+  $('r3').innerHTML=`
+    <div class="hst">💰 Capital final: <span class="hv">R$${G.money.toFixed(0)}</span></div>
+    <div class="hst">📈 Lucro: <span class="hv" style="color:${pf>=0?'#22c55e':'#ef4444'}">R$${pf.toFixed(0)}</span></div>
+    <div class="hst">🛒 Total vendas: <span class="hv">${G.totSales}</span></div>
+    ${G.log.map(l=>`<div class="hst">📅 Dia ${l.day}: <span class="hv">${l.s} vendas · R$${l.r.toFixed(0)}</span></div>`).join('')}`;
+  show('s3');
+}
+
+function restart(){hide('s3');show('s0');}
+
+function loop(now){
+  const dt=Math.min(now-lt,50);lt=now;
+  if(!running)return;
+  update(dt);render();
+  raf=requestAnimationFrame(loop);
+}
+
+function update(dt){
+  dayT-=dt;
+  if(dayT<=0){dayT=0;endDay();return;}
+  const d=DIAS[G.day-1];
+  spawnT-=dt;
+  if(spawnT<=0){spawnCust();spawnT=d.rate*(0.7+Math.random()*0.6);}
+  custs=custs.filter(c=>c.upd(dt));
+  ftxt=ftxt.filter(f=>{f.y-=1.1;f.life-=dt;f.a=Math.min(1,f.life/400);return f.life>0;});
+  $('htmr').textContent=Math.ceil(dayT/1000);
+  $('htmr').classList.toggle('urg',dayT<10000);
+}
+
+function render(){
+  const W=cv.width,H=cv.height;
+  cx.clearRect(0,0,W,H);
+  drawBG(W,H);
+  custs.sort((a,b)=>a.y-b.y).forEach(c=>c.draw(cx));
+  ftxt.forEach(f=>{
+    cx.save();cx.globalAlpha=f.a;cx.font=`bold ${f.sz||15}px sans-serif`;cx.textAlign='center';
+    cx.fillStyle='rgba(0,0,0,.7)';cx.fillText(f.t,f.x+1,f.y+1);
+    cx.fillStyle=f.c;cx.fillText(f.t,f.x,f.y);
+    cx.restore();
   });
 }
 
-function updateProgress() {
-  const pct = (step / STEPS.length) * 100;
-  document.getElementById('progress-fill').style.width = pct + '%';
-  const s = STEPS[Math.min(step, STEPS.length-1)];
-  const d = step + 1 <= STEPS.length ? step + 1 : STEPS.length;
-  document.getElementById('nav-badge').textContent = `Fase ${s ? s.chapter+1 : 4} · Decisão ${d}/12`;
+function drawBG(W,H){
+  const gy=GY(),sx=SX();
+  const sky=cx.createLinearGradient(0,0,0,gy);
+  sky.addColorStop(0,'#0c4a6e');sky.addColorStop(1,'#38bdf8');
+  cx.fillStyle=sky;cx.fillRect(0,0,W,gy);
+  cx.fillStyle='rgba(255,248,180,.9)';
+  cx.beginPath();cx.arc(W*.87,H*.09,26,0,Math.PI*2);cx.fill();
+  cx.fillStyle='rgba(255,248,180,.25)';
+  cx.beginPath();cx.arc(W*.87,H*.09,40,0,Math.PI*2);cx.fill();
+  cloud(W*.12,H*.07,1);cloud(W*.42,H*.04,.72);cloud(W*.68,H*.1,.88);
+  cx.fillStyle='rgba(3,105,161,.68)';
+  [[15,45,55],[78,60,40],[128,50,58],[198,75,38],[246,52,52],[308,68,36],[362,58,40],[420,82,43]].forEach(([x,h,w])=>cx.fillRect(x,gy-h,w,h));
+  cx.fillRect(470,gy-115,32,115);
+  cx.beginPath();cx.moveTo(465,gy-115);cx.lineTo(486,gy-152);cx.lineTo(507,gy-115);cx.fill();
+  [[515,38,48],[572,55,38],[618,42,52]].forEach(([x,h,w])=>cx.fillRect(x,gy-h,w,h));
+  cx.fillStyle='rgba(14,165,233,.28)';cx.fillRect(0,gy-16,W,10);
+  const grd=cx.createLinearGradient(0,gy,0,H);
+  grd.addColorStop(0,'#d4a96a');grd.addColorStop(.4,'#c2956a');grd.addColorStop(1,'#a87850');
+  cx.fillStyle=grd;cx.fillRect(0,gy,W,H-gy);
+  cx.strokeStyle='rgba(0,0,0,.07)';cx.lineWidth=.7;
+  const ts=28,th=17;
+  for(let r=0;r*th<H-gy+th;r++){
+    const ry=gy+r*th,off=(r%2)*ts*.5;
+    for(let c=-1;c*ts<W+ts;c++)cx.strokeRect(c*ts+off,ry,ts,th);
+  }
+  palm(W*.53,gy,72);palm(W*.79,gy,88);palm(W*.94,gy,62);
+  drawStall(W,H,gy,sx);
 }
 
-function show(id) {
-  ['screen-intro','screen-chapter','screen-question','screen-result'].forEach(s => { document.getElementById(s).style.display = 'none'; });
-  const el = document.getElementById(id);
-  el.style.display = (id==='screen-intro'||id==='screen-result') ? 'flex' : 'block';
-  void el.offsetWidth; el.classList.remove('screen'); void el.offsetWidth; el.classList.add('screen');
+function cloud(x,y,s){
+  cx.save();cx.translate(x,y);cx.scale(s,s);
+  cx.fillStyle='rgba(255,255,255,.82)';cx.beginPath();
+  cx.arc(0,0,20,0,Math.PI*2);cx.arc(24,-4,17,0,Math.PI*2);
+  cx.arc(-18,4,15,0,Math.PI*2);cx.arc(45,3,13,0,Math.PI*2);
+  cx.fill();cx.restore();
 }
 
-function startGame() { stats={...STATS_INIT}; step=0; chShown=-1; updateStatBars(false); updateProgress(); nextScreen(); }
-
-function nextScreen() {
-  if (step >= STEPS.length) { showResult(); return; }
-  const s = STEPS[step];
-  if (s.chapter > chShown) { chShown = s.chapter; showChapter(s.chapter); } else { showQuestion(s); }
-}
-
-function showChapter(idx) {
-  const c = CHAPTERS[idx];
-  document.getElementById('ch-number').textContent = c.num;
-  document.getElementById('ch-emoji').textContent  = c.emoji;
-  document.getElementById('ch-tag').textContent    = c.tag;
-  document.getElementById('ch-title').textContent  = c.title;
-  document.getElementById('ch-time').textContent   = c.time;
-  document.getElementById('ch-desc').textContent   = c.desc;
-  const el = document.getElementById('screen-chapter');
-  el.className = 'screen card ' + c.tagCss;
-  show('screen-chapter');
-}
-
-function showQuestion(s) {
-  answered = false;
-  document.getElementById('q-char-emoji').textContent = s.char.emoji;
-  document.getElementById('q-char-name').textContent  = s.char.name;
-  document.getElementById('q-char-role').textContent  = s.char.role;
-  document.getElementById('q-speech').textContent     = s.speech;
-  document.getElementById('q-context').textContent    = s.context;
-  document.getElementById('q-question').textContent   = s.question;
-
-  const grid = document.getElementById('options-grid');
-  grid.innerHTML = '';
-  const letters = ['A','B','C','D'];
-  s.options.forEach((opt, i) => {
-    const fxHtml = Object.entries(opt.fx).filter(([,v]) => v !== 0).map(([k,v]) => {
-      const icons = {lucro:'💰',reputacao:'⭐',sustentab:'🌱',clientes:'👥'};
-      const cls = v > 0 ? 'fx-pos' : 'fx-neg';
-      return `<span class="fx-chip ${cls}">${icons[k]} ${v > 0 ? '+':''}${v}</span>`;
-    }).join('');
-    const card = document.createElement('div');
-    card.className = 'opt-card'; card.dataset.idx = i;
-    card.innerHTML = `<div class="opt-top"><span class="opt-letter">${letters[i]}</span><span class="opt-label">${opt.l}</span></div><div class="opt-desc">${opt.d}</div><div class="opt-fx">${fxHtml}</div>`;
-    card.addEventListener('click', () => pick(i));
-    grid.appendChild(card);
+function palm(x,gy,h){
+  cx.save();
+  cx.strokeStyle='#78350f';cx.lineWidth=7;cx.lineCap='round';
+  cx.beginPath();cx.moveTo(x,gy);
+  cx.bezierCurveTo(x+12,gy-h*.35,x-10,gy-h*.65,x+4,gy-h);cx.stroke();
+  const tx=x+4,ty=gy-h;
+  [[-38,-14],[28,-18],[-22,-33],[18,-36],[0,-48],[-13,4],[9,-1]].forEach(([lx,ly])=>{
+    cx.strokeStyle='#15803d';cx.lineWidth=3.5;
+    cx.beginPath();cx.moveTo(tx,ty);
+    cx.bezierCurveTo(tx+lx*.4,ty+ly*.4,tx+lx*.7,ty+ly*.7,tx+lx,ty+ly);cx.stroke();
   });
-
-  document.getElementById('feedback-box').style.display = 'none';
-  document.getElementById('btn-next').style.display = 'none';
-  const el = document.getElementById('screen-question');
-  el.className = 'screen card ' + s.sceneClass;
-  show('screen-question');
-}
-
-function pick(idx) {
-  if (answered) return;
-  answered = true;
-  const s = STEPS[step];
-  const opt = s.options[idx];
-  Object.entries(opt.fx).forEach(([k,v]) => { stats[k] = clamp(stats[k] + v); });
-  updateStatBars(true);
-
-  const cards = document.querySelectorAll('.opt-card');
-  cards.forEach((c, i) => {
-    if (i === idx) { const qMap = {good:'picked-good',ok:'picked-ok',bad:'picked-bad'}; c.classList.add(qMap[opt.q]||'picked-ok'); }
-    else c.classList.add('disabled');
+  cx.fillStyle='#78350f';
+  [[-7,7],[5,11],[-2,4]].forEach(([dx,dy])=>{
+    cx.beginPath();cx.arc(tx+dx,ty+dy,5,0,Math.PI*2);cx.fill();
   });
-
-  const qLabels = {good:'🌟 Excelente escolha!',ok:'👍 Boa tentativa!',bad:'💡 Momento de aprendizado'};
-  const statNames = {lucro:'Lucro',reputacao:'Reputação',sustentab:'Sustentabilidade',clientes:'Clientes'};
-  const statIcons = {lucro:'💰',reputacao:'⭐',sustentab:'🌱',clientes:'👥'};
-
-  document.getElementById('fb-quality').textContent = qLabels[opt.q]||'👍';
-  document.getElementById('fb-text').textContent    = opt.fb;
-  document.getElementById('fb-stats').innerHTML = Object.entries(opt.fx).filter(([,v]) => v!==0).map(([k,v]) => {
-    const cls = v > 0 ? 'fb-stat-pos' : 'fb-stat-neg';
-    return `<span class="fb-stat ${cls}">${statIcons[k]} ${statNames[k]} ${v > 0 ? '+':''}${v}</span>`;
-  }).join('');
-  document.getElementById('fb-bncc').innerHTML = `<span class="bncc-badge">📚 ${opt.bncc}</span>`;
-  document.getElementById('feedback-box').style.display = 'block';
-
-  const btn = document.getElementById('btn-next');
-  btn.textContent = (step + 1 >= STEPS.length) ? 'Ver Resultado →' : 'Próxima Decisão →';
-  btn.style.display = 'block';
-  step++;
-  updateProgress();
+  cx.restore();
 }
 
-function showResult() {
-  const total = stats.lucro + stats.reputacao + stats.sustentab + stats.clientes;
-  const pct   = Math.round((total / 400) * 100);
-  let emoji, title, sub, msg;
+function drawStall(W,H,gy,sx){
+  const sw=sx-10;
+  cx.fillStyle='#7c2d12';cx.fillRect(0,gy-165,sw,165);
+  const cols=['#dc2626','#f97316','#eab308','#16a34a','#1d4ed8'];
+  const sw5=sw/5;
+  cols.forEach((c,i)=>{cx.fillStyle=c;cx.fillRect(i*sw5,gy-165,sw5,33);});
+  cx.fillStyle='#fef08a';
+  for(let i=0;i<sw;i+=13){
+    cx.beginPath();cx.moveTo(i,gy-132);cx.lineTo(i+6.5,gy-116);cx.lineTo(i+13,gy-132);cx.fill();
+  }
+  cx.fillStyle='#1c1917';cx.fillRect(8,gy-152,sw-16,24);
+  cx.font=`bold ${Math.min(12,sw/18)}px sans-serif`;cx.fillStyle='#fef08a';cx.textAlign='center';
+  cx.fillText('🌴 Feirinha Sergipana 🌴',sw/2,gy-134);
+  cx.fillStyle='#92400e';cx.fillRect(4,gy-44,sw-8,10);
+  cx.fillRect(14,gy-34,7,34);cx.fillRect(sw-21,gy-34,7,34);
+  cx.font='19px serif';cx.textAlign='center';
+  PR.forEach((p,i)=>{
+    const px=12+(i%3)*((sw-12)/3)+8;
+    const py=gy-(i<3?70:52);
+    cx.globalAlpha=STK[p.id]>0?1:.25;
+    cx.fillText(p.em,px,py);
+    cx.globalAlpha=1;
+  });
+  drawVendor(sw/2,gy-72);
+}
 
-  if (pct >= 75) {
-    emoji='🏆'; title='Empreendedor Sustentável'; sub='Você provou que lucro e propósito podem caminhar juntos!';
-    msg='Sua loja virtual alcançou um equilíbrio raro: crescimento financeiro com impacto positivo. Você tomou decisões difíceis que priorizaram tanto o negócio quanto o planeta.';
-  } else if (pct >= 60) {
-    emoji='🌟'; title='Empresário Consciente'; sub='Boas decisões! Alguns desafios ainda precisam de atenção.';
-    msg='Você construiu um negócio sólido com consciência social. Algumas decisões foram difíceis, mas você manteve os valores importantes. Continue desenvolvendo sua visão estratégica!';
-  } else if (pct >= 45) {
-    emoji='📈'; title='Comerciante em Desenvolvimento'; sub='Bons instintos! Aprimorar a visão de longo prazo vai te levar longe.';
-    msg='Você tem talento para negócios, mas algumas decisões priorizaram ganho imediato sobre construção sustentável. No mundo atual, negócios com propósito têm vantagem competitiva real!';
-  } else {
-    emoji='🌱'; title='Aprendiz de Negócios'; sub='Cada erro é uma aula — e você fez muitas aulas hoje!';
-    msg='O Mercado Virtual é um ambiente de aprendizado! Decisões difíceis mostraram os riscos de atalhos no mundo dos negócios. Com esse conhecimento, você está mais preparado para empreender de verdade.';
+function drawVendor(x,y){
+  cx.save();
+  cx.fillStyle='#15803d';cx.fillRect(x-13,y-38,26,28);
+  cx.fillStyle='#fff';cx.fillRect(x-7,y-30,14,22);
+  cx.fillStyle='#f4a261';cx.beginPath();cx.arc(x,y-51,13,0,Math.PI*2);cx.fill();
+  cx.fillStyle='#92400e';cx.fillRect(x-16,y-63,32,6);cx.fillRect(x-9,y-71,18,11);
+  cx.fillStyle='#1e293b';cx.beginPath();
+  cx.arc(x-4,y-53,2,0,Math.PI*2);cx.arc(x+4,y-53,2,0,Math.PI*2);cx.fill();
+  cx.strokeStyle='#1e293b';cx.lineWidth=1.5;cx.beginPath();
+  cx.arc(x,y-49,4,0.2,Math.PI-.2);cx.stroke();
+  cx.restore();
+}
+
+class Cust{
+  constructor(){
+    const gy=GY(),sx=SX();
+    this.x=cv.width+60;this.y=gy;
+    this.skin=SKINS[Math.floor(Math.random()*SKINS.length)];
+    this.cloth=CLOTHS[Math.floor(Math.random()*CLOTHS.length)];
+    this.hat=Math.floor(Math.random()*3);
+    this.sc=0.88+Math.random()*.22;
+    this.name=NOMES[Math.floor(Math.random()*NOMES.length)];
+    const av=PR.filter(p=>STK[p.id]>0);
+    this.want=(av.length?av[Math.floor(Math.random()*av.length)]:PR[0]);
+    const d=DIAS[G.day-1];
+    this.spd=d.spd*(0.82+Math.random()*.36);
+    this.fr=Math.random()*100;
+    this.state='walk';
+    this.wt=0;this.wtMax=3800+Math.random()*2200;
+    this.stopX=sx+65+Math.random()*35;
+    this.msg='';this.mt=0;
   }
 
-  document.getElementById('res-emoji').textContent = emoji;
-  document.getElementById('res-title').textContent = title;
-  document.getElementById('res-sub').textContent   = sub;
-  document.getElementById('res-pct').textContent   = pct + '%';
-  document.getElementById('res-msg').textContent   = msg;
+  upd(dt){
+    this.fr+=dt*.055;this.mt-=dt;
+    if(this.state==='walk'){
+      this.x-=this.spd*(dt/16);
+      if(this.x<this.stopX){this.state='wait';this.wt=this.wtMax;}
+    }else if(this.state==='wait'){
+      this.wt-=dt;
+      if(this.wt<=0){this.state='sad';this.spd=1.6;}
+    }else if(this.state==='ok'||this.state==='sad'){
+      this.x-=this.spd*(dt/16)*.75;
+    }
+    return this.x>-120;
+  }
 
-  const rStats = document.getElementById('res-stats');
-  const fills  = {lucro:'f-lucr',reputacao:'f-repu',sustentab:'f-sust',clientes:'f-clie'};
-  const labels = {lucro:'💰 Lucro',reputacao:'⭐ Reputação',sustentab:'🌱 Sustentabilidade',clientes:'👥 Clientes'};
-  rStats.innerHTML = Object.keys(stats).map(k => `
-    <div class="rs-item">
-      <div class="rs-label"><span>${labels[k]}</span><span>${stats[k]}/100</span></div>
-      <div class="rs-bar"><div class="rs-fill ${fills[k]}" style="width:${stats[k]}%" id="rf-${k}"></div></div>
-    </div>
-  `).join('');
-
-  document.getElementById('res-bncc').innerHTML = `
-    <span class="bncc-badge">📚 BNCC 1 – Conhecimento</span>
-    <span class="bncc-badge">📚 BNCC 7 – Sustentabilidade</span>
-  `;
-
-  const el = document.getElementById('screen-result');
-  el.className = 'screen card scene-expansao';
-  show('screen-result');
-
-  setTimeout(() => {
-    Object.keys(stats).forEach((k,i) => {
-      setTimeout(() => {
-        const fill = document.getElementById('rf-'+k);
-        if (fill) { fill.style.animation='none'; void fill.offsetWidth; fill.style.animation='statPop 0.6s ease both'; }
-      }, i * 150);
+  draw(ctx){
+    const x=this.x,y=this.y,s=this.sc,f=this.fr;
+    const walk=this.state==='walk'||this.state==='ok'||this.state==='sad';
+    const leg=walk?Math.sin(f)*.42:0;
+    const bnc=walk?Math.abs(Math.sin(f))*2.5*s:0;
+    const arm=walk?Math.cos(f)*.38:0.05;
+    ctx.save();ctx.translate(x,y-bnc);ctx.scale(s,s);
+    ctx.fillStyle='rgba(0,0,0,.14)';
+    ctx.beginPath();ctx.ellipse(0,3,17,5,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#1e293b';ctx.lineWidth=7;ctx.lineCap='round';
+    [-5,5].forEach((ox,i)=>{
+      const la=i===0?leg:-leg;
+      ctx.save();ctx.translate(ox,-15);ctx.rotate(la);
+      ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,26);ctx.stroke();
+      ctx.fillStyle='#0f172a';ctx.beginPath();ctx.ellipse(0,28,7,4,0,0,Math.PI*2);ctx.fill();
+      ctx.restore();
     });
-  }, 400);
+    ctx.fillStyle=this.cloth;ctx.beginPath();ctx.roundRect(-13,-50,26,35,6);ctx.fill();
+    ctx.strokeStyle=this.cloth;ctx.lineWidth=7;ctx.lineCap='round';
+    [[-14,-42,-arm],[14,-42,arm]].forEach(([ox,oy,a])=>{
+      const sx2=ox<0?-1:1;
+      ctx.save();ctx.translate(ox,oy);ctx.rotate(a);
+      ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(sx2*8,20);ctx.stroke();
+      ctx.restore();
+    });
+    ctx.fillStyle=this.skin;ctx.beginPath();ctx.arc(0,-63,15,0,Math.PI*2);ctx.fill();
+    if(this.hat===1){
+      ctx.fillStyle='#92400e';ctx.fillRect(-18,-75,36,7);ctx.fillRect(-11,-84,22,12);
+    }else if(this.hat===2){
+      ctx.fillStyle='#1d4ed8';
+      ctx.beginPath();ctx.arc(0,-73,16,Math.PI,2*Math.PI);ctx.fill();
+      ctx.fillRect(-16,-73,32,7);ctx.fillRect(-18,-68,36,5);
+    }else{
+      ctx.fillStyle='#1e293b';ctx.beginPath();ctx.arc(0,-69,15,Math.PI,2*Math.PI);ctx.fill();
+    }
+    ctx.fillStyle='#1e293b';ctx.beginPath();
+    ctx.arc(-5,-65,2.5,0,Math.PI*2);ctx.arc(5,-65,2.5,0,Math.PI*2);ctx.fill();
+    ctx.lineWidth=1.8;
+    if(this.state==='ok'){
+      ctx.strokeStyle='#16a34a';ctx.beginPath();
+      ctx.arc(-5,-65,2.5,Math.PI,2*Math.PI);ctx.stroke();
+      ctx.beginPath();ctx.arc(5,-65,2.5,Math.PI,2*Math.PI);ctx.stroke();
+      ctx.beginPath();ctx.arc(0,-59,5,0.15,Math.PI-.15);ctx.stroke();
+    }else if(this.state==='sad'){
+      ctx.strokeStyle='#ef4444';ctx.beginPath();
+      ctx.arc(0,-54,5,Math.PI+.2,2*Math.PI-.2);ctx.stroke();
+    }else{
+      ctx.strokeStyle='#1e293b';ctx.beginPath();
+      ctx.arc(0,-59,4,0.2,Math.PI-.2);ctx.stroke();
+    }
+    ctx.restore();
+    if(this.state==='wait'||(this.state==='walk'&&this.x<cv.width*.78)){
+      this.drawBubble(ctx,x,y-78*s);
+    }
+    if(this.mt>0&&this.msg){
+      ctx.save();ctx.globalAlpha=Math.min(1,this.mt/350);
+      ctx.font='bold 13px sans-serif';ctx.textAlign='center';
+      ctx.fillStyle=this.state==='ok'?'#22c55e':'#ef4444';
+      ctx.fillText(this.msg,x,y-115*s);
+      ctx.restore();
+    }
+  }
+
+  drawBubble(ctx,x,y){
+    const bw=58,bh=50,bx=x-bw/2,by=y-bh;
+    ctx.fillStyle='rgba(15,23,42,.92)';ctx.strokeStyle=this.want.clr;ctx.lineWidth=2;
+    ctx.beginPath();ctx.roundRect(bx,by,bw,bh,9);ctx.fill();ctx.stroke();
+    ctx.fillStyle='rgba(15,23,42,.92)';
+    ctx.beginPath();ctx.moveTo(x-5,y);ctx.lineTo(x,y+9);ctx.lineTo(x+5,y);ctx.fill();
+    ctx.font='20px serif';ctx.textAlign='center';ctx.fillText(this.want.em,x,by+32);
+    if(this.state==='wait'){
+      const u=this.wt/this.wtMax;
+      ctx.fillStyle='rgba(255,255,255,.08)';ctx.fillRect(bx+4,by+bh-7,bw-8,4);
+      ctx.fillStyle=u>.5?'#22c55e':u>.25?'#f59e0b':'#ef4444';
+      ctx.fillRect(bx+4,by+bh-7,(bw-8)*u,4);
+    }
+  }
+
+  say(m){this.msg=m;this.mt=1100;}
 }
 
-function restartGame() {
-  stats={...STATS_INIT}; step=0; chShown=-1;
-  updateStatBars(false); updateProgress(); show('screen-intro');
+function spawnCust(){
+  const av=PR.filter(p=>STK[p.id]>0);
+  if(!av.length)return;
+  resize();custs.push(new Cust());
 }
 
-window.addEventListener('DOMContentLoaded', () => { updateStatBars(false); show('screen-intro'); });
+function buildBtns(){
+  const el=$('btns');el.innerHTML='';
+  PR.forEach(p=>{
+    const b=document.createElement('button');
+    b.className='pb'+(STK[p.id]<=0?' empty':'');
+    b.id='pb-'+p.id;
+    b.innerHTML=`<span class="pe">${p.em}</span><span class="pn">${p.nm}</span><span class="ps" id="ps-${p.id}">Estoque: ${STK[p.id]}</span>`;
+    b.onclick=()=>tryBuy(p.id);
+    el.appendChild(b);
+  });
+}
+
+function tryBuy(pid){
+  if(!running)return;
+  const c=custs.find(c=>c.state==='wait'&&c.want.id===pid);
+  if(c){
+    if(STK[pid]<=0)return;
+    STK[pid]--;
+    const p=PR.find(x=>x.id===pid);
+    G.money+=p.sell;G.daySales++;G.dayRev+=p.sell;G.totSales++;G.totRev=(G.totRev||0)+p.sell;
+    c.state='ok';c.spd=1.1;
+    c.say(MSG_OK[Math.floor(Math.random()*MSG_OK.length)]+' +R$'+p.sell.toFixed(0));
+    addFT('+R$'+p.sell.toFixed(0),c.x,c.y-85,'#22c55e',18);
+    updBtns();updHUD();
+  }else{
+    const ws=custs.filter(c=>c.state==='wait');
+    if(ws.length){ws[0].say(MSG_NAO[Math.floor(Math.random()*MSG_NAO.length)]);}
+  }
+}
+
+function addFT(t,x,y,c,sz){ftxt.push({t,x,y,c,sz,life:1400,a:1});}
+
+function updBtns(){
+  PR.forEach(p=>{
+    const b=$('pb-'+p.id);if(!b)return;
+    b.className='pb'+(STK[p.id]<=0?' empty':'');
+    const ps=$('ps-'+p.id);if(ps)ps.textContent='Estoque: '+STK[p.id];
+  });
+}
+
+function updHUD(){
+  $('hmn').textContent='R$'+G.money.toFixed(0);
+  $('hdy').textContent=G.day;
+  $('hsl').textContent=G.totSales;
+}
+
+function $(id){return document.getElementById(id);}
+function show(id){$(id).classList.remove('hi2');}
+function hide(id){$(id).classList.add('hi2');}
+function resize(){cv.width=cv.offsetWidth;cv.height=cv.offsetHeight;}
+window.addEventListener('resize',()=>{resize();if(!running)titleRender();});
+
+function titleRender(){
+  resize();const W=cv.width,H=cv.height;
+  cx.clearRect(0,0,W,H);drawBG(W,H);
+  if(!running)requestAnimationFrame(titleRender);
+}
+resize();titleRender();
 </script>
 </body>
 </html>
