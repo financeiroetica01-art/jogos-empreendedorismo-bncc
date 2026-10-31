@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Missão Empresarial — ALI Educação Empreendedora</title>
+  <script src="https://cdn.tailwindcss.com/3.4.1"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            brand: { 50:'#f0f4ff',100:'#dce8ff',200:'#b9d1ff',400:'#507cff',500:'#2952f5',600:'#1a3eeb',700:'#152fd8',800:'#1727af',900:'#192589' }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background: #0f172a; }
+
+    .card-option {
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+    .card-option:hover {
+      transform: translateY(-3px);
+      border-color: #1a3eeb;
+      box-shadow: 0 0 0 3px rgba(26,62,235,0.15);
+    }
+    .card-option.selected {
+      border-color: #1a3eeb;
+      background: #dce8ff;
+    }
+    .card-option.correct {
+      border-color: #16a34a;
+      background: #dcfce7;
+    }
+    .card-option.wrong {
+      border-color: #dc2626;
+      background: #fee2e2;
+      opacity: 0.6;
+    }
+    .card-option.disabled {
+      pointer-events: none;
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .xp-bar-fill {
+      transition: width 0.6s ease;
+    }
+
+    @keyframes pop-in {
+      0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .pop-in { animation: pop-in 0.4s ease forwards; }
+
+    @keyframes slide-up {
+      0%  { opacity: 0; transform: translateY(30px); }
+      100%{ opacity: 1; transform: translateY(0); }
+    }
+    .slide-up { animation: slide-up 0.35s ease forwards; }
+
+    @keyframes shake {
+      0%,100%{transform:translateX(0)}
+      20%{transform:translateX(-6px)}
+      40%{transform:translateX(6px)}
+      60%{transform:translateX(-4px)}
+      80%{transform:translateX(4px)}
+    }
+    .shake { animation: shake 0.4s ease; }
+
+    @keyframes glow-pulse {
+      0%,100%{ box-shadow: 0 0 20px rgba(250,204,21,0.4); }
+      50%    { box-shadow: 0 0 40px rgba(250,204,21,0.8); }
+    }
+    .badge-glow { animation: glow-pulse 2s ease infinite; }
+
+    .step-dot {
+      transition: all 0.3s ease;
+    }
+
+    .feedback-box {
+      border-left: 4px solid;
+      border-radius: 0 0.75rem 0.75rem 0;
+    }
+    .feedback-good { border-color: #16a34a; background: #f0fdf4; }
+    .feedback-bad  { border-color: #dc2626; background: #fef2f2; }
+    .feedback-tip  { border-color: #1a3eeb; background: #eff6ff; }
+  </style>
+</head>
+<body class="font-sans antialiased min-h-screen">
+
+  <!-- NAVBAR -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-gray-900/80 backdrop-blur border-b border-white/10">
+    <div class="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
+      <a href="../index.html" class="flex items-center gap-2 text-white/70 hover:text-white transition-colors text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Voltar aos jogos
+      </a>
+      <div class="flex items-center gap-3">
+        <!-- XP display -->
+        <div class="flex items-center gap-1.5 bg-yellow-400/10 border border-yellow-400/30 rounded-full px-3 py-1">
+          <span class="text-yellow-400 text-xs font-bold">⭐ XP:</span>
+          <span id="xp-display" class="text-yellow-300 text-xs font-extrabold">0</span>
+        </div>
+        <img src="../assets/logo.png" alt="ALI" class="h-7 w-auto object-contain" style="filter:brightness(0) invert(1);max-width:120px" />
+      </div>
+    </div>
+  </nav>
+
+  <div class="pt-14 min-h-screen flex flex-col">
+
+    <!-- PROGRESS BAR -->
+    <div class="fixed top-14 left-0 right-0 z-40 h-1 bg-white/10">
+      <div id="progress-bar" class="h-1 bg-gradient-to-r from-brand-500 to-blue-400 xp-bar-fill" style="width:0%"></div>
+    </div>
+
+    <div class="flex-1 flex flex-col items-center justify-center px-4 py-10">
+      <div class="w-full max-w-2xl">
+
+        <!-- ===== TELA 0: INTRO ===== -->
+        <div id="screen-intro" class="screen active pop-in">
+          <div class="text-center mb-8">
+            <div class="text-8xl mb-4">🚀</div>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-3">Missão Empresarial</h1>
+            <p class="text-white/60 text-base max-w-md mx-auto leading-relaxed">
+              Você vai montar sua própria empresa do zero! Tome decisões estratégicas, gerencie sua equipe e supere desafios reais do mundo dos negócios.
+            </p>
+          </div>
+
+          <div class="bg-white/5 border border-white/10 rounded-2xl p-5 mb-6 space-y-3">
+            <div class="flex items-center gap-3 text-white/80 text-sm">
+              <span class="text-2xl">🎯</span>
+              <span><strong class="text-white">6 etapas</strong> de decisão estratégica</span>
+            </div>
+            <div class="flex items-center gap-3 text-white/80 text-sm">
+              <span class="text-2xl">⭐</span>
+              <span>Ganhe <strong class="text-white">até 600 XP</strong> com boas escolhas</span>
+            </div>
+            <div class="flex items-center gap-3 text-white/80 text-sm">
+              <span class="text-2xl">🏅</span>
+              <span>Conquiste seu <strong class="text-white">badge de empreendedor</strong></span>
+            </div>
+            <div class="flex items-center gap-3 text-white/80 text-sm">
+              <span class="text-2xl">📚</span>
+              <span>Competências BNCC <strong class="text-white">2, 4, 8 e 9</strong></span>
+            </div>
+          </div>
+
+          <div class="bg-brand-600/20 border border-brand-500/30 rounded-2xl p-4 mb-8 text-center">
+            <p class="text-brand-200 text-sm">💡 <strong>Dica:</strong> Não existe resposta certa única — cada escolha tem consequências! Leia o feedback e aprenda com cada decisão.</p>
+          </div>
+
+          <button onclick="startGame()" class="w-full bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-extrabold text-lg py-4 rounded-2xl transition-all shadow-lg shadow-brand-900/50">
+            Começar a Missão 🚀
+          </button>
+        </div>
+
+        <!-- ===== TELA DE PERGUNTA ===== -->
+        <div id="screen-question" class="screen">
+          <!-- Cabeçalho da etapa -->
+          <div class="flex items-center justify-between mb-2">
+            <span id="q-step-label" class="text-xs font-bold text-white/40 uppercase tracking-widest"></span>
+            <div class="flex gap-1.5" id="step-dots"></div>
+          </div>
+
+          <!-- Personagem/ícone da etapa -->
+          <div class="text-center mb-5 slide-up" id="q-icon-wrapper">
+            <div id="q-icon" class="text-7xl mb-2"></div>
+            <div id="q-context" class="text-white/50 text-xs italic"></div>
+          </div>
+
+          <!-- Pergunta -->
+          <h2 id="q-text" class="text-xl sm:text-2xl font-extrabold text-white mb-6 text-center leading-snug"></h2>
+
+          <!-- Opções -->
+          <div id="q-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4"></div>
+
+          <!-- Feedback (aparece depois de responder) -->
+          <div id="q-feedback" class="hidden mt-4 feedback-box p-4 slide-up">
+            <div id="q-feedback-title" class="font-bold text-sm mb-1"></div>
+            <div id="q-feedback-text" class="text-sm leading-relaxed"></div>
+            <div id="q-bncc" class="mt-2 text-xs font-semibold text-brand-600"></div>
+          </div>
+
+          <!-- Botão próxima -->
+          <button id="btn-next" onclick="nextStep()" class="hidden w-full mt-4 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-bold py-3.5 rounded-xl transition-all">
+            Próxima etapa →
+          </button>
+        </div>
+
+        <!-- ===== TELA FINAL ===== -->
+        <div id="screen-result" class="screen text-center">
+          <div id="badge-container" class="mb-6 pop-in">
+            <div class="relative inline-block">
+              <div id="badge-icon" class="text-8xl badge-glow rounded-full p-4"></div>
+            </div>
+          </div>
+
+          <h2 id="result-title" class="text-3xl font-extrabold text-white mb-2"></h2>
+          <p id="result-subtitle" class="text-white/60 text-base mb-6"></p>
+
+          <!-- XP total -->
+          <div class="bg-yellow-400/10 border border-yellow-400/30 rounded-2xl p-5 mb-6">
+            <div class="text-yellow-400 text-4xl font-extrabold mb-1" id="result-xp"></div>
+            <div class="text-yellow-300/70 text-sm">XP conquistado nesta missão</div>
+            <div class="mt-3 h-3 bg-white/10 rounded-full overflow-hidden">
+              <div id="result-xp-bar" class="h-3 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full xp-bar-fill" style="width:0%"></div>
+            </div>
+          </div>
+
+          <!-- Competências BNCC desenvolvidas -->
+          <div class="bg-white/5 border border-white/10 rounded-2xl p-5 mb-6 text-left">
+            <h3 class="text-white font-bold text-sm mb-3 uppercase tracking-wide">Competências BNCC desenvolvidas</h3>
+            <div class="space-y-2">
+              <div class="flex items-start gap-3">
+                <span class="bg-brand-600 text-white text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0">2</span>
+                <span class="text-white/70 text-sm">Pensamento científico, crítico e criativo — você analisou cenários e tomou decisões estratégicas.</span>
+              </div>
+              <div class="flex items-start gap-3">
+                <span class="bg-brand-600 text-white text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0">4</span>
+                <span class="text-white/70 text-sm">Comunicação — escolheu como apresentar seu negócio ao mercado.</span>
+              </div>
+              <div class="flex items-start gap-3">
+                <span class="bg-brand-600 text-white text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0">8</span>
+                <span class="text-white/70 text-sm">Autoconhecimento — refletiu sobre seu perfil de liderança e tomada de decisão.</span>
+              </div>
+              <div class="flex items-start gap-3">
+                <span class="bg-brand-600 text-white text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0">9</span>
+                <span class="text-white/70 text-sm">Empatia e cooperação — pensou no cliente e na sua equipe ao tomar decisões.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Resumo de escolhas -->
+          <div class="bg-white/5 border border-white/10 rounded-2xl p-5 mb-8 text-left">
+            <h3 class="text-white font-bold text-sm mb-3 uppercase tracking-wide">Suas escolhas</h3>
+            <div id="result-choices" class="space-y-1.5"></div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-3">
+            <button onclick="restartGame()" class="flex-1 border-2 border-white/20 text-white/80 hover:bg-white/10 font-semibold py-3 rounded-xl transition-all">
+              🔄 Jogar novamente
+            </button>
+            <a href="../index.html" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl transition-all text-center">
+              🎮 Explorar outros jogos
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ──────────────────────────────────────────
+    // DADOS DO JOGO
+    // ──────────────────────────────────────────
+    const STEPS = [
+      {
+        id: 'setor',
+        icon: '🏪',
+        context: 'Etapa 1 de 6 — Escolha do negócio',
+        question: 'Que tipo de negócio você vai abrir?',
+        options: [
+          {
+            label: '🍕 Alimentação',
+            desc: 'Lanchonete, marmita, doces ou salgados',
+            xp: 80,
+            quality: 'good',
+            feedback: 'Ótima escolha! Alimentação é um dos setores mais estáveis — as pessoas sempre precisam comer. Mas a concorrência é alta e o controle de custos é fundamental.',
+            bncc: '📚 BNCC 2 — Você analisou o mercado e identificou uma oportunidade.'
+          },
+          {
+            label: '💻 Tecnologia',
+            desc: 'App, site, suporte técnico ou cursos online',
+            xp: 100,
+            quality: 'great',
+            feedback: 'Excelente! Tecnologia tem alto potencial de escala — um produto digital pode atender milhares de clientes sem custo proporcional. Requer habilidade técnica, mas é o setor que mais cresce.',
+            bncc: '📚 BNCC 2 e 5 — Pensamento criativo aliado à cultura digital.'
+          },
+          {
+            label: '👗 Moda e acessórios',
+            desc: 'Roupas, bijuterias, bolsas ou personalizados',
+            xp: 70,
+            quality: 'good',
+            feedback: 'Moda é criativa e permite muita personalização! O desafio está na sazonalidade e na gestão do estoque. Importante entender bem seu público antes de comprar produtos.',
+            bncc: '📚 BNCC 2 — Criatividade aplicada ao empreendedorismo.'
+          },
+          {
+            label: '🌱 Negócio sustentável',
+            desc: 'Produtos ecológicos, reciclagem ou serviços verdes',
+            xp: 90,
+            quality: 'great',
+            feedback: 'Muito relevante! Negócios sustentáveis crescem acima da média e atraem consumidores conscientes. Você pode gerar impacto positivo no meio ambiente enquanto lucra.',
+            bncc: '📚 BNCC 7 e 10 — Responsabilidade socioambiental em ação.'
+          }
+        ]
+      },
+      {
+        id: 'diferencial',
+        icon: '💡',
+        context: 'Etapa 2 de 6 — Proposta de valor',
+        question: 'O que vai fazer seu negócio ser diferente dos concorrentes?',
+        options: [
+          {
+            label: '💲 Preço mais baixo',
+            desc: 'Cobro menos que todo mundo',
+            xp: 40,
+            quality: 'bad',
+            feedback: 'Cuidado! Competir só por preço é arriscado — sempre aparece alguém mais barato. Isso comprime sua margem de lucro e dificulta o crescimento. Prefira entregar mais valor, não cobrar menos.',
+            bncc: '📚 BNCC 2 — Raciocínio crítico sobre estratégias de precificação.'
+          },
+          {
+            label: '⭐ Qualidade superior',
+            desc: 'Meu produto/serviço é melhor',
+            xp: 90,
+            quality: 'great',
+            feedback: 'Excelente estratégia! Qualidade cria fidelidade. Clientes satisfeitos voltam e indicam para amigos — isso vale mais do que qualquer propaganda paga.',
+            bncc: '📚 BNCC 2 — Pensamento estratégico sobre vantagem competitiva.'
+          },
+          {
+            label: '🤝 Atendimento personalizado',
+            desc: 'Conheço cada cliente pelo nome',
+            xp: 100,
+            quality: 'great',
+            feedback: 'Perfeito! O atendimento humanizado é um dos maiores diferenciais, especialmente para pequenos negócios. Você não precisa competir com as grandes empresas — vença com proximidade e cuidado.',
+            bncc: '📚 BNCC 9 — Empatia no relacionamento com o cliente.'
+          },
+          {
+            label: '🔬 Inovação constante',
+            desc: 'Sempre lançando produtos novos',
+            xp: 80,
+            quality: 'good',
+            feedback: 'Inovar é importante, mas lembre-se: inovação sem entender o cliente pode gerar produtos que ninguém quer. Inove com base em problemas reais que você quer resolver.',
+            bncc: '📚 BNCC 2 — Criatividade e pensamento inventivo.'
+          }
+        ]
+      },
+      {
+        id: 'equipe',
+        icon: '👥',
+        context: 'Etapa 3 de 6 — Montando a equipe',
+        question: 'Você tem dinheiro para contratar apenas UMA pessoa. Quem você escolhe primeiro?',
+        options: [
+          {
+            label: '📣 Marina — Marketing',
+            desc: 'Especialista em redes sociais e divulgação',
+            xp: 90,
+            quality: 'great',
+            feedback: 'Boa escolha! Sem clientes, não há negócio. Marina vai atrair seu público e construir presença da marca. Vendas e marketing são o motor do crescimento no início.',
+            bncc: '📚 BNCC 4 — Comunicação como ferramenta de negócios.'
+          },
+          {
+            label: '💰 Carlos — Financeiro',
+            desc: 'Controla o caixa e faz os cálculos',
+            xp: 80,
+            quality: 'good',
+            feedback: 'Inteligente! Carlos evita que você gaste mais do que ganha — o maior erro de empresas iniciantes. Controle financeiro sólido é a base de um negócio sustentável.',
+            bncc: '📚 BNCC 1 — Conhecimento aplicado à gestão financeira.'
+          },
+          {
+            label: '🎨 Lucas — Design',
+            desc: 'Cria identidade visual e embalagens bonitas',
+            xp: 60,
+            quality: 'ok',
+            feedback: 'Design importa, mas no começo você pode criar materiais simples usando ferramentas gratuitas (Canva, por exemplo). Priorize quem traz receita ou protege o caixa antes de investir em estética.',
+            bncc: '📚 BNCC 2 — Criatividade, mas com senso de prioridade.'
+          },
+          {
+            label: '🤙 Sofia — Atendimento',
+            desc: 'Cuida dos clientes e resolve problemas',
+            xp: 70,
+            quality: 'good',
+            feedback: 'Sofia garante que seus clientes saiam satisfeitos e voltem! No início, você mesmo pode atender, então pondere: se o volume de clientes for alto, Sofia é essencial. Caso contrário, foque em trazer mais clientes primeiro.',
+            bncc: '📚 BNCC 9 — Empatia e cooperação no atendimento.'
+          }
+        ]
+      },
+      {
+        id: 'marketing',
+        icon: '📣',
+        context: 'Etapa 4 de 6 — Divulgação',
+        question: 'Como você vai divulgar seu negócio sem gastar muito dinheiro?',
+        options: [
+          {
+            label: '📱 Instagram e TikTok',
+            desc: 'Conteúdo orgânico nas redes sociais',
+            xp: 100,
+            quality: 'great',
+            feedback: 'Escolha inteligentíssima! Redes sociais são gratuitas e permitem alcance enorme. Vídeos curtos no TikTok e Reels do Instagram têm viralização orgânica poderosa — especialmente para jovens empreendedores.',
+            bncc: '📚 BNCC 4 e 5 — Comunicação digital como ferramenta empreendedora.'
+          },
+          {
+            label: '🤝 Parcerias locais',
+            desc: 'Acordo com outros negócios do bairro',
+            xp: 85,
+            quality: 'great',
+            feedback: 'Excelente! Parcerias criam um ecossistema de apoio mútuo. Você divulga o parceiro, ele te divulga — sem custo, com credibilidade. Essa é a mentalidade de cooperação que todo empreendedor precisa.',
+            bncc: '📚 BNCC 9 — Cooperação e construção de redes.'
+          },
+          {
+            label: '📄 Panfletos no bairro',
+            desc: 'Distribuição física de material impresso',
+            xp: 50,
+            quality: 'ok',
+            feedback: 'Pode funcionar para negócios locais, mas o custo de impressão e a taxa de conversão são baixos. Hoje, uma boa postagem nas redes chega a mais pessoas com custo zero. Use panfletos como complemento, não como estratégia principal.',
+            bncc: '📚 BNCC 4 — Comunicação adaptada ao contexto.'
+          },
+          {
+            label: '💬 Indicação boca a boca',
+            desc: 'Peço para clientes recomendarem',
+            xp: 75,
+            quality: 'good',
+            feedback: 'Boca a boca é poderoso, mas lento para escalar. É ótimo para manter clientes, não para conquistar novos rapidamente. Combine com redes sociais para acelerar o crescimento.',
+            bncc: '📚 BNCC 9 — Relacionamentos como ativo de negócio.'
+          }
+        ]
+      },
+      {
+        id: 'financas',
+        icon: '💰',
+        context: 'Etapa 5 de 6 — Gestão financeira',
+        question: 'Seu negócio faturou R$ 2.000 no primeiro mês. O que você faz com o lucro?',
+        options: [
+          {
+            label: '🎉 Gasto tudo! Mereci comemorar',
+            desc: 'Compro algo pra mim como recompensa',
+            xp: 10,
+            quality: 'bad',
+            feedback: '⚠️ Erro clássico! Misturar o dinheiro do negócio com o seu pessoal é uma das principais causas de falência de pequenas empresas. O lucro deve ser reinvestido ou guardado para emergências — especialmente no começo.',
+            bncc: '📚 BNCC 1 — Conhecimento financeiro aplicado à vida real.'
+          },
+          {
+            label: '📦 Reinvisto no estoque e melhoria',
+            desc: 'Uso para crescer o negócio',
+            xp: 100,
+            quality: 'great',
+            feedback: 'Perfeito! Reinvestir no negócio é o caminho do crescimento sustentável. Mais estoque = mais vendas = mais lucro. Esse ciclo virtuoso é o segredo das empresas que prosperam.',
+            bncc: '📚 BNCC 1 e 2 — Pensamento estratégico financeiro.'
+          },
+          {
+            label: '🏦 Guardo tudo na reserva',
+            desc: 'Coloco numa conta separada de emergência',
+            xp: 85,
+            quality: 'great',
+            feedback: 'Muito prudente! Uma reserva de emergência protege você de imprevistos — fornecedor que atrasa, equipamento que quebra, mês fraco. Guardar parte do lucro é sinal de maturidade financeira.',
+            bncc: '📚 BNCC 1 — Responsabilidade financeira e planejamento.'
+          },
+          {
+            label: '📊 Divido: parte reinvisto, parte guardo',
+            desc: '50% para crescer, 50% de reserva',
+            xp: 95,
+            quality: 'great',
+            feedback: 'Estratégia equilibrada e inteligente! Você cresce o negócio E se protege ao mesmo tempo. Muitos empreendedores experientes usam a regra 50/30/20: 50% reinvestimento, 30% reserva, 20% para o empreendedor.',
+            bncc: '📚 BNCC 1 e 2 — Gestão financeira e pensamento estratégico.'
+          }
+        ]
+      },
+      {
+        id: 'crise',
+        icon: '⚡',
+        context: 'Etapa 6 de 6 — Gestão de crise',
+        question: 'Um concorrente abriu do lado e está vendendo o mesmo produto 30% mais barato. O que você faz?',
+        options: [
+          {
+            label: '📉 Baixo meus preços também',
+            desc: 'Entro na guerra de preços',
+            xp: 30,
+            quality: 'bad',
+            feedback: '⚠️ Cuidado com a guerra de preços! Baixar para acompanhar o concorrente comprime sua margem e pode te deixar no prejuízo. Se você não tem escala para competir por preço, vai perder essa batalha.',
+            bncc: '📚 BNCC 2 — Pensamento crítico para identificar armadilhas estratégicas.'
+          },
+          {
+            label: '🌟 Invisto em qualidade e experiência',
+            desc: 'Faço os clientes amarem minha marca',
+            xp: 100,
+            quality: 'great',
+            feedback: 'Excelente decisão de negócio! Em vez de competir por preço, você compete por valor. Clientes que pagam mais ficam mais tempo, reclamam menos e indicam mais. A Apple nunca compete por preço — e é a empresa mais valiosa do mundo.',
+            bncc: '📚 BNCC 2 e 8 — Pensamento estratégico e autoconfiança em decisões.'
+          },
+          {
+            label: '🎁 Crio um programa de fidelidade',
+            desc: 'Recompenso quem já é cliente fiel',
+            xp: 90,
+            quality: 'great',
+            feedback: 'Ótimo! Reter clientes custa 5x menos do que conquistar novos. Um programa de fidelidade valoriza quem já escolheu você e cria um vínculo emocional com a marca. Clientes fiéis são seu maior ativo.',
+            bncc: '📚 BNCC 9 — Empatia e construção de relacionamentos duradouros.'
+          },
+          {
+            label: '🔍 Pesquiso por que ele é mais barato',
+            desc: 'Entendo o modelo dele antes de reagir',
+            xp: 85,
+            quality: 'great',
+            feedback: 'Muito inteligente! Antes de reagir, entender o concorrente é fundamental. Talvez ele use material de qualidade inferior, não pague impostos corretamente, ou esteja com prejuízo intencional. Informação é poder no mundo dos negócios.',
+            bncc: '📚 BNCC 2 — Investigação e análise antes da tomada de decisão.'
+          }
+        ]
+      }
+    ];
+
+    // ──────────────────────────────────────────
+    // ESTADO DO JOGO
+    // ──────────────────────────────────────────
+    let currentStep = 0;
+    let totalXP = 0;
+    let choices = [];
+
+    // ──────────────────────────────────────────
+    // FUNÇÕES
+    // ──────────────────────────────────────────
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-' + id).classList.add('active');
+    }
+
+    function updateProgress() {
+      const pct = (currentStep / STEPS.length) * 100;
+      document.getElementById('progress-bar').style.width = pct + '%';
+      document.getElementById('xp-display').textContent = totalXP;
+    }
+
+    function renderDots() {
+      const container = document.getElementById('step-dots');
+      container.innerHTML = '';
+      STEPS.forEach((_, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'step-dot w-2 h-2 rounded-full ' + (i < currentStep ? 'bg-brand-400' : i === currentStep ? 'bg-white' : 'bg-white/20');
+        container.appendChild(dot);
+      });
+    }
+
+    function renderQuestion() {
+      const step = STEPS[currentStep];
+      document.getElementById('q-step-label').textContent = step.context;
+      document.getElementById('q-icon').textContent = step.icon;
+      document.getElementById('q-context').textContent = '';
+      document.getElementById('q-text').textContent = step.question;
+      document.getElementById('q-feedback').classList.add('hidden');
+      document.getElementById('btn-next').classList.add('hidden');
+
+      renderDots();
+
+      const container = document.getElementById('q-options');
+      container.innerHTML = '';
+      step.options.forEach((opt, idx) => {
+        const el = document.createElement('div');
+        el.className = 'card-option bg-white rounded-2xl p-4';
+        el.innerHTML = `
+          <div class="text-lg font-bold text-gray-900 mb-1">${opt.label}</div>
+          <div class="text-sm text-gray-500">${opt.desc}</div>
+        `;
+        el.addEventListener('click', () => selectOption(idx));
+        container.appendChild(el);
+      });
+
+      // Animate options
+      const options = container.querySelectorAll('.card-option');
+      options.forEach((el, i) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(15px)';
+        setTimeout(() => {
+          el.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+          el.style.opacity = '1';
+          el.style.transform = 'translateY(0)';
+        }, i * 80);
+      });
+
+      showScreen('question');
+    }
+
+    function selectOption(idx) {
+      const step = STEPS[currentStep];
+      const opt  = step.options[idx];
+
+      // Desabilitar todas as opções
+      const allOptions = document.querySelectorAll('.card-option');
+      allOptions.forEach((el, i) => {
+        el.classList.add('disabled');
+        if (i === idx) {
+          el.classList.add(opt.quality === 'great' ? 'correct' : opt.quality === 'bad' ? 'wrong' : 'selected');
+        } else {
+          el.style.opacity = '0.4';
+        }
+      });
+
+      // Adicionar XP
+      totalXP += opt.xp;
+      choices.push({ step: step.id, label: opt.label, xp: opt.xp, quality: opt.quality });
+      document.getElementById('xp-display').textContent = totalXP;
+
+      // Mostrar feedback
+      const fb   = document.getElementById('q-feedback');
+      const fbTitle = document.getElementById('q-feedback-title');
+      const fbText  = document.getElementById('q-feedback-text');
+      const fbBncc  = document.getElementById('q-bncc');
+
+      if (opt.quality === 'great') {
+        fb.className = 'feedback-box feedback-good p-4 slide-up mt-4';
+        fbTitle.className = 'font-bold text-sm mb-1 text-green-700';
+        fbTitle.textContent = `✅ +${opt.xp} XP — Excelente escolha!`;
+      } else if (opt.quality === 'bad') {
+        fb.className = 'feedback-box feedback-bad p-4 slide-up mt-4';
+        fbTitle.className = 'font-bold text-sm mb-1 text-red-700';
+        fbTitle.textContent = `⚠️ +${opt.xp} XP — Atenção! Aprenda com isso:`;
+        allOptions[idx].classList.add('shake');
+      } else {
+        fb.className = 'feedback-box feedback-tip p-4 slide-up mt-4';
+        fbTitle.className = 'font-bold text-sm mb-1 text-brand-700';
+        fbTitle.textContent = `💡 +${opt.xp} XP — Pode melhorar!`;
+      }
+
+      fbText.textContent = opt.feedback;
+      fbBncc.textContent = opt.bncc;
+      fb.classList.remove('hidden');
+
+      // Botão próxima
+      const btnNext = document.getElementById('btn-next');
+      btnNext.classList.remove('hidden');
+      if (currentStep === STEPS.length - 1) {
+        btnNext.textContent = '🏆 Ver meu resultado!';
+      } else {
+        btnNext.textContent = 'Próxima etapa →';
+      }
+    }
+
+    function nextStep() {
+      currentStep++;
+      updateProgress();
+      if (currentStep >= STEPS.length) {
+        showResult();
+      } else {
+        renderQuestion();
+      }
+    }
+
+    function showResult() {
+      const maxXP   = STEPS.reduce((sum, s) => sum + Math.max(...s.options.map(o => o.xp)), 0);
+      const pct     = totalXP / maxXP;
+
+      let badge, title, subtitle;
+      if (pct >= 0.85) {
+        badge = '🥇'; title = 'CEO do Futuro!'; subtitle = 'Você tomou decisões excelentes em quase todas as etapas. Tem tudo para ser um grande empreendedor!';
+      } else if (pct >= 0.65) {
+        badge = '🥈'; title = 'Empreendedor em Ascensão!'; subtitle = 'Boas decisões na maioria das etapas. Continue aprendendo e você vai longe!';
+      } else if (pct >= 0.45) {
+        badge = '🥉'; title = 'Aprendiz Determinado!'; subtitle = 'Você está no caminho certo. Revise as dicas do feedback e jogue novamente para melhorar!';
+      } else {
+        badge = '📚'; title = 'Ainda Aprendendo!'; subtitle = 'Empreender dá trabalho, mas errar faz parte. Releia os feedbacks e tente de novo — você vai melhorar muito!';
+      }
+
+      document.getElementById('badge-icon').textContent = badge;
+      document.getElementById('result-title').textContent = title;
+      document.getElementById('result-subtitle').textContent = subtitle;
+      document.getElementById('result-xp').textContent = totalXP + ' XP';
+
+      // Animar barra de XP após 300ms
+      setTimeout(() => {
+        document.getElementById('result-xp-bar').style.width = (pct * 100) + '%';
+      }, 300);
+
+      // Resumo de escolhas
+      const choicesEl = document.getElementById('result-choices');
+      choicesEl.innerHTML = '';
+      choices.forEach(c => {
+        const icon = c.quality === 'great' ? '✅' : c.quality === 'bad' ? '❌' : '💡';
+        const el = document.createElement('div');
+        el.className = 'flex items-center justify-between text-sm';
+        el.innerHTML = `
+          <span class="text-white/70">${icon} ${c.label}</span>
+          <span class="text-yellow-400 font-bold">+${c.xp} XP</span>
+        `;
+        choicesEl.appendChild(el);
+      });
+
+      // Progresso final
+      document.getElementById('progress-bar').style.width = '100%';
+      showScreen('result');
+    }
+
+    function startGame() {
+      currentStep = 0;
+      totalXP = 0;
+      choices = [];
+      updateProgress();
+      renderQuestion();
+    }
+
+    function restartGame() {
+      showScreen('intro');
+      document.getElementById('progress-bar').style.width = '0%';
+      document.getElementById('xp-display').textContent = '0';
+    }
+  </script>
+</body>
+</html>
