@@ -3,893 +3,371 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IdeaLab — Jogos de Empreendedorismo</title>
+<title>IdeaLab — Laboratório de Inovação</title>
 <script src="https://cdn.tailwindcss.com/3.4.1"></script>
 <style>
-  :root {
-    --brand: #7c3aed;
-    --brand-dark: #5b21b6;
-    --accent: #06b6d4;
-    --bg: #0a0a14;
-    --card: #131325;
-    --border: #1e1e3f;
-    --text: #e2e8f0;
-    --muted: #94a3b8;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* ── NAVBAR ── */
-  #navbar {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
-    background: rgba(10,10,20,0.92);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 1rem; height: 48px;
-  }
-  #navbar .nav-left { display: flex; align-items: center; gap: 0.5rem; }
-  #navbar .nav-back {
-    background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3);
-    color: #a78bfa; border-radius: 6px; padding: 4px 10px; font-size: 12px;
-    text-decoration: none; transition: all .2s; cursor: pointer;
-  }
-  #navbar .nav-back:hover { background: rgba(124,58,237,0.25); }
-  #navbar .nav-badge {
-    background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4);
-    color: #c4b5fd; border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 600;
-  }
-  #navbar .nav-logo {
-    font-size: 12px; font-weight: 700; color: #a78bfa; letter-spacing: 0.05em;
-  }
-
-  /* ── PROGRESS BAR ── */
-  #progress-bar {
-    position: fixed; top: 48px; left: 0; right: 0; z-index: 49;
-    height: 3px; background: rgba(124,58,237,0.15);
-  }
-  #progress-fill {
-    height: 100%; background: linear-gradient(90deg, #7c3aed, #06b6d4);
-    transition: width 0.6s ease; width: 0%;
-  }
-
-  /* ── STAT BARS ── */
-  #statbar {
-    position: fixed; top: 51px; left: 0; right: 0; z-index: 48;
-    background: rgba(10,10,20,0.95);
-    border-bottom: 1px solid var(--border);
-    padding: 6px 1rem;
-    display: flex; gap: 0.5rem; align-items: center;
-  }
-  .stat-item {
-    flex: 1; display: flex; flex-direction: column; gap: 3px;
-  }
-  .stat-label {
-    display: flex; align-items: center; justify-content: space-between;
-    font-size: 10px; color: var(--muted);
-  }
-  .stat-label span:first-child { display: flex; align-items: center; gap: 3px; }
-  .stat-val { font-weight: 700; font-size: 10px; }
-  .stat-track {
-    height: 5px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;
-  }
-  .stat-fill {
-    height: 100%; border-radius: 3px;
-    transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1);
-  }
-  #stat-criatividade .stat-fill { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
-  #stat-viabilidade  .stat-fill { background: linear-gradient(90deg, #059669, #34d399); }
-  #stat-engajamento  .stat-fill { background: linear-gradient(90deg, #d97706, #fbbf24); }
-  #stat-impacto      .stat-fill { background: linear-gradient(90deg, #0284c7, #38bdf8); }
-
-  /* ── MAIN CONTENT ── */
-  #main {
-    margin-top: 100px; /* navbar + progress + statbar */
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; padding: 1rem;
-    min-height: calc(100vh - 100px);
-  }
-
-  /* ── SCREENS ── */
-  .screen {
-    width: 100%; max-width: 640px;
-    animation: screenIn 0.4s cubic-bezier(0.22,1,0.36,1) both;
-  }
-  @keyframes screenIn {
-    from { opacity: 0; transform: translateY(24px) scale(0.97); }
-    to   { opacity: 1; transform: translateY(0)    scale(1); }
-  }
-  @keyframes chapterPop {
-    0%   { opacity: 0; transform: scale(0.7) rotate(-3deg); }
-    60%  { transform: scale(1.08) rotate(1deg); }
-    100% { opacity: 1; transform: scale(1) rotate(0deg); }
-  }
-  @keyframes statPop {
-    0%   { transform: scale(1); }
-    40%  { transform: scale(1.15); }
-    100% { transform: scale(1); }
-  }
-  @keyframes spinIn {
-    from { transform: rotate(-180deg) scale(0); opacity: 0; }
-    to   { transform: rotate(0)       scale(1); opacity: 1; }
-  }
-
-  /* ── CARD BASE ── */
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-  }
-
-  /* ── SCENE BACKGROUNDS ── */
-  .scene-ideacao      { background: linear-gradient(135deg, #0c0a2e 0%, #06051a 100%); border: 1px solid #1a1650; }
-  .scene-prototipagem { background: linear-gradient(135deg, #1a1000 0%, #0d0800 100%); border: 1px solid #2a1a00; }
-  .scene-pitch        { background: linear-gradient(135deg, #1a002d 0%, #0a001a 100%); border: 1px solid #2d0050; }
-  .scene-lancamento   { background: linear-gradient(135deg, #001a10 0%, #000d08 100%); border: 1px solid #003020; }
-
-  /* ── INTRO SCREEN ── */
-  #screen-intro {
-    display: flex; flex-direction: column; align-items: center;
-    text-align: center; padding: 2rem 1rem;
-  }
-  .intro-icon {
-    font-size: 5rem; margin-bottom: 1rem;
-    animation: spinIn 0.8s cubic-bezier(0.34,1.56,0.64,1) both;
-    animation-delay: 0.2s;
-  }
-  .intro-title { font-size: 2rem; font-weight: 800; color: #a78bfa; margin-bottom: 0.5rem; }
-  .intro-sub { color: var(--muted); font-size: 0.95rem; line-height: 1.6; max-width: 460px; margin: 0 auto 1.5rem; }
-  .intro-tags { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
-  .intro-tag {
-    background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3);
-    color: #c4b5fd; border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 600;
-  }
-  .intro-stats {
-    display: grid; grid-template-columns: repeat(2,1fr); gap: 0.75rem;
-    width: 100%; max-width: 360px; margin-bottom: 2rem;
-  }
-  .intro-stat {
-    background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.2);
-    border-radius: 10px; padding: 0.75rem; text-align: center;
-  }
-  .intro-stat .is-emoji { font-size: 1.5rem; }
-  .intro-stat .is-name { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .btn-primary {
-    background: linear-gradient(135deg, #7c3aed, #5b21b6);
-    color: white; border: none; border-radius: 12px;
-    padding: 14px 40px; font-size: 1rem; font-weight: 700;
-    cursor: pointer; transition: all .2s; letter-spacing: 0.02em;
-    box-shadow: 0 4px 20px rgba(124,58,237,0.4);
-  }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(124,58,237,0.5); }
-  .btn-primary:active { transform: translateY(0); }
-
-  /* ── CHAPTER TRANSITION ── */
-  #screen-chapter {
-    display: flex; flex-direction: column; align-items: center;
-    text-align: center; padding: 2.5rem 1.5rem;
-    border-radius: 20px;
-  }
-  .ch-number { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; margin-bottom: 0.5rem; }
-  .ch-emoji {
-    font-size: 4rem; margin-bottom: 1rem;
-    animation: chapterPop 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
-    animation-delay: 0.15s;
-  }
-  .ch-title { font-size: 1.6rem; font-weight: 800; color: #c4b5fd; margin-bottom: 0.5rem; }
-  .ch-tag {
-    display: inline-block; background: rgba(124,58,237,0.25); border: 1px solid rgba(124,58,237,0.4);
-    color: #a78bfa; border-radius: 20px; padding: 3px 12px; font-size: 11px; font-weight: 700;
-    letter-spacing: 0.08em; margin-bottom: 1rem;
-  }
-  .ch-desc { color: var(--muted); font-size: 0.9rem; line-height: 1.6; max-width: 380px; margin: 0 auto 2rem; }
-  .ch-time { font-size: 11px; color: #7c3aed; font-weight: 600; margin-bottom: 1.5rem; }
-  .btn-chapter {
-    background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4);
-    color: #c4b5fd; border-radius: 10px; padding: 10px 28px; font-size: 0.9rem; font-weight: 700;
-    cursor: pointer; transition: all .2s;
-  }
-  .btn-chapter:hover { background: rgba(124,58,237,0.35); }
-
-  /* ── QUESTION SCREEN ── */
-  #screen-question { border-radius: 16px; padding: 1.25rem; }
-  .q-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; }
-  .q-char-emoji { font-size: 2.5rem; flex-shrink: 0; }
-  .q-char-info { }
-  .q-char-name { font-size: 0.85rem; font-weight: 700; color: #c4b5fd; }
-  .q-char-role { font-size: 11px; color: var(--muted); }
-  .q-speech {
-    background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.25);
-    border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 1rem;
-    font-size: 0.9rem; color: #ddd6fe; line-height: 1.55; font-style: italic;
-  }
-  .q-context {
-    font-size: 0.8rem; color: var(--muted); line-height: 1.5;
-    margin-bottom: 1rem; padding: 0.6rem 0.75rem;
-    background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 2px solid rgba(124,58,237,0.4);
-  }
-  .q-question { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 1rem; line-height: 1.4; }
-  .options-grid { display: flex; flex-direction: column; gap: 0.6rem; }
-
-  .opt-card {
-    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px; padding: 0.85rem 1rem;
-    cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 6px;
-  }
-  .opt-card:hover:not(.picked):not(.disabled) {
-    background: rgba(124,58,237,0.15); border-color: rgba(124,58,237,0.4);
-    transform: translateX(3px);
-  }
-  .opt-top { display: flex; align-items: flex-start; gap: 0.5rem; }
-  .opt-letter {
-    background: rgba(124,58,237,0.2); color: #a78bfa;
-    border-radius: 6px; padding: 2px 7px; font-size: 11px; font-weight: 800;
-    flex-shrink: 0; margin-top: 1px;
-  }
-  .opt-label { font-size: 0.88rem; font-weight: 600; color: var(--text); line-height: 1.4; flex: 1; }
-  .opt-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.4; padding-left: calc(1.5rem + 0.5rem); }
-  .opt-fx { display: flex; gap: 4px; flex-wrap: wrap; padding-left: calc(1.5rem + 0.5rem); }
-  .fx-chip {
-    font-size: 10px; font-weight: 700; border-radius: 4px; padding: 2px 6px;
-    opacity: 0.7;
-  }
-  .fx-pos { background: rgba(52,211,153,0.15); color: #34d399; }
-  .fx-neg { background: rgba(248,113,113,0.15); color: #f87171; }
-
-  /* picked states */
-  .opt-card.picked-good  { background: rgba(52,211,153,0.12); border-color: rgba(52,211,153,0.5); }
-  .opt-card.picked-ok    { background: rgba(250,204,21,0.1);  border-color: rgba(250,204,21,0.4); }
-  .opt-card.picked-bad   { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.4); }
-  .opt-card.disabled     { opacity: 0.4; pointer-events: none; }
-
-  /* ── FEEDBACK ── */
-  #feedback-box {
-    margin-top: 1rem; padding: 1rem;
-    background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.25);
-    border-radius: 12px; display: none;
-  }
-  .fb-quality { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem; }
-  .fb-text    { font-size: 0.82rem; color: #c4b5fd; line-height: 1.5; margin-bottom: 0.6rem; }
-  .fb-stats   { display: flex; gap: 6px; flex-wrap: wrap; }
-  .fb-stat    {
-    font-size: 11px; font-weight: 700; border-radius: 6px; padding: 3px 8px;
-  }
-  .fb-stat-pos { background: rgba(52,211,153,0.2); color: #34d399; }
-  .fb-stat-neg { background: rgba(248,113,113,0.2); color: #f87171; }
-  .bncc-badge {
-    display: inline-flex; align-items: center; gap: 4px;
-    background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.25);
-    color: #67e8f9; border-radius: 20px; padding: 2px 8px; font-size: 10px; font-weight: 600;
-    margin-top: 0.4rem;
-  }
-
-  .btn-next {
-    display: block; width: 100%; margin-top: 1rem;
-    background: linear-gradient(135deg, #7c3aed, #5b21b6);
-    color: white; border: none; border-radius: 10px;
-    padding: 12px; font-size: 0.9rem; font-weight: 700;
-    cursor: pointer; transition: all .2s;
-  }
-  .btn-next:hover { opacity: 0.9; transform: translateY(-1px); }
-
-  /* ── RESULT SCREEN ── */
-  #screen-result { border-radius: 20px; padding: 2rem 1.5rem; text-align: center; }
-  .result-badge-emoji {
-    font-size: 5rem; display: block; margin-bottom: 0.75rem;
-    animation: spinIn 0.8s cubic-bezier(0.34,1.56,0.64,1) both;
-    animation-delay: 0.2s;
-  }
-  .result-title { font-size: 1.6rem; font-weight: 800; color: #a78bfa; margin-bottom: 0.25rem; }
-  .result-sub   { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
-  .result-pct   { font-size: 3rem; font-weight: 900; color: #c4b5fd; line-height: 1; margin-bottom: 0.25rem; }
-  .result-pct-label { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.5rem; }
-  .result-stats { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; text-align: left; }
-  .rs-item { }
-  .rs-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
-  .rs-bar { height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
-  .rs-fill {
-    height: 100%; border-radius: 4px;
-    transition: width 1s cubic-bezier(0.34,1.56,0.64,1);
-    animation: statPop 0.6s ease both;
-  }
-  .rs-fill.f-cria { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
-  .rs-fill.f-viab { background: linear-gradient(90deg, #059669, #34d399); }
-  .rs-fill.f-enga { background: linear-gradient(90deg, #d97706, #fbbf24); }
-  .rs-fill.f-impa { background: linear-gradient(90deg, #0284c7, #38bdf8); }
-
-  .result-bncc { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 1.5rem; }
-  .result-msg { font-size: 0.85rem; color: #c4b5fd; line-height: 1.6; margin-bottom: 1.5rem; background: rgba(124,58,237,0.08); border-radius: 10px; padding: 0.9rem; }
-  .btn-restart {
-    background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4);
-    color: #c4b5fd; border-radius: 10px; padding: 10px 28px; font-size: 0.9rem; font-weight: 700;
-    cursor: pointer; transition: all .2s; margin-right: 0.5rem;
-  }
-  .btn-restart:hover { background: rgba(124,58,237,0.35); }
-  .btn-home {
-    background: rgba(6,182,212,0.15); border: 1px solid rgba(6,182,212,0.3);
-    color: #67e8f9; border-radius: 10px; padding: 10px 28px; font-size: 0.9rem; font-weight: 700;
-    cursor: pointer; transition: all .2s; text-decoration: none; display: inline-block;
-  }
-  .btn-home:hover { background: rgba(6,182,212,0.25); }
+:root{--brand:#7c3aed;--brand-light:#a78bfa;--accent:#06b6d4;--bg:#0f0a1e;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;color:#e2e8f0;}
+#pcv{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+.screen{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;z-index:10;transition:opacity .35s ease;overflow-y:auto;}
+.screen.active{opacity:1;pointer-events:auto;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+@keyframes sil{from{opacity:0;transform:translateX(-80px)}to{opacity:1;transform:translateX(0)}}
+@keyframes sir{from{opacity:0;transform:translateX(80px)}to{opacity:1;transform:translateX(0)}}
+@keyframes siu{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pin{0%{opacity:0;transform:scale(0) rotate(-15deg)}60%{transform:scale(1.15) rotate(4deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes shk{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes fup{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-70px)}}
+@keyframes pgl{0%,100%{box-shadow:0 0 0 0 rgba(124,58,237,.4)}50%{box-shadow:0 0 24px 8px rgba(124,58,237,.2)}}
+@keyframes cblink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes sgrow{from{width:0}}
+@keyframes cfall{0%{transform:translateY(-100px) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+@keyframes rpl{to{transform:scale(5);opacity:0}}
+@keyframes chl{from{width:0}to{width:100%}}
+@keyframes spf{0%{opacity:0;transform:translateY(0) scale(0)}30%{opacity:1;transform:scale(1.2)}70%{opacity:.8}100%{opacity:0;transform:translateY(-80px) scale(.5)}}
+#hud{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(15,10,30,.93);backdrop-filter:blur(12px);border-bottom:1px solid rgba(124,58,237,.25);padding:0 1rem;transform:translateY(-100%);transition:transform .3s ease;}
+#hud.visible{transform:translateY(0);}
+.ht{display:flex;align-items:center;justify-content:space-between;height:42px;}
+.htit{font-size:.82rem;font-weight:700;color:var(--brand-light);letter-spacing:.06em;}
+.hbdg{background:linear-gradient(135deg,var(--brand),var(--accent));padding:2px 10px;border-radius:12px;font-size:.7rem;font-weight:700;}
+.po{height:3px;background:rgba(255,255,255,.07);}
+.pi{height:100%;background:linear-gradient(90deg,var(--brand),var(--accent));transition:width .6s ease;}
+.srow{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:5px 0 7px;}
+.si2{display:flex;flex-direction:column;gap:2px;}
+.slbl{font-size:.6rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;}
+.sbg{height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;}
+.sf{height:100%;border-radius:2px;transition:width .6s cubic-bezier(.34,1.56,.64,1);}
+.sc .sf{background:linear-gradient(90deg,#a855f7,#ec4899);}
+.sv .sf{background:linear-gradient(90deg,#3b82f6,#06b6d4);}
+.se .sf{background:linear-gradient(90deg,#f59e0b,#f97316);}
+.sim .sf{background:linear-gradient(90deg,#10b981,#3b82f6);}
+.sval{font-size:.7rem;font-weight:700;}
+#s-start{background:radial-gradient(ellipse at 30% 25%,rgba(124,58,237,.25) 0%,transparent 55%),radial-gradient(ellipse at 70% 75%,rgba(6,182,212,.15) 0%,transparent 55%),var(--bg);}
+.sico{font-size:5rem;line-height:1;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(124,58,237,.9));}
+.stit{font-size:clamp(2.2rem,7vw,3.8rem);font-weight:900;letter-spacing:-.02em;background:linear-gradient(135deg,#fff 30%,var(--brand-light) 65%,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:siu .8s ease .2s both;}
+.ssub{font-size:.98rem;color:#94a3b8;max-width:420px;text-align:center;line-height:1.65;animation:siu .8s ease .4s both;}
+.sbtn{background:linear-gradient(135deg,var(--brand),var(--accent));border:none;color:#fff;font-size:1.08rem;font-weight:700;padding:.95rem 2.4rem;border-radius:50px;cursor:pointer;animation:siu .8s ease .6s both,pgl 2.5s ease-in-out infinite 1.5s;transition:transform .2s ease,filter .2s ease;letter-spacing:.05em;}
+.sbtn:hover{transform:scale(1.05);filter:brightness(1.1);}
+.sbtn:active{transform:scale(.97);}
+.tag{background:rgba(124,58,237,.18);border:1px solid rgba(124,58,237,.35);padding:4px 12px;border-radius:20px;font-size:.73rem;color:var(--brand-light);}
+#s-ch{z-index:50;}
+.chbg{position:absolute;inset:0;}
+.chc{position:relative;z-index:10;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1.4rem;}
+.chnum{font-size:.85rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.45);}
+.chemo{font-size:6.5rem;filter:drop-shadow(0 0 30px rgba(124,58,237,.9));}
+.chtit{font-size:clamp(2.2rem,8vw,4.5rem);font-weight:900;background:linear-gradient(135deg,#fff,var(--brand-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.chln{height:3px;background:linear-gradient(90deg,var(--brand),var(--accent));border-radius:2px;animation:chl .8s ease .4s both;}
+.chdsc{font-size:1.05rem;color:rgba(255,255,255,.7);max-width:400px;line-height:1.65;animation:siu .8s ease .5s both;}
+#s-scene{padding-top:108px;justify-content:flex-start;overflow-y:auto;}
+.scbg{position:fixed;inset:0;z-index:5;transition:background 1s ease;}
+.scc{position:relative;z-index:10;width:100%;max-width:780px;padding:1rem 1rem 2rem;display:flex;flex-direction:column;gap:.9rem;}
+.cstg{display:flex;align-items:flex-end;gap:.9rem;min-height:150px;}
+.cprt{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;animation:sil .5s cubic-bezier(.34,1.56,.64,1) both;}
+.cav{width:95px;height:114px;animation:breathe 3s ease-in-out infinite;filter:drop-shadow(0 6px 18px rgba(0,0,0,.6));}
+.cnm{font-size:.68rem;font-weight:700;color:var(--brand-light);letter-spacing:.05em;text-transform:uppercase;text-align:center;}
+.dbub{flex:1;background:rgba(26,16,53,.88);backdrop-filter:blur(10px);border:1px solid rgba(124,58,237,.35);border-radius:16px 16px 16px 4px;padding:1.1rem 1.3rem;position:relative;animation:sir .5s cubic-bezier(.34,1.56,.64,1) .1s both;box-shadow:0 8px 32px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.04);}
+.dbub::before{content:'';position:absolute;left:-9px;bottom:22px;border:5px solid transparent;border-right-color:rgba(124,58,237,.35);}
+.dtxt{font-size:.98rem;line-height:1.72;color:#e2e8f0;min-height:1.5em;}
+.cur{display:inline-block;width:2px;height:1.1em;background:var(--brand-light);margin-left:2px;vertical-align:middle;animation:cblink .7s infinite;}
+.cbtn{align-self:flex-end;background:rgba(124,58,237,.25);border:1px solid rgba(124,58,237,.45);color:#a78bfa;padding:.55rem 1.3rem;border-radius:50px;cursor:pointer;font-size:.83rem;transition:all .2s ease;}
+.cbtn:hover{background:rgba(124,58,237,.45);}
+.qbox{background:rgba(26,16,53,.82);backdrop-filter:blur(10px);border:1px solid rgba(124,58,237,.4);border-radius:16px;padding:1.3rem 1.5rem;animation:siu .4s ease .15s both;}
+.qlbl{font-size:.68rem;font-weight:700;color:var(--brand-light);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.65rem;}
+.qtxt{font-size:1.08rem;font-weight:600;color:#fff;line-height:1.5;}
+.chcs{display:flex;flex-direction:column;gap:.7rem;animation:siu .4s ease .3s both;}
+.cc{background:rgba(35,24,70,.65);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:1rem 1.2rem;cursor:pointer;transition:all .25s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden;}
+.cc::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(6,182,212,.08));opacity:0;transition:opacity .25s ease;}
+.cc:hover{transform:translateY(-3px) scale(1.01);border-color:rgba(124,58,237,.55);box-shadow:0 10px 28px rgba(124,58,237,.22),0 4px 10px rgba(0,0,0,.3);}
+.cc:hover::after{opacity:1;}
+.cc:active{transform:scale(.98);}
+.cl{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:7px;font-size:.72rem;font-weight:700;background:rgba(124,58,237,.28);color:var(--brand-light);flex-shrink:0;margin-right:9px;}
+.ctit{font-size:.92rem;font-weight:600;color:#fff;line-height:1.4;}
+.cdsc{font-size:.82rem;color:#94a3b8;margin-top:.3rem;line-height:1.5;}
+.rpl{position:absolute;border-radius:50%;background:rgba(124,58,237,.28);transform:scale(0);animation:rpl .55s ease-out forwards;pointer-events:none;}
+.spp{position:fixed;font-size:1.05rem;font-weight:700;pointer-events:none;z-index:200;animation:fup 1.3s ease forwards;text-shadow:0 2px 8px rgba(0,0,0,.9);}
+#s-res{padding:1rem;padding-top:56px;background:radial-gradient(ellipse at 50% 20%,rgba(124,58,237,.28) 0%,transparent 55%),var(--bg);}
+.rbdg{font-size:5.5rem;animation:pin .6s cubic-bezier(.34,1.56,.64,1) .15s both;filter:drop-shadow(0 0 22px rgba(124,58,237,.9));}
+.rtit{font-size:clamp(1.6rem,5.5vw,2.7rem);font-weight:900;background:linear-gradient(135deg,#fff,var(--brand-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:siu .6s ease .35s both;text-align:center;}
+.rdsc{color:#94a3b8;font-size:.93rem;text-align:center;max-width:430px;line-height:1.65;animation:siu .6s ease .55s both;}
+.rsts{width:100%;max-width:510px;animation:siu .6s ease .75s both;}
+.rrow{display:flex;align-items:center;gap:.9rem;margin-bottom:.7rem;}
+.rlbl{width:108px;font-size:.78rem;color:#94a3b8;text-align:right;flex-shrink:0;}
+.rbg{flex:1;height:9px;background:rgba(255,255,255,.07);border-radius:5px;overflow:hidden;}
+.rfil{height:100%;border-radius:5px;animation:sgrow 1s cubic-bezier(.34,1.56,.64,1) var(--d,0s) both;}
+.rval{width:30px;font-size:.78rem;font-weight:700;}
+.rbtn{background:linear-gradient(135deg,var(--brand),var(--accent));border:none;color:#fff;font-size:.98rem;font-weight:700;padding:.85rem 1.9rem;border-radius:50px;cursor:pointer;animation:siu .6s ease 1.1s both;transition:transform .2s ease;}
+.rbtn:hover{transform:scale(1.05);}
+.cfi{position:fixed;top:-20px;pointer-events:none;animation:cfall var(--du,3s) var(--dl,0s) ease-in forwards;z-index:300;}
+.spk{position:fixed;pointer-events:none;font-size:1.1rem;animation:spf var(--du,4s) var(--dl,0s) ease-out infinite;z-index:6;}
+.bg-i{background:radial-gradient(ellipse at 20% 20%,rgba(79,70,229,.4) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(139,92,246,.3) 0%,transparent 50%),linear-gradient(180deg,#0d0b22 0%,#1a1040 100%);}
+.bg-p{background:radial-gradient(ellipse at 60% 20%,rgba(245,158,11,.32) 0%,transparent 50%),radial-gradient(ellipse at 20% 80%,rgba(249,115,22,.22) 0%,transparent 50%),linear-gradient(180deg,#150d05 0%,#2c1a0e 100%);}
+.bg-pt{background:radial-gradient(ellipse at 50% 10%,rgba(236,72,153,.35) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(139,92,246,.25) 0%,transparent 50%),linear-gradient(180deg,#1a0520 0%,#2d0e45 100%);}
+.bg-l{background:radial-gradient(ellipse at 30% 30%,rgba(16,185,129,.3) 0%,transparent 50%),radial-gradient(ellipse at 70% 70%,rgba(6,182,212,.25) 0%,transparent 50%),linear-gradient(180deg,#020f0d 0%,#041c18 100%);}
+@media(max-width:640px){.cav{width:68px;height:82px;}.dtxt{font-size:.88rem;}.qtxt{font-size:.96rem;}.ctit{font-size:.88rem;}.sico{font-size:3.8rem;}}
 </style>
 </head>
 <body>
-
-<!-- NAVBAR -->
-<div id="navbar">
-  <div class="nav-left">
-    <a href="../index.html" class="nav-back">← Voltar</a>
-    <span id="nav-badge" class="nav-badge">Fase 1 · Decisão 1/12</span>
+<canvas id="pcv"></canvas>
+<div id="hud">
+  <div class="ht">
+    <span class="htit">🔬 IdeaLab</span>
+    <span id="hpt" style="font-size:.72rem;color:#94a3b8">Início</span>
+    <span class="hbdg" id="hbdg">Cap. 1</span>
   </div>
-  <span class="nav-logo">🔬 IdeaLab</span>
-</div>
-
-<!-- PROGRESS BAR -->
-<div id="progress-bar"><div id="progress-fill"></div></div>
-
-<!-- STAT BARS -->
-<div id="statbar">
-  <div class="stat-item" id="stat-criatividade">
-    <div class="stat-label">
-      <span>🧠 <span>Criatividade</span></span>
-      <span class="stat-val" id="val-criatividade">50</span>
-    </div>
-    <div class="stat-track"><div class="stat-fill" id="fill-criatividade" style="width:50%"></div></div>
-  </div>
-  <div class="stat-item" id="stat-viabilidade">
-    <div class="stat-label">
-      <span>⚙️ <span>Viabilidade</span></span>
-      <span class="stat-val" id="val-viabilidade">40</span>
-    </div>
-    <div class="stat-track"><div class="stat-fill" id="fill-viabilidade" style="width:40%"></div></div>
-  </div>
-  <div class="stat-item" id="stat-engajamento">
-    <div class="stat-label">
-      <span>📣 <span>Engajamento</span></span>
-      <span class="stat-val" id="val-engajamento">45</span>
-    </div>
-    <div class="stat-track"><div class="stat-fill" id="fill-engajamento" style="width:45%"></div></div>
-  </div>
-  <div class="stat-item" id="stat-impacto">
-    <div class="stat-label">
-      <span>🌍 <span>Impacto</span></span>
-      <span class="stat-val" id="val-impacto">35</span>
-    </div>
-    <div class="stat-track"><div class="stat-fill" id="fill-impacto" style="width:35%"></div></div>
+  <div class="po"><div class="pi" id="pb" style="width:0%"></div></div>
+  <div class="srow">
+    <div class="si2 sc"><div class="slbl">Criatividade</div><div class="sbg"><div class="sf" id="bc" style="width:50%"></div></div><div class="sval" id="vc" style="color:#a855f7">50</div></div>
+    <div class="si2 sv"><div class="slbl">Viabilidade</div><div class="sbg"><div class="sf" id="bv" style="width:40%"></div></div><div class="sval" id="vv" style="color:#3b82f6">40</div></div>
+    <div class="si2 se"><div class="slbl">Engajamento</div><div class="sbg"><div class="sf" id="be" style="width:45%"></div></div><div class="sval" id="ve" style="color:#f59e0b">45</div></div>
+    <div class="si2 sim"><div class="slbl">Impacto</div><div class="sbg"><div class="sf" id="bi" style="width:35%"></div></div><div class="sval" id="vi" style="color:#10b981">35</div></div>
   </div>
 </div>
-
-<!-- MAIN -->
-<div id="main">
-
-  <!-- INTRO -->
-  <div id="screen-intro" class="screen" style="display:none">
-    <div class="intro-icon">🔬</div>
-    <h1 class="intro-title">IdeaLab</h1>
-    <p class="intro-sub">Bem-vindo ao laboratório de inovação! Você vai criar uma startup do zero — da ideia ao lançamento. Cada decisão molda seu produto e seu futuro como empreendedor.</p>
-    <div class="intro-tags">
-      <span class="intro-tag">🧠 Pensamento Criativo</span>
-      <span class="intro-tag">📣 Comunicação</span>
-      <span class="intro-tag">12 Decisões</span>
-      <span class="intro-tag">4 Fases</span>
-    </div>
-    <div class="intro-stats">
-      <div class="intro-stat"><div class="is-emoji">🧠</div><div class="is-name">Criatividade</div></div>
-      <div class="intro-stat"><div class="is-emoji">⚙️</div><div class="is-name">Viabilidade</div></div>
-      <div class="intro-stat"><div class="is-emoji">📣</div><div class="is-name">Engajamento</div></div>
-      <div class="intro-stat"><div class="is-emoji">🌍</div><div class="is-name">Impacto</div></div>
-    </div>
-    <button class="btn-primary" onclick="startGame()">🚀 Iniciar IdeaLab</button>
+<div id="s-start" class="screen active">
+  <div class="sico">🔬</div>
+  <h1 class="stit">IdeaLab</h1>
+  <p class="ssub">Você tem uma ideia brilhante. Agora transforme-a em uma startup real. Tome 12 decisões estratégicas e descubra até onde sua startup vai chegar!</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;animation:siu .8s ease .55s both">
+    <span class="tag">🔭 Ideação</span><span class="tag">🛠️ Prototipagem</span><span class="tag">🎤 Pitch</span><span class="tag">🚀 Lançamento</span>
   </div>
-
-  <!-- CHAPTER TRANSITION -->
-  <div id="screen-chapter" class="screen" style="display:none">
-    <div class="ch-number" id="ch-number"></div>
-    <div class="ch-emoji" id="ch-emoji"></div>
-    <div class="ch-tag"  id="ch-tag"></div>
-    <h2 class="ch-title" id="ch-title"></h2>
-    <div class="ch-time" id="ch-time"></div>
-    <p class="ch-desc"   id="ch-desc"></p>
-    <button class="btn-chapter" onclick="nextScreen()">Continuar →</button>
+  <button class="sbtn" onclick="startGame()">Iniciar Missão 🚀</button>
+  <div style="margin-top:1.2rem;animation:siu .8s ease .9s both;text-align:center">
+    <span style="font-size:.72rem;color:#475569">BNCC Competências 2, 4 e 9 · Ensino Fundamental II</span>
   </div>
-
-  <!-- QUESTION -->
-  <div id="screen-question" class="screen" style="display:none">
-    <div class="q-header">
-      <div class="q-char-emoji" id="q-char-emoji"></div>
-      <div class="q-char-info">
-        <div class="q-char-name" id="q-char-name"></div>
-        <div class="q-char-role" id="q-char-role"></div>
-      </div>
-    </div>
-    <div class="q-speech"  id="q-speech"></div>
-    <div class="q-context" id="q-context"></div>
-    <div class="q-question" id="q-question"></div>
-    <div class="options-grid" id="options-grid"></div>
-    <div id="feedback-box">
-      <div class="fb-quality" id="fb-quality"></div>
-      <div class="fb-text"    id="fb-text"></div>
-      <div class="fb-stats"   id="fb-stats"></div>
-      <div id="fb-bncc"></div>
-    </div>
-    <button class="btn-next" id="btn-next" onclick="nextScreen()" style="display:none">
-      Próxima Decisão →
-    </button>
-  </div>
-
-  <!-- RESULT -->
-  <div id="screen-result" class="screen" style="display:none">
-    <span class="result-badge-emoji" id="res-emoji"></span>
-    <div class="result-title" id="res-title"></div>
-    <div class="result-sub"   id="res-sub"></div>
-    <div class="result-pct"   id="res-pct"></div>
-    <div class="result-pct-label">pontuação final</div>
-    <div class="result-stats" id="res-stats"></div>
-    <div class="result-bncc"  id="res-bncc"></div>
-    <div class="result-msg"   id="res-msg"></div>
-    <div>
-      <button class="btn-restart" onclick="restartGame()">🔄 Jogar Novamente</button>
-      <a href="../index.html" class="btn-home">🏠 Início</a>
-    </div>
-  </div>
-
 </div>
-
+<div id="s-ch" class="screen">
+  <div class="chbg" id="chbg"></div>
+  <div class="chc">
+    <div class="chnum" id="chnum"></div>
+    <div class="chemo" id="chemo"></div>
+    <h2 class="chtit" id="chtit"></h2>
+    <div class="chln" style="width:200px"></div>
+    <p class="chdsc" id="chdsc"></p>
+  </div>
+</div>
+<div id="s-scene" class="screen">
+  <div class="scbg" id="scbg"></div>
+  <div class="scc" id="scc"></div>
+</div>
+<div id="s-res" class="screen">
+  <div id="rbdg" class="rbdg"></div>
+  <h2 id="rtit" class="rtit"></h2>
+  <p id="rdsc" class="rdsc"></p>
+  <div class="rsts" id="rsts"></div>
+  <div id="rbncc" style="font-size:.75rem;color:#475569;text-align:center;margin-top:.4rem;animation:siu .6s ease 1s both"></div>
+  <button class="rbtn" onclick="restartGame()">🔄 Jogar Novamente</button>
+  <a href="../index.html" style="color:#475569;font-size:.82rem;text-decoration:underline;margin-top:.5rem;animation:siu .6s ease 1.3s both">← Voltar ao Menu</a>
+</div>
 <script>
-const CHAPTERS = [
-  { num:'Capítulo 1', emoji:'🔭', tag:'IDEAÇÃO',       title:'A Faísca',     time:'⏱ ~15 min', tagCss:'scene-ideacao',
-    desc:'Todo grande produto começa com uma boa pergunta. Antes de construir qualquer coisa, você precisa entender o problema, o usuário e o modelo de negócio.' },
-  { num:'Capítulo 2', emoji:'🛠️', tag:'PROTOTIPAGEM',  title:'Mãos à Obra',  time:'⏱ ~15 min', tagCss:'scene-prototipagem',
-    desc:'Agora é hora de transformar ideias em algo tangível. Mas cuidado: construir sem testar é o erro mais comum de startups que fracassam.' },
-  { num:'Capítulo 3', emoji:'🎤', tag:'PITCH',         title:'No Palco',     time:'⏱ ~15 min', tagCss:'scene-pitch',
-    desc:'Sua ideia só existe para os outros quando você consegue comunicá-la. É hora de defender seu projeto para investidores e lidar com a concorrência.' },
-  { num:'Capítulo 4', emoji:'🚀', tag:'LANÇAMENTO',    title:'Decolagem',    time:'⏱ ~15 min', tagCss:'scene-lancamento',
-    desc:'O lançamento é o teste final. Estratégia, crise e escalabilidade vão definir se sua startup vai decolar ou ficar no chão.' }
+const cv=document.getElementById('pcv'),cx=cv.getContext('2d');
+let pts=[];
+function rsz(){cv.width=innerWidth;cv.height=innerHeight;}
+window.addEventListener('resize',rsz);rsz();
+class Pt{constructor(){this.rst();}rst(){this.x=Math.random()*cv.width;this.y=Math.random()*cv.height;this.r=Math.random()*1.8+.4;this.o=Math.random()*.45+.08;this.vx=(Math.random()-.5)*.35;this.vy=-Math.random()*.45-.08;this.h=250+Math.random()*60;}up(){this.x+=this.vx;this.y+=this.vy;if(this.y<-4||this.x<-4||this.x>cv.width+4)this.rst();}dr(){cx.save();cx.globalAlpha=this.o;cx.fillStyle=`hsl(${this.h},80%,70%)`;cx.beginPath();cx.arc(this.x,this.y,this.r,0,Math.PI*2);cx.fill();cx.restore();}}
+for(let i=0;i<90;i++)pts.push(new Pt());
+function ap(){cx.clearRect(0,0,cv.width,cv.height);pts.forEach(p=>{p.up();p.dr();});requestAnimationFrame(ap);}
+ap();
+const AV={
+Marina:`<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="30" r="21" fill="#f4a261" stroke="#e07b3a" stroke-width="1.5"/><path d="M29 23 Q50 4 71 23 Q70 13 50 11 Q30 13 29 23z" fill="#1e0a5e"/><ellipse cx="50" cy="88" rx="28" ry="36" fill="#4338ca"/><ellipse cx="43" cy="28" rx="5" ry="5.5" fill="white"/><ellipse cx="57" cy="28" rx="5" ry="5.5" fill="white"/><circle cx="43" cy="29" r="3" fill="#1a1a3e"/><circle cx="57" cy="29" r="3" fill="#1a1a3e"/><circle cx="44" cy="28" r="1" fill="white" opacity=".85"/><circle cx="58" cy="28" r="1" fill="white" opacity=".85"/><path d="M39 28 Q43 24 47 28" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round"/><path d="M53 28 Q57 24 61 28" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round"/><path d="M43 37 Q50 41 57 37" fill="none" stroke="#c0392b" stroke-width="1.5" stroke-linecap="round"/><circle cx="43" cy="31" r="1.5" fill="#d4956a" opacity=".6"/><circle cx="57" cy="31" r="1.5" fill="#d4956a" opacity=".6"/></svg>`,
+Julia:`<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="30" r="21" fill="#f4c4a0" stroke="#d4956a" stroke-width="1.5"/><path d="M29 24 Q50 3 71 24 Q75 9 50 7 Q25 9 29 24z" fill="#92400e"/><path d="M27 30 Q22 48 27 60 Q18 54 20 38z" fill="#92400e"/><path d="M73 30 Q78 48 73 60 Q82 54 80 38z" fill="#92400e"/><ellipse cx="50" cy="88" rx="27" ry="34" fill="#dc2626"/><ellipse cx="43" cy="29" rx="4.5" ry="5" fill="white"/><ellipse cx="57" cy="29" rx="4.5" ry="5" fill="white"/><circle cx="43" cy="30" r="2.8" fill="#1a0a00"/><circle cx="57" cy="30" r="2.8" fill="#1a0a00"/><circle cx="44" cy="29" r="1" fill="white" opacity=".85"/><circle cx="58" cy="29" r="1" fill="white" opacity=".85"/><path d="M43 37 Q50 42 57 37" fill="none" stroke="#c0392b" stroke-width="1.6" stroke-linecap="round"/></svg>`,
+Rafael:`<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="30" r="21" fill="#d4956a" stroke="#b8753a" stroke-width="1.5"/><path d="M31 23 Q50 16 69 23 Q67 13 50 12 Q33 13 31 23z" fill="#1a1a2e"/><ellipse cx="50" cy="88" rx="27" ry="34" fill="#1e40af"/><ellipse cx="43" cy="29" rx="4.5" ry="5" fill="white"/><ellipse cx="57" cy="29" rx="4.5" ry="5" fill="white"/><circle cx="43" cy="30" r="2.8" fill="#1a3a1a"/><circle cx="57" cy="30" r="2.8" fill="#1a3a1a"/><circle cx="44" cy="29" r="1" fill="white" opacity=".85"/><circle cx="58" cy="29" r="1" fill="white" opacity=".85"/><path d="M43 37 Q50 41 57 37" fill="none" stroke="#c0392b" stroke-width="1.5" stroke-linecap="round"/><rect x="31" y="74" width="38" height="25" rx="3" fill="#1e3a8a"/><rect x="34" y="77" width="32" height="18" rx="2" fill="#0f172a"/><line x1="40" y1="82" x2="60" y2="82" stroke="#3b82f6" stroke-width="1"/><line x1="40" y1="86" x2="55" y2="86" stroke="#3b82f6" stroke-width="1"/></svg>`,
+Ana:`<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="30" r="21" fill="#f4c4a0" stroke="#d4956a" stroke-width="1.5"/><path d="M29 22 Q50 1 71 22 Q76 8 50 6 Q24 8 29 22z" fill="#7c3aed"/><path d="M27 22 Q19 34 23 50z" fill="#7c3aed" opacity=".7"/><path d="M73 22 Q81 34 77 50z" fill="#7c3aed" opacity=".7"/><ellipse cx="50" cy="88" rx="27" ry="34" fill="#7c3aed"/><ellipse cx="43" cy="29" rx="4.5" ry="5" fill="white"/><ellipse cx="57" cy="29" rx="4.5" ry="5" fill="white"/><circle cx="43" cy="30" r="2.8" fill="#3b1f7c"/><circle cx="57" cy="30" r="2.8" fill="#3b1f7c"/><circle cx="44" cy="29" r="1" fill="white" opacity=".85"/><circle cx="58" cy="29" r="1" fill="white" opacity=".85"/><path d="M43 37 Q50 42 57 37" fill="none" stroke="#e91e63" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+Carlos:`<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="30" r="21" fill="#c8956a" stroke="#a06840" stroke-width="1.5"/><path d="M32 25 Q50 18 68 25 Q66 14 50 13 Q34 14 32 25z" fill="#6b7280"/><ellipse cx="50" cy="88" rx="27" ry="34" fill="#1f2937"/><path d="M37 52 L50 47 L63 52 L63 88 L37 88z" fill="#111827"/><line x1="50" y1="47" x2="50" y2="65" stroke="#e5e7eb" stroke-width="1.5"/><ellipse cx="43" cy="29" rx="4.5" ry="5" fill="white"/><ellipse cx="57" cy="29" rx="4.5" ry="5" fill="white"/><circle cx="43" cy="30" r="2.8" fill="#1a1200"/><circle cx="57" cy="30" r="2.8" fill="#1a1200"/><circle cx="44" cy="29" r="1" fill="white" opacity=".85"/><circle cx="58" cy="29" r="1" fill="white" opacity=".85"/><path d="M43 37 Q50 41 57 37" fill="none" stroke="#b45309" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+Thiago:`<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="30" r="21" fill="#d4956a" stroke="#b8753a" stroke-width="1.5"/><path d="M33 23 Q50 17 67 23 Q65 13 50 12 Q35 13 33 23z" fill="#1f2937"/><ellipse cx="50" cy="88" rx="27" ry="34" fill="#374151"/><ellipse cx="43" cy="29" rx="4.5" ry="5" fill="white"/><ellipse cx="57" cy="29" rx="4.5" ry="5" fill="white"/><circle cx="43" cy="30" r="2.8" fill="#1a1a2e"/><circle cx="57" cy="30" r="2.8" fill="#1a1a2e"/><circle cx="44" cy="29" r="1" fill="white" opacity=".7"/><circle cx="58" cy="29" r="1" fill="white" opacity=".7"/><path d="M43 37 Q50 40 57 37" fill="none" stroke="#78350f" stroke-width="1.5" stroke-linecap="round"/><path d="M39 25 Q43 22 47 25" fill="none" stroke="#1f2937" stroke-width="2.2" stroke-linecap="round"/><path d="M53 25 Q57 22 61 25" fill="none" stroke="#1f2937" stroke-width="2.2" stroke-linecap="round"/></svg>`
+};
+const IS={c:50,v:40,e:45,i:35};
+const CHS=[
+  {id:1,em:'🔭',t:'Ideação',d:'Uma ideia brilhante precisa de validação real. Descubra se o mercado realmente precisa do que você quer criar!',bg:'bg-i'},
+  {id:2,em:'🛠️',t:'Prototipagem',d:'Construa rápido, aprenda rápido. Seu primeiro protótipo não precisa ser perfeito — precisa ser real!',bg:'bg-p'},
+  {id:3,em:'🎤',t:'Pitch',d:'Você tem 3 minutos para convencer investidores que sua ideia vai mudar o mundo. Está pronto?',bg:'bg-pt'},
+  {id:4,em:'🚀',t:'Lançamento',d:'O mercado espera! Chegou a hora de competir de verdade.',bg:'bg-l'}
 ];
-
-const STEPS = [
-  // ── CAPÍTULO 1: IDEAÇÃO ──
-  { chapter:0, scene:'A Faísca', sceneClass:'scene-ideacao',
-    char:{ emoji:'👩‍🏫', name:'Marina', role:'Mentora de Inovação' },
-    speech:'"Antes de criar qualquer produto, você precisa escolher o problema certo. Um bom problema é a metade da solução."',
-    context:'Você está no primeiro dia do IdeaLab. Dezenas de ideias surgem na sua cabeça. Marina, sua mentora, te desafia a definir o foco.',
-    question:'Qual problema sua startup vai resolver?',
-    options:[
-      { l:'Um problema que eu mesmo tenho no dia a dia', d:'Você conhece bem o problema porque o viveu na pele.', fx:{criatividade:15,viabilidade:10,engajamento:5,impacto:5}, q:'good',
-        fb:'Excelente ponto de partida! Empreendedores que resolvem seus próprios problemas têm mais motivação e entendem melhor o usuário.', bncc:'BNCC 2' },
-      { l:'Um problema que identifiquei pesquisando usuários', d:'Dados e entrevistas indicam uma dor real no mercado.', fx:{criatividade:5,viabilidade:15,engajamento:5,impacto:15}, q:'good',
-        fb:'Pesquisa de mercado sólida! Você tem evidências reais antes de construir — isso reduz muito o risco de fracasso.', bncc:'BNCC 2' },
-      { l:'Uma ideia legal que parece inovadora', d:'Você ainda não sabe se alguém realmente precisa disso.', fx:{criatividade:20,viabilidade:-10,engajamento:0,impacto:-5}, q:'ok',
-        fb:'Criatividade nota 10! Mas cuidado: ideias sem problema claro costumam não ter mercado. Valide antes de construir.', bncc:'BNCC 2' },
-      { l:'Seguir a tendência do momento no mercado', d:'Todo mundo está fazendo apps de IA, por que não você?', fx:{criatividade:-5,viabilidade:5,engajamento:20,impacto:-10}, q:'bad',
-        fb:'Cuidado com o efeito manada! Tendências passam rápido e o mercado fica saturado. Diferenciais são mais duradouros.', bncc:'BNCC 2' }
-    ]
-  },
-  { chapter:0, scene:'A Faísca', sceneClass:'scene-ideacao',
-    char:{ emoji:'👩‍🎓', name:'Julia', role:'Usuária Potencial' },
-    speech:'"Eu já usei 5 apps parecidos e nenhum funcionou pra mim. Você realmente sabe o que eu preciso?"',
-    context:'Julia representa seu público-alvo: jovens estudantes que precisam de ferramentas melhores. Ela está disposta a te ajudar, mas apenas se você mostrar que realmente quer ouvi-la.',
-    question:'Como você vai entender profundamente o usuário antes de construir?',
-    options:[
-      { l:'Entrevistas presenciais com 10 usuários reais', d:'Conversa cara a cara revela muito mais do que formulários.', fx:{criatividade:10,viabilidade:10,engajamento:15,impacto:10}, q:'good',
-        fb:'A melhor abordagem! Entrevistas qualitativas revelam motivações ocultas e dores que nenhum formulário captura.', bncc:'BNCC 4' },
-      { l:'Criar um formulário online e divulgar', d:'Alcança mais pessoas, mas perguntas podem ser mal interpretadas.', fx:{criatividade:0,viabilidade:15,engajamento:10,impacto:5}, q:'ok',
-        fb:'Boa escala, mas atenção: formulários tendem a ter baixa taxa de resposta e perdem as nuances das conversas reais.', bncc:'BNCC 4' },
-      { l:'Observar o que as pessoas falam nas redes sociais', d:'Você analisa posts, comentários e reclamações online.', fx:{criatividade:5,viabilidade:5,engajamento:10,impacto:0}, q:'ok',
-        fb:'Útil como complemento! Mas redes sociais mostram o que as pessoas dizem, não necessariamente o que fazem na prática.', bncc:'BNCC 4' },
-      { l:'Ir direto ao produto — já sei o que as pessoas precisam', d:'Você pula a pesquisa e começa a construir imediatamente.', fx:{criatividade:20,viabilidade:-15,engajamento:-10,impacto:-10}, q:'bad',
-        fb:'Suposição arriscada! 90% das startups que falham dizem que sabiam o que o usuário precisava sem nunca ter perguntado.', bncc:'BNCC 4' }
-    ]
-  },
-  { chapter:0, scene:'A Faísca', sceneClass:'scene-ideacao',
-    char:{ emoji:'👨‍💻', name:'Rafael', role:'Co-fundador Técnico' },
-    speech:'"Antes de construir, precisamos saber como vamos ganhar dinheiro. Senão é projeto escolar, não startup."',
-    context:'Rafael é pragmático: sem modelo de negócio sustentável, não adianta ter a melhor ideia do mundo. Ele apresenta quatro caminhos diferentes.',
-    question:'Qual modelo de negócio faz mais sentido para sua startup?',
-    options:[
-      { l:'Gratuito com publicidade (freemium/ads)', d:'Qualquer um acessa, mas o produto vira o usuário, não o cliente.', fx:{criatividade:-5,viabilidade:-5,engajamento:20,impacto:-10}, q:'ok',
-        fb:'Fácil de adotar, mas difícil de manter! Receita por anúncios exige escala enorme e pode comprometer a experiência do usuário.', bncc:'BNCC 2' },
-      { l:'Assinatura mensal (SaaS)', d:'Receita previsível e usuário comprometido — mas barreira de entrada maior.', fx:{criatividade:5,viabilidade:20,engajamento:-10,impacto:5}, q:'good',
-        fb:'Modelo sólido! Receita recorrente é o sonho de qualquer investidor. O desafio é convencer o usuário a pagar desde o início.', bncc:'BNCC 2' },
-      { l:'Freemium (versão grátis + paga)', d:'Usuário experimenta grátis e paga para desbloquear funcionalidades.', fx:{criatividade:5,viabilidade:15,engajamento:15,impacto:5}, q:'good',
-        fb:'Equilíbrio inteligente! O freemium permite crescimento orgânico e converte os usuários mais engajados em pagantes.', bncc:'BNCC 2' },
-      { l:'Doações voluntárias (modelo Wikipedia)', d:'Você acredita no produto e quer que os usuários apoiem por vontade própria.', fx:{criatividade:10,viabilidade:-15,engajamento:5,impacto:20}, q:'bad',
-        fb:'Nobre, mas arriscado! Modelos baseados em doações raramente geram receita suficiente. Wikipedia é exceção, não regra.', bncc:'BNCC 2' }
-    ]
-  },
-
-  // ── CAPÍTULO 2: PROTOTIPAGEM ──
-  { chapter:1, scene:'Mãos à Obra', sceneClass:'scene-prototipagem',
-    char:{ emoji:'👩‍🎨', name:'Ana', role:'Designer de Produto' },
-    speech:'"Antes de codar qualquer coisa, precisamos visualizar o produto. O que você prefere como primeiro protótipo?"',
-    context:'A equipe está animada para começar, mas Ana insiste em criar um protótipo antes de desenvolver o produto final. Ela tem razão — mas qual nível de fidelidade?',
-    question:'Como será o primeiro protótipo da sua startup?',
-    options:[
-      { l:'Desenho no papel (wireframe à mão)', d:'Rápido, barato e permite testar a lógica do produto antes de qualquer código.', fx:{criatividade:15,viabilidade:20,engajamento:0,impacto:5}, q:'good',
-        fb:'Método lean perfeito! Protótipos em papel podem ser feitos em horas e já revelam problemas fundamentais de usabilidade.', bncc:'BNCC 2' },
-      { l:'Mockup digital detalhado (Figma/Canva)', d:'Visual mais fiel ao produto final, facilita testes com usuários reais.', fx:{criatividade:10,viabilidade:10,engajamento:10,impacto:5}, q:'good',
-        fb:'Boa escolha! Mockups digitais facilitam testes com usuários e apresentações para investidores. Só tome cuidado com o perfeccionismo.', bncc:'BNCC 2' },
-      { l:'Código funcional desde o início', d:'Você prefere construir logo e testar com a versão real do produto.', fx:{criatividade:20,viabilidade:-10,engajamento:0,impacto:5}, q:'ok',
-        fb:'Espírito hacker! Mas construir sem prototipar antes costuma gerar retrabalho enorme quando o usuário não entende o produto.', bncc:'BNCC 2' },
-      { l:'Apenas apresentação verbal da ideia', d:'Você descreve o produto em palavras, sem nenhum visual.', fx:{criatividade:5,viabilidade:-5,engajamento:-5,impacto:0}, q:'bad',
-        fb:'Difícil de testar sem nenhum visual! Usuários têm dificuldade de imaginar produtos abstratos. Um esboço já muda tudo.', bncc:'BNCC 2' }
-    ]
-  },
-  { chapter:1, scene:'Mãos à Obra', sceneClass:'scene-prototipagem',
-    char:{ emoji:'👩‍🎓', name:'Julia', role:'Usuária Potencial' },
-    speech:'"Vocês querem saber se o produto funciona ou ficam só testando entre vocês? Me chama para testar!"',
-    context:'O protótipo está pronto. Agora vem a pergunta crucial: como testar? Testar com as pessoas certas pode salvar meses de retrabalho.',
-    question:'Como você vai testar o protótipo?',
-    options:[
-      { l:'Amigos e familiares (círculo próximo)', d:'Feedback fácil de conseguir, mas pode ser muito positivo por gentileza.', fx:{criatividade:0,viabilidade:10,engajamento:15,impacto:0}, q:'ok',
-        fb:'Útil para detectar bugs óbvios, mas amigos tendem a poupar seus sentimentos. Busque também usuários que não te conhecem.', bncc:'BNCC 4' },
-      { l:'Público real fora da minha rede', d:'Recrutamento de usuários desconhecidos que representam o público-alvo.', fx:{criatividade:5,viabilidade:20,engajamento:20,impacto:10}, q:'good',
-        fb:'Excelente! Usuários sem viés afetivo dão o feedback mais honesto e realista sobre seu produto.', bncc:'BNCC 4' },
-      { l:'Apenas com a equipe interna', d:'Vocês próprios usam o produto e identificam problemas.', fx:{criatividade:10,viabilidade:5,engajamento:0,impacto:0}, q:'ok',
-        fb:'Melhor que nada, mas a equipe já conhece o produto e não representa o usuário real. Cuidado com o viés de confirmação.', bncc:'BNCC 4' },
-      { l:'Não testamos — lançamos direto', d:'Você prefere coletar feedback do mercado real no lançamento.', fx:{criatividade:10,viabilidade:-15,engajamento:0,impacto:-15}, q:'bad',
-        fb:'Erro clássico! Lançar sem testar é arriscar a reputação da startup com um produto que pode falhar publicamente.', bncc:'BNCC 4' }
-    ]
-  },
-  { chapter:1, scene:'Mãos à Obra', sceneClass:'scene-prototipagem',
-    char:{ emoji:'👩‍🏫', name:'Marina', role:'Mentora de Inovação' },
-    speech:'"Os usuários testaram e o feedback foi claro: nenhum deles entendeu como usar o produto. O que você faz agora?"',
-    context:'Momento crítico! O teste revelou um problema sério: o fluxo do produto confunde os usuários. Isso não é falha — é aprendizado. Mas a reação agora define o futuro da startup.',
-    question:'Como você reage ao feedback negativo dos usuários?',
-    options:[
-      { l:'Pivotar: redesenhar o produto com base no feedback', d:'Você aceita que estava errado e muda a direção do produto.', fx:{criatividade:20,viabilidade:-5,engajamento:0,impacto:15}, q:'good',
-        fb:'Mentalidade de startup! Pivotar com base em evidências é sinal de maturidade, não de fraqueza. As melhores empresas pivotaram.', bncc:'BNCC 2' },
-      { l:'Melhorar a comunicação e interface do produto', d:'A ideia está certa, mas a apresentação precisa melhorar.', fx:{criatividade:5,viabilidade:10,engajamento:20,impacto:0}, q:'good',
-        fb:'Diagnóstico preciso! Às vezes o produto é bom mas a interface confunde. UX melhorada pode resolver sem mudar o core do produto.', bncc:'BNCC 2' },
-      { l:'Insistir na ideia original — os usuários vão se adaptar', d:'Você acredita que o mercado ainda não está pronto para sua visão.', fx:{criatividade:-10,viabilidade:-5,engajamento:-10,impacto:-10}, q:'bad',
-        fb:'Armadilha perigosa! Muito poucas startups são tão inovadoras que o mercado ainda não entende. Normalmente é o produto que precisa mudar.', bncc:'BNCC 2' },
-      { l:'Coletar mais dados antes de qualquer mudança', d:'Você quer mais evidências antes de tomar uma decisão grande.', fx:{criatividade:5,viabilidade:15,engajamento:0,impacto:10}, q:'ok',
-        fb:'Abordagem cuidadosa! Mais dados sempre ajudam, mas tome cuidado com a paralisia por análise. Às vezes um teste simples já dá a resposta.', bncc:'BNCC 2' }
-    ]
-  },
-
-  // ── CAPÍTULO 3: PITCH ──
-  { chapter:2, scene:'No Palco', sceneClass:'scene-pitch',
-    char:{ emoji:'💼', name:'Carlos', role:'Investidor Anjo' },
-    speech:'"Você tem exatamente 3 minutos para me convencer. Comece já."',
-    context:'Carlos já ouviu mais de 200 pitches. Ele detecta despreparo em segundos. Este é o momento que pode mudar tudo para sua startup.',
-    question:'Como você abre seu pitch para o investidor?',
-    options:[
-      { l:'Começa com o problema real que resolve', d:'Um caso concreto que ilustra a dor do usuário de forma poderosa.', fx:{criatividade:0,viabilidade:10,engajamento:15,impacto:20}, q:'good',
-        fb:'Abertura clássica e eficaz! Investidores se conectam com problemas reais. "Existe um problema..." é o começo perfeito.', bncc:'BNCC 4' },
-      { l:'Mostra números e dados de mercado', d:'Tamanho do mercado, crescimento e oportunidade financeira.', fx:{criatividade:0,viabilidade:20,engajamento:10,impacto:0}, q:'good',
-        fb:'Abordagem racional sólida! Números convencem a cabeça. Combine com a emoção do problema para um pitch completo.', bncc:'BNCC 4' },
-      { l:'Conta uma história pessoal emocionante', d:'Por que você criou isso? Qual experiência te motivou?', fx:{criatividade:5,viabilidade:-5,engajamento:25,impacto:0}, q:'ok',
-        fb:'História pessoal cria conexão emocional poderosa! Mas não esqueça os números — investidores precisam de lógica também.', bncc:'BNCC 4' },
-      { l:'Faz uma demo ao vivo do produto', d:'Abre o app e mostra funcionando na frente do investidor.', fx:{criatividade:15,viabilidade:10,engajamento:15,impacto:0}, q:'good',
-        fb:'Demo ao vivo é muito persuasiva! "Mostrar é melhor que contar." Só tenha um plano B se o app travar na hora errada.', bncc:'BNCC 4' }
-    ]
-  },
-  { chapter:2, scene:'No Palco', sceneClass:'scene-pitch',
-    char:{ emoji:'🕵️', name:'Thiago', role:'Startup Concorrente' },
-    speech:'"Pessoal, meu produto faz exatamente isso e já tem 5 mil usuários. Boa sorte para vocês!"',
-    context:'Durante o evento de pitches, uma startup concorrente apresenta um produto muito parecido com o seu — e já tem tração! O investidor te olha esperando sua reação.',
-    question:'Como você reage à existência de um concorrente direto durante o pitch?',
-    options:[
-      { l:'Mostra claramente o diferencial do seu produto', d:'Você explica ponto a ponto por que o seu é superior ou diferente.', fx:{criatividade:15,viabilidade:0,engajamento:15,impacto:10}, q:'good',
-        fb:'Resposta madura e assertiva! Concorrência valida o mercado. Mostrar diferencial demonstra que você fez sua lição de casa.', bncc:'BNCC 4' },
-      { l:'Ignora o concorrente e continua o pitch', d:'Você finge que não ouviu e foca no seu produto.', fx:{criatividade:0,viabilidade:5,engajamento:0,impacto:0}, q:'ok',
-        fb:'Evita confronto, mas parece que você não conhece o mercado. Investidores sempre perguntam sobre concorrentes.', bncc:'BNCC 4' },
-      { l:'Critica o produto do concorrente publicamente', d:'Você aponta as falhas do produto deles para o investidor.', fx:{criatividade:-10,viabilidade:0,engajamento:-15,impacto:0}, q:'bad',
-        fb:'Postura amadora! Criticar concorrentes publicamente transmite insegurança e falta de classe. O ecossistema de startups é pequeno.', bncc:'BNCC 4' },
-      { l:'Propõe uma possível parceria com o concorrente', d:'Você sugere que os dois produtos podem ser complementares.', fx:{criatividade:10,viabilidade:5,engajamento:0,impacto:20}, q:'good',
-        fb:'Pensamento estratégico! Parcerias podem ser mais poderosas que competição. Demonstra maturidade e visão de longo prazo.', bncc:'BNCC 4' }
-    ]
-  },
-  { chapter:2, scene:'No Palco', sceneClass:'scene-pitch',
-    char:{ emoji:'💼', name:'Carlos', role:'Investidor Anjo' },
-    speech:'"Gostei do produto. Quero investir, mas quero 40% da empresa. O que você acha?"',
-    context:'Carlos está interessado! Mas a oferta é agressiva: 40% da empresa por aporte de R$50.000. É muito? É pouco? A decisão afeta o futuro da startup para sempre.',
-    question:'O investidor quer 40% da empresa. Como você negocia?',
-    options:[
-      { l:'Contra-proposta: aceita 15-20%, não mais', d:'Você sabe o valor da sua startup e negocia com firmeza.', fx:{criatividade:10,viabilidade:20,engajamento:0,impacto:0}, q:'good',
-        fb:'Negociação inteligente! 40% é muito alto para uma rodada inicial. Manter controle da empresa preserva sua capacidade de tomar decisões.', bncc:'BNCC 2' },
-      { l:'Aceita os 40% sem questionar', d:'Você está tão empolgado com o investimento que aceita qualquer condição.', fx:{criatividade:0,viabilidade:25,engajamento:0,impacto:-10}, q:'ok',
-        fb:'Dinheiro na conta, mas a que custo? Com 40%, Carlos terá voz decisiva na empresa. Fundadores que perdem controle cedo raramente ficam no projeto.', bncc:'BNCC 2' },
-      { l:'Recusa e busca outros investidores', d:'Você acredita que pode encontrar condições melhores no mercado.', fx:{criatividade:15,viabilidade:-5,engajamento:0,impacto:15}, q:'ok',
-        fb:'Corajoso! Às vezes recusar uma oferta ruim é melhor que aceitar. Mas sem dinheiro, o crescimento fica lento. Tenha outras opções em mente.', bncc:'BNCC 2' },
-      { l:'Pede 48h para pensar e consultar mentores', d:'Você não decide sozinho e em cima da hora.', fx:{criatividade:5,viabilidade:10,engajamento:5,impacto:5}, q:'good',
-        fb:'Decisão madura! Decisões importantes de negócio não devem ser tomadas sob pressão. Consultar mentores demonstra inteligência, não fraqueza.', bncc:'BNCC 2' }
-    ]
-  },
-
-  // ── CAPÍTULO 4: LANÇAMENTO ──
-  { chapter:3, scene:'Decolagem', sceneClass:'scene-lancamento',
-    char:{ emoji:'👩‍🎨', name:'Ana', role:'Designer de Produto' },
-    speech:'"Produto pronto! Agora como vamos fazer o mundo saber que existimos? Cada estratégia tem seu custo e alcance."',
-    context:'Chegou o grande dia! O produto está pronto para o lançamento. Mas o lançamento em si é uma arte — a estratégia errada pode desperdiçar meses de trabalho.',
-    question:'Qual será a estratégia de lançamento da sua startup?',
-    options:[
-      { l:'Lançamento silencioso para beta testers', d:'Você lança só para um grupo seleto, coleta feedback e melhora antes de escalar.', fx:{criatividade:0,viabilidade:20,engajamento:5,impacto:5}, q:'good',
-        fb:'Estratégia lean! Beta testing permite corrigir problemas antes da exposição pública. Muitas grandes empresas lançaram assim.', bncc:'BNCC 4' },
-      { l:'Grande evento de lançamento', d:'Você organiza um evento presencial com imprensa e formadores de opinião.', fx:{criatividade:10,viabilidade:-10,engajamento:25,impacto:0}, q:'ok',
-        fb:'Alto impacto, alto custo! Eventos criam buzz poderoso, mas se o produto não impressionar no dia, a queda é proporcional ao hype.', bncc:'BNCC 4' },
-      { l:'Parceria com influenciadores digitais', d:'Você fecha com criadores de conteúdo para divulgar o produto.', fx:{criatividade:-5,viabilidade:5,engajamento:20,impacto:0}, q:'ok',
-        fb:'Alcance rápido! Mas escolha influenciadores alinhados com seu público-alvo, senão o engajamento não se converte em usuários reais.', bncc:'BNCC 4' },
-      { l:'Programa de embaixadores na escola', d:'Você recruta alunos para usar e divulgar o produto organicamente.', fx:{criatividade:5,viabilidade:0,engajamento:15,impacto:20}, q:'good',
-        fb:'Crescimento orgânico e autêntico! Embaixadores criam comunidade genuína e o produto cresce de dentro para fora.', bncc:'BNCC 4' }
-    ]
-  },
-  { chapter:3, scene:'Decolagem', sceneClass:'scene-lancamento',
-    char:{ emoji:'👩‍🎓', name:'Julia', role:'Usuária Inicial' },
-    speech:'"Ei, tem um bug sério no app! Os dados de vários usuários aparecem misturados. Todo mundo está reclamando nos grupos!"',
-    context:'A startup acaba de lançar e já aparece o primeiro incêndio: um bug crítico que afeta dados de usuários. Como você responde vai definir a reputação da startup para sempre.',
-    question:'Apareceu um bug crítico no lançamento. Como você reage?',
-    options:[
-      { l:'Corrige imediatamente e comunica ativamente', d:'Você lança um patch em horas e avisa todos os usuários afetados.', fx:{criatividade:0,viabilidade:20,engajamento:15,impacto:10}, q:'good',
-        fb:'Gestão de crise exemplar! Transparência e velocidade de resposta são mais valorizadas que a ausência de bugs. Usuários perdoam erros; não perdoam mentiras.', bncc:'BNCC 9' },
-      { l:'Nega o problema publicamente', d:'Você posta que "o app está funcionando perfeitamente" enquanto corrige internamente.', fx:{criatividade:0,viabilidade:-20,engajamento:-20,impacto:-15}, q:'bad',
-        fb:'Desastre de reputação! Mentir sobre problemas destroi a confiança que levou meses para construir. Usuários descobrem e a credibilidade acaba.', bncc:'BNCC 9' },
-      { l:'Corrige silenciosamente sem comunicar', d:'Você resolve o bug sem avisar os usuários sobre o que aconteceu.', fx:{criatividade:0,viabilidade:15,engajamento:-5,impacto:0}, q:'ok',
-        fb:'Corrige o problema técnico, mas perde a oportunidade de ganhar pontos com transparência. Usuários que descobriram o bug ficam sem resposta.', bncc:'BNCC 9' },
-      { l:'Compensa os usuários afetados com benefícios', d:'Você oferece mês grátis e recursos premium para quem foi impactado.', fx:{criatividade:0,viabilidade:5,engajamento:20,impacto:20}, q:'good',
-        fb:'Gestão empática! Compensar usuários transforma uma crise em oportunidade de fidelização. Mostra que a empresa se importa de verdade.', bncc:'BNCC 9' }
-    ]
-  },
-  { chapter:3, scene:'Decolagem', sceneClass:'scene-lancamento',
-    char:{ emoji:'👩‍🏫', name:'Marina', role:'Mentora de Inovação' },
-    speech:'"Parabéns! Seu produto cresceu e agora tem 500 usuários ativos. Momento de escalar. Como você vai expandir?"',
-    context:'A startup sobreviveu ao lançamento e está crescendo! Agora vem a grande decisão estratégica: como escalar de forma inteligente e sustentável.',
-    question:'Sua startup deu certo — como você vai escalar?',
-    options:[
-      { l:'Expandir para outras escolas e regiões', d:'Você replica o modelo em outros contextos mantendo o foco no impacto social.', fx:{criatividade:0,viabilidade:5,engajamento:15,impacto:25}, q:'good',
-        fb:'Escalabilidade com propósito! Expansão geográfica mantém o impacto social e constrói uma marca forte com valores claros.', bncc:'BNCC 7' },
-      { l:'Adicionar funcionalidades premium pagas', d:'Você cria uma versão avançada para usuários que querem mais recursos.', fx:{criatividade:15,viabilidade:25,engajamento:0,impacto:0}, q:'good',
-        fb:'Estratégia sólida de monetização! Funcionalidades premium podem gerar receita sem alienar a base de usuários gratuitos.', bncc:'BNCC 7' },
-      { l:'Construir uma comunidade em torno do produto', d:'Você investe em criar um ecossistema de usuários que se ajudam mutuamente.', fx:{criatividade:10,viabilidade:0,engajamento:20,impacto:20}, q:'good',
-        fb:'Visão de longo prazo! Comunidades criam fidelidade e crescimento orgânico. Produto + comunidade = moat difícil de copiar.', bncc:'BNCC 9' },
-      { l:'Aceitar proposta de aquisição por grande empresa', d:'Uma corporação quer comprar sua startup por um valor tentador.', fx:{criatividade:0,viabilidade:30,engajamento:0,impacto:-10}, q:'ok',
-        fb:'Saída financeira válida! Mas pense: você fundou a startup por dinheiro ou por impacto? Aquisições nem sempre preservam a missão original do produto.', bncc:'BNCC 8' }
-    ]
-  }
+const FL=[
+  {T:'C',ci:0},
+  {T:'D',ch:'Marina',ro:'👩‍🏫 Mentora',tx:'Olá! Sou a Marina, sua mentora no IdeaLab. Antes de construir qualquer coisa, precisamos entender SE sua ideia resolve um problema real.',bg:'bg-i'},
+  {T:'D',ch:'Julia',ro:'👩‍🎓 Potencial Usuária',tx:'Oi! Sou a Julia, estudante do 8º ano. Tenho muita dificuldade em organizar meus estudos entre tantas matérias. Se seu app resolver isso, eu seria usuária!',bg:'bg-i'},
+  {T:'Q',ch:'Marina',ro:'👩‍🏫 Mentora',dl:'Antes de escrever uma linha de código, precisamos validar se as pessoas realmente têm esse problema.',q:'Como você vai descobrir se sua ideia de app de estudos tem demanda real?',bg:'bg-i',
+   o:[{t:'Entrevistar 20 estudantes',d:'Pesquisa presencial com perguntas abertas sobre rotina de estudos',s:{c:+5,v:+15,e:+10,i:+10}},{t:'Criar e lançar direto',d:'Construir o app e ver se as pessoas baixam',s:{c:+8,v:-8,e:+4,i:+3}},{t:'Copiar o líder do mercado',d:'Analisar o app mais popular e fazer uma versão melhorada',s:{c:-12,v:+8,e:-5,i:-2}}]},
+  {T:'Q',ch:'Julia',ro:'👩‍🎓 Potencial Usuária',dl:'Depois de ouvir vários estudantes, descobriram que o maior problema é gerenciar prazos de trabalhos e provas.',q:'Qual será o diferencial do seu app?',bg:'bg-i',
+   o:[{t:'IA que aprende seu ritmo de estudo',d:'Sugestões personalizadas baseadas no seu histórico',s:{c:+15,v:+5,e:+12,i:+8}},{t:'Preço mais barato',d:'Versão gratuita com mais recursos que os outros',s:{c:+2,v:+10,e:+5,i:+3}},{t:'Design mais bonito',d:'Interface visual superior aos apps existentes',s:{c:+10,v:+2,e:+6,i:+2}}]},
+  {T:'Q',ch:'Marina',ro:'👩‍🏫 Mentora',dl:'Excelente! Agora precisamos definir como ganhar dinheiro com isso.',q:'Qual será a estratégia de monetização do seu app?',bg:'bg-i',
+   o:[{t:'Freemium com plano Premium',d:'Básico gratuito, funções avançadas pagas por assinatura',s:{c:+5,v:+15,e:+10,i:+8}},{t:'Pago desde o início',d:'R$ 9,90/mês sem versão gratuita',s:{c:+3,v:+8,e:-5,i:+3}},{t:'Gratuito com anúncios',d:'App totalmente gratuito monetizado com publicidade',s:{c:+2,v:+5,e:+8,i:-3}}]},
+  {T:'C',ci:1},
+  {T:'D',ch:'Rafael',ro:'👨‍💻 Co-fundador',tx:'Missão de ideação concluída! Agora vem a parte emocionante: construir o produto. Temos 4 semanas e uma equipe pequena — precisamos ser estratégicos!',bg:'bg-p'},
+  {T:'D',ch:'Ana',ro:'👩‍🎨 Designer',tx:'Oi! Sou a Ana, designer de produto. Vou ajudar com a interface, mas beleza sem funcionalidade não resolve o problema do usuário. Vamos priorizar juntos?',bg:'bg-p'},
+  {T:'Q',ch:'Rafael',ro:'👨‍💻 Co-fundador',dl:'Primeira decisão técnica: o que vai ter no MVP? Não dá pra fazer tudo ao mesmo tempo.',q:'O que priorizar no Produto Mínimo Viável (MVP)?',bg:'bg-p',
+   o:[{t:'Apenas as 3 funções essenciais',d:'Calendário de provas, lembretes e cronograma de estudos',s:{c:+5,v:+15,e:+10,i:+10}},{t:'Todas as funções planejadas',d:'Desenvolver o produto completo na primeira versão',s:{c:+8,v:-12,e:+3,i:-5}},{t:'Protótipo em papel primeiro',d:'Testar o conceito com usuários antes de programar',s:{c:+12,v:+8,e:+8,i:+6}}]},
+  {T:'Q',ch:'Ana',ro:'👩‍🎨 Designer',dl:'O protótipo está tomando forma. Agora precisamos testar com usuários reais.',q:'Como você vai testar o protótipo?',bg:'bg-p',
+   o:[{t:'Sessões com 10 estudantes',d:'Observar como usam o app e coletar feedback detalhado',s:{c:+5,v:+12,e:+15,i:+10}},{t:'Pesquisa online rápida',d:'Formulário Google com prints do protótipo',s:{c:+3,v:+8,e:+5,i:+5}},{t:'Testar só com amigos',d:'Mais fácil de organizar e mais feedback positivo',s:{c:+2,v:-5,e:+8,i:-5}}]},
+  {T:'Q',ch:'Rafael',ro:'👨‍💻 Co-fundador',dl:'Os testes revelaram 2 bugs críticos e 5 melhorias sugeridas pelos usuários.',q:'Como você reage ao feedback dos testes?',bg:'bg-p',
+   o:[{t:'Corrigir bugs + 2 melhorias prioritárias',d:'Equilibrar qualidade técnica e novas funções',s:{c:+8,v:+12,e:+10,i:+8}},{t:'Só corrigir os bugs críticos',d:'Lançar logo e melhorar depois com base no uso real',s:{c:+4,v:+8,e:+5,i:+3}},{t:'Implementar todas as sugestões',d:'Demorar mais, mas entregar o produto perfeito',s:{c:+10,v:-8,e:+12,i:+5}}]},
+  {T:'C',ci:2},
+  {T:'D',ch:'Marina',ro:'👩‍🏫 Mentora',tx:'O produto está pronto! Agora o maior desafio de um empreendedor: convencer outras pessoas a investirem no seu sonho. Um bom pitch pode mudar tudo.',bg:'bg-pt'},
+  {T:'D',ch:'Carlos',ro:'💼 Investidor',tx:'Meu nome é Carlos. Tenho R$ 100 mil para investir e analiso 50 startups por mês. Você tem exatamente 3 minutos. Me convença.',bg:'bg-pt'},
+  {T:'Q',ch:'Carlos',ro:'💼 Investidor',dl:'A maioria dos empreendedores erra logo na abertura. Me diga: como você começa seu pitch?',q:'Como você abre sua apresentação para os investidores?',bg:'bg-pt',
+   o:[{t:'Com uma história real de usuário',d:'"A Julia gastava 2h organizando estudos. Com nosso app: 10 minutos."',s:{c:+10,v:+5,e:+15,i:+10}},{t:'Com dados de mercado',d:'"O mercado de edtech vale R$ 5 bilhões e cresce 30% ao ano."',s:{c:+5,v:+15,e:+5,i:+8}},{t:'Com demo ao vivo do produto',d:'Abrir o app e mostrar funcionando em tempo real',s:{c:+15,v:+5,e:+10,i:+8}}]},
+  {T:'Q',ch:'Thiago',ro:'🕵️ Concorrente',dl:'Já temos 50 mil usuários e R$ 2 milhões investidos. Como você vai competir contra a gente?',q:'Qual é a sua resposta para a ameaça da concorrência no pitch?',bg:'bg-pt',
+   o:[{t:'Nosso nicho é mais específico',d:'Focamos em estudantes do Ensino Fundamental, não em todo mundo',s:{c:+8,v:+15,e:+10,i:+12}},{t:'Nossa tecnologia é superior',d:'Nossa IA de personalização é 3x mais precisa',s:{c:+12,v:+8,e:+5,i:+8}},{t:'Nosso preço é menor',d:'Cobramos menos e entregamos o mesmo valor',s:{c:+2,v:+5,e:+8,i:+2}}]},
+  {T:'Q',ch:'Carlos',ro:'💼 Investidor',dl:'Gostei da apresentação. Última pergunta antes de decidir o investimento.',q:'Quanto você pede de investimento e o que vai fazer com ele?',bg:'bg-pt',
+   o:[{t:'R$ 80 mil com plano detalhado',d:'Marketing (40%), Desenvolvimento (30%), Operações (30%)',s:{c:+8,v:+15,e:+10,i:+12}},{t:'R$ 200 mil para crescer rápido',d:'Escalar para 10 estados em 6 meses',s:{c:+10,v:-5,e:+8,i:+5}},{t:'R$ 30 mil só para marketing',d:'O produto está pronto, só precisamos de visibilidade',s:{c:+3,v:+8,e:+5,i:+3}}]},
+  {T:'C',ci:3},
+  {T:'D',ch:'Rafael',ro:'👨‍💻 Co-fundador',tx:'Conseguimos o investimento! Carlos acreditou em nós. Agora é a hora da verdade: lançar o produto para o mundo e crescer de verdade.',bg:'bg-l'},
+  {T:'D',ch:'Thiago',ro:'🕵️ Concorrente',tx:'Bem-vindo ao mercado! Boa sorte... vai precisar. Já temos equipe de 15 pessoas e novo funding chegando. Veja se consegue sobreviver!',bg:'bg-l'},
+  {T:'Q',ch:'Marina',ro:'👩‍🏫 Mentora',dl:'O lançamento é crítico. A primeira impressão define o crescimento da startup.',q:'Qual é a sua estratégia principal de lançamento?',bg:'bg-l',
+   o:[{t:'Programa de embaixadores nas escolas',d:'Recrutar 1 estudante líder em cada escola para divulgar',s:{c:+8,v:+10,e:+15,i:+12}},{t:'Parceria com professores',d:'Integrar o app como ferramenta pedagógica oficial',s:{c:+5,v:+15,e:+8,i:+15}},{t:'Campanha viral nas redes sociais',d:'Criar conteúdo que estudantes queiram compartilhar',s:{c:+15,v:+5,e:+12,i:+8}}]},
+  {T:'Q',ch:'Julia',ro:'👩‍🎓 Potencial Usuária',dl:'Usei o app por 2 semanas. Adorei! Mas usuários deixaram reviews negativos sobre travamentos.',q:'Como você responde ao feedback negativo público?',bg:'bg-l',
+   o:[{t:'Responder cada review publicamente',d:'Agradecer, pedir desculpas e informar que já está corrigindo',s:{c:+5,v:+8,e:+15,i:+12}},{t:'Lançar update urgente em 48h',d:'Priorizar a correção técnica acima de tudo',s:{c:+8,v:+15,e:+8,i:+10}},{t:'Explicar que é problema do celular',d:'Os travamentos ocorrem em aparelhos muito antigos',s:{c:+2,v:-8,e:-10,i:-8}}]},
+  {T:'Q',ch:'Carlos',ro:'💼 Investidor',dl:'3 meses após o lançamento. Você tem 5.000 usuários ativos. Chegou a hora de decidir os próximos passos.',q:'Com 5.000 usuários, qual é o próximo passo estratégico?',bg:'bg-l',
+   o:[{t:'Expandir para 3 novas cidades',d:'Usar os aprendizados locais para crescer gradualmente',s:{c:+8,v:+12,e:+10,i:+15}},{t:'Lançar versão para professores',d:'Criar conta educacional que complementa a dos alunos',s:{c:+15,v:+10,e:+8,i:+15}},{t:'Buscar nova rodada de R$ 500 mil',d:'Captar mais dinheiro para acelerar o crescimento',s:{c:+5,v:+8,e:+5,i:+8}}]}
 ];
-
-const STATS_INIT = { criatividade:50, viabilidade:40, engajamento:45, impacto:35 };
-let stats = {}, step = 0, chShown = -1, answered = false;
-
-function clamp(v) { return Math.max(0, Math.min(100, v)); }
-
-function updateStatBars(animate) {
-  ['criatividade','viabilidade','engajamento','impacto'].forEach(k => {
-    const v = stats[k];
-    document.getElementById('val-'+k).textContent = v;
-    const fill = document.getElementById('fill-'+k);
-    fill.style.width = v + '%';
-    if (animate) {
-      fill.style.animation = 'none';
-      void fill.offsetWidth;
-      fill.style.animation = 'statPop 0.5s ease both';
-    }
+let GS={sc:0,s:{...IS},dec:0,tQ:12};
+let twT=null,isT=false;
+const cl=v=>Math.max(0,Math.min(100,v));
+function shw(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const el=document.getElementById(id);if(el){el.classList.add('active');el.scrollTop=0;}}
+function shH(){document.getElementById('hud').classList.add('visible');}
+function hiH(){document.getElementById('hud').classList.remove('visible');}
+function updH(){
+  const s=GS.s;
+  [{k:'c',b:'bc',v:'vc'},{k:'v',b:'bv',v:'vv'},{k:'e',b:'be',v:'ve'},{k:'i',b:'bi',v:'vi'}].forEach(x=>{
+    document.getElementById(x.b).style.width=s[x.k]+'%';
+    document.getElementById(x.v).textContent=Math.round(s[x.k]);
   });
+  document.getElementById('pb').style.width=Math.round(GS.dec/GS.tQ*100)+'%';
+  document.getElementById('hpt').textContent=`Decisão ${GS.dec}/${GS.tQ}`;
 }
-
-function updateProgress() {
-  const pct = (step / STEPS.length) * 100;
-  document.getElementById('progress-fill').style.width = pct + '%';
-  const s = STEPS[Math.min(step, STEPS.length-1)];
-  const ch = CHAPTERS[s ? s.chapter : 3];
-  const d = step + 1 <= STEPS.length ? (step + 1) : STEPS.length;
-  document.getElementById('nav-badge').textContent = `Fase ${s ? s.chapter+1 : 4} · Decisão ${d}/12`;
+function tyTx(el,tx,sp,done){
+  if(twT)clearTimeout(twT);isT=true;el.innerHTML='';
+  const cr=document.createElement('span');cr.className='cur';el.appendChild(cr);
+  let i=0;
+  function st(){if(i<tx.length){cr.before(tx[i]);i++;twT=setTimeout(st,sp||28);}else{cr.remove();isT=false;if(done)done();}}
+  st();
 }
-
-function show(id) {
-  ['screen-intro','screen-chapter','screen-question','screen-result'].forEach(s => {
-    document.getElementById(s).style.display = 'none';
+function spp(k,d){
+  const col={c:'#a855f7',v:'#3b82f6',e:'#f59e0b',i:'#10b981'};
+  const nm={c:'Criatividade',v:'Viabilidade',e:'Engajamento',i:'Impacto'};
+  const p=document.createElement('div');p.className='spp';
+  p.style.cssText=`left:${15+Math.random()*60}vw;top:${25+Math.random()*35}vh;color:${col[k]}`;
+  p.textContent=(d>0?'+':'')+d+' '+nm[k];
+  document.body.appendChild(p);setTimeout(()=>p.remove(),1400);
+}
+function addR(el,e){
+  const r=el.getBoundingClientRect(),rp=document.createElement('span');rp.className='rpl';
+  rp.style.cssText=`left:${e.clientX-r.left}px;top:${e.clientY-r.top}px;width:20px;height:20px;margin:-10px`;
+  el.appendChild(rp);setTimeout(()=>rp.remove(),600);
+}
+function startGame(){
+  GS={sc:0,s:{...IS},dec:0,tQ:12};shH();updH();go(0);
+}
+function restartGame(){
+  document.querySelectorAll('.cfi,.spk').forEach(x=>x.remove());
+  hiH();shw('s-start');
+}
+function go(idx){
+  if(idx>=FL.length){showRes();return;}
+  GS.sc=idx;
+  const it=FL[idx];
+  if(it.T==='C')rCh(it,idx);else rSc(it,idx);
+}
+function rCh(it,idx){
+  const ch=CHS[it.ci];hiH();
+  document.getElementById('chbg').className='chbg '+ch.bg;
+  document.getElementById('chnum').textContent='Capítulo '+ch.id+' de 4';
+  const em=document.getElementById('chemo');
+  em.textContent=ch.em;em.style.animation='none';void em.offsetWidth;em.style.animation='pin .6s cubic-bezier(.34,1.56,.64,1) both';
+  document.getElementById('chtit').textContent=ch.t;
+  document.getElementById('chdsc').textContent=ch.d;
+  document.getElementById('hbdg').textContent='Cap. '+ch.id;
+  shw('s-ch');
+  const sks=['✨','⚡','💡','🌟','🔥','💫'];
+  for(let i=0;i<6;i++){
+    const sp=document.createElement('div');sp.className='spk';
+    sp.style.cssText=`left:${5+Math.random()*90}vw;top:${5+Math.random()*85}vh;--du:${2+Math.random()*3}s;--dl:${Math.random()*2}s`;
+    sp.textContent=sks[Math.floor(Math.random()*sks.length)];
+    document.body.appendChild(sp);setTimeout(()=>sp.remove(),6000);
+  }
+  setTimeout(()=>{shH();go(idx+1);},2800);
+}
+function rSc(it,idx){
+  document.getElementById('scbg').className='scbg '+(it.bg||'');
+  const c=document.getElementById('scc');c.innerHTML='';
+  if(it.T==='D')bDial(c,it,idx);else bQ(c,it,idx);
+  shw('s-scene');
+}
+function bDial(c,it,idx){
+  const stg=document.createElement('div');stg.className='cstg';
+  const pr=document.createElement('div');pr.className='cprt';
+  pr.innerHTML=`<div class="cav">${AV[it.ch]||''}</div><div class="cnm">${it.ro}</div>`;
+  const bb=document.createElement('div');bb.className='dbub';
+  const tx=document.createElement('div');tx.className='dtxt';
+  bb.appendChild(tx);stg.appendChild(pr);stg.appendChild(bb);c.appendChild(stg);
+  tyTx(tx,it.tx,24);
+  bb.style.cursor='pointer';
+  bb.onclick=()=>{if(isT){if(twT)clearTimeout(twT);tx.innerHTML=it.tx;isT=false;}};
+  const btn=document.createElement('button');btn.className='cbtn';btn.textContent='Continuar →';btn.onclick=()=>go(idx+1);
+  c.appendChild(btn);
+}
+function bQ(c,it,idx){
+  if(it.dl){
+    const stg=document.createElement('div');stg.className='cstg';
+    const pr=document.createElement('div');pr.className='cprt';
+    pr.innerHTML=`<div class="cav">${AV[it.ch]||''}</div><div class="cnm">${it.ro}</div>`;
+    const bb=document.createElement('div');bb.className='dbub';
+    const tx=document.createElement('div');tx.className='dtxt';tx.textContent=it.dl;
+    bb.appendChild(tx);stg.appendChild(pr);stg.appendChild(bb);c.appendChild(stg);
+  }
+  const qb=document.createElement('div');qb.className='qbox';
+  qb.innerHTML=`<div class="qlbl">🎯 Sua Decisão</div><div class="qtxt">${it.q}</div>`;
+  c.appendChild(qb);
+  const gr=document.createElement('div');gr.className='chcs';
+  ['A','B','C'].forEach((L,ci)=>{
+    const op=it.o[ci];
+    const cd=document.createElement('div');cd.className='cc';
+    cd.innerHTML=`<div style="display:flex;align-items:flex-start"><span class="cl">${L}</span><div><div class="ctit">${op.t}</div><div class="cdsc">${op.d}</div></div></div>`;
+    cd.onclick=e=>{addR(cd,e);pick(op,idx);};
+    gr.appendChild(cd);
   });
-  const el = document.getElementById(id);
-  el.style.display = (id === 'screen-intro' || id === 'screen-result') ? 'flex' : 'block';
-  void el.offsetWidth;
-  el.classList.remove('screen');
-  void el.offsetWidth;
-  el.classList.add('screen');
+  c.appendChild(gr);
 }
-
-function startGame() {
-  stats = { ...STATS_INIT };
-  step = 0; chShown = -1;
-  updateStatBars(false);
-  updateProgress();
-  nextScreen();
+function pick(op,idx){
+  GS.dec++;
+  Object.entries(op.s).forEach(([k,d])=>{
+    GS.s[k]=cl(GS.s[k]+d);
+    if(d!==0)setTimeout(()=>spp(k,d),Math.random()*300);
+  });
+  updH();
+  setTimeout(()=>go(idx+1),520);
 }
-
-function nextScreen() {
-  if (step >= STEPS.length) { showResult(); return; }
-  const s = STEPS[step];
-  if (s.chapter > chShown) {
-    chShown = s.chapter;
-    showChapter(s.chapter);
-  } else {
-    showQuestion(s);
+function showRes(){
+  hiH();
+  const s=GS.s,tot=(s.c+s.v+s.e+s.i)/400*100;
+  let b,t,d;
+  if(tot>=75){b='🦄';t='Unicórnio em Potencial!';d='Incrível! Suas decisões foram excepcionais. Você demonstrou criatividade, foco no usuário e visão de mercado. Essa startup vai muito longe!';}
+  else if(tot>=60){b='🚀';t='Empreendedor Inovador!';d='Ótimo trabalho! Você tomou decisões equilibradas e demonstrou maturidade empreendedora. Sua startup tem grande potencial!';}
+  else if(tot>=45){b='💡';t='Idealizador em Crescimento!';d='Bom progresso! Você tem o espírito empreendedor. Com mais experiência, suas decisões vão ficar cada vez mais assertivas.';}
+  else{b='🌱';t='Aprendiz Criativo!';d='Cada grande empreendedor já foi um iniciante! Use o que aprendeu aqui para tomar decisões melhores na próxima rodada.';}
+  document.getElementById('rbdg').textContent=b;
+  document.getElementById('rtit').textContent=t;
+  document.getElementById('rdsc').textContent=d;
+  const sd=[
+    {k:'c',l:'Criatividade',c:'linear-gradient(90deg,#a855f7,#ec4899)',cv:'#a855f7',d:'1s'},
+    {k:'v',l:'Viabilidade',c:'linear-gradient(90deg,#3b82f6,#06b6d4)',cv:'#3b82f6',d:'1.1s'},
+    {k:'e',l:'Engajamento',c:'linear-gradient(90deg,#f59e0b,#f97316)',cv:'#f59e0b',d:'1.2s'},
+    {k:'i',l:'Impacto',c:'linear-gradient(90deg,#10b981,#3b82f6)',cv:'#10b981',d:'1.3s'}
+  ];
+  document.getElementById('rsts').innerHTML=sd.map(x=>`<div class="rrow"><div class="rlbl">${x.l}</div><div class="rbg"><div class="rfil" style="width:${Math.round(s[x.k])}%;background:${x.c};--d:${x.d}"></div></div><div class="rval" style="color:${x.cv}">${Math.round(s[x.k])}</div></div>`).join('');
+  document.getElementById('rbncc').textContent='BNCC: Competência 2 (Pensamento Científico), 4 (Comunicação), 9 (Empatia e Cooperação)';
+  shw('s-res');
+  if(tot>=45)doConf();
+}
+function doConf(){
+  const cls=['#7c3aed','#06b6d4','#f59e0b','#10b981','#ec4899','#3b82f6','#a855f7','#f97316'];
+  for(let i=0;i<70;i++){
+    const p=document.createElement('div');p.className='cfi';
+    p.style.cssText=`left:${Math.random()*100}vw;width:${5+Math.random()*9}px;height:${5+Math.random()*9}px;background:${cls[Math.floor(Math.random()*cls.length)]};--du:${2.2+Math.random()*2.3}s;--dl:${Math.random()*2.2}s;border-radius:${Math.random()>.5?'50%':'3px'}`;
+    document.body.appendChild(p);setTimeout(()=>p.remove(),5500);
   }
 }
-
-function showChapter(idx) {
-  const c = CHAPTERS[idx];
-  document.getElementById('ch-number').textContent = c.num;
-  document.getElementById('ch-emoji').textContent  = c.emoji;
-  document.getElementById('ch-tag').textContent    = c.tag;
-  document.getElementById('ch-title').textContent  = c.title;
-  document.getElementById('ch-time').textContent   = c.time;
-  document.getElementById('ch-desc').textContent   = c.desc;
-  const el = document.getElementById('screen-chapter');
-  el.className = 'screen card ' + c.tagCss;
-  show('screen-chapter');
-}
-
-function showQuestion(s) {
-  answered = false;
-  document.getElementById('q-char-emoji').textContent = s.char.emoji;
-  document.getElementById('q-char-name').textContent  = s.char.name;
-  document.getElementById('q-char-role').textContent  = s.char.role;
-  document.getElementById('q-speech').textContent     = s.speech;
-  document.getElementById('q-context').textContent    = s.context;
-  document.getElementById('q-question').textContent   = s.question;
-
-  const grid = document.getElementById('options-grid');
-  grid.innerHTML = '';
-  const letters = ['A','B','C','D'];
-  s.options.forEach((opt, i) => {
-    const fxHtml = Object.entries(opt.fx)
-      .filter(([,v]) => v !== 0)
-      .map(([k,v]) => {
-        const icons = {criatividade:'🧠',viabilidade:'⚙️',engajamento:'📣',impacto:'🌍'};
-        const cls = v > 0 ? 'fx-pos' : 'fx-neg';
-        return `<span class="fx-chip ${cls}">${icons[k]} ${v > 0 ? '+':''}${v}</span>`;
-      }).join('');
-
-    const card = document.createElement('div');
-    card.className = 'opt-card';
-    card.dataset.idx = i;
-    card.innerHTML = `
-      <div class="opt-top">
-        <span class="opt-letter">${letters[i]}</span>
-        <span class="opt-label">${opt.l}</span>
-      </div>
-      <div class="opt-desc">${opt.d}</div>
-      <div class="opt-fx">${fxHtml}</div>
-    `;
-    card.addEventListener('click', () => pick(i));
-    grid.appendChild(card);
-  });
-
-  document.getElementById('feedback-box').style.display = 'none';
-  document.getElementById('btn-next').style.display = 'none';
-
-  const el = document.getElementById('screen-question');
-  el.className = 'screen card ' + s.sceneClass;
-  show('screen-question');
-}
-
-function pick(idx) {
-  if (answered) return;
-  answered = true;
-  const s = STEPS[step];
-  const opt = s.options[idx];
-
-  Object.entries(opt.fx).forEach(([k,v]) => { stats[k] = clamp(stats[k] + v); });
-  updateStatBars(true);
-
-  const cards = document.querySelectorAll('.opt-card');
-  cards.forEach((c, i) => {
-    if (i === idx) {
-      const qMap = { good:'picked-good', ok:'picked-ok', bad:'picked-bad' };
-      c.classList.add(qMap[opt.q] || 'picked-ok');
-    } else {
-      c.classList.add('disabled');
-    }
-  });
-
-  const qLabels = { good:'🌟 Excelente escolha!', ok:'👍 Boa tentativa!', bad:'💡 Momento de aprendizado' };
-  const statNames = { criatividade:'Criatividade', viabilidade:'Viabilidade', engajamento:'Engajamento', impacto:'Impacto' };
-  const statIcons = { criatividade:'🧠', viabilidade:'⚙️', engajamento:'📣', impacto:'🌍' };
-
-  document.getElementById('fb-quality').textContent = qLabels[opt.q] || '👍 Ok!';
-  document.getElementById('fb-text').textContent    = opt.fb;
-
-  const fbStats = document.getElementById('fb-stats');
-  fbStats.innerHTML = Object.entries(opt.fx).filter(([,v]) => v !== 0).map(([k,v]) => {
-    const cls = v > 0 ? 'fb-stat-pos' : 'fb-stat-neg';
-    return `<span class="fb-stat ${cls}">${statIcons[k]} ${statNames[k]} ${v > 0 ? '+':''}${v}</span>`;
-  }).join('');
-
-  document.getElementById('fb-bncc').innerHTML = `<span class="bncc-badge">📚 ${opt.bncc}</span>`;
-  document.getElementById('feedback-box').style.display = 'block';
-
-  const btnLabel = (step + 1 >= STEPS.length) ? 'Ver Resultado →' : 'Próxima Decisão →';
-  const btn = document.getElementById('btn-next');
-  btn.textContent = btnLabel;
-  btn.style.display = 'block';
-
-  step++;
-  updateProgress();
-}
-
-function showResult() {
-  const total = stats.criatividade + stats.viabilidade + stats.engajamento + stats.impacto;
-  const pct   = Math.round((total / 400) * 100);
-  let emoji, title, sub, msg;
-
-  if (pct >= 75) {
-    emoji = '🦄'; title = 'Unicórnio em Potencial';
-    sub   = 'Você tem tudo para criar uma startup de impacto real!';
-    msg   = 'Sua jornada no IdeaLab foi excepcional! Você demonstrou criatividade, visão estratégica e capacidade de aprender com erros. Se continuar assim, pode criar algo que vai mudar vidas.';
-  } else if (pct >= 60) {
-    emoji = '🚀'; title = 'Empreendedor Inovador';
-    sub   = 'Grande potencial! Você sabe pensar como um founder.';
-    msg   = 'Você mostrou habilidades sólidas de inovação e comunicação. Algumas decisões foram desafiadoras, mas você navegou bem. Continue aprimorando sua visão estratégica!';
-  } else if (pct >= 45) {
-    emoji = '💡'; title = 'Idealizador em Crescimento';
-    sub   = 'Boas ideias! Agora é hora de desenvolver a execução.';
-    msg   = 'Você tem instinto criativo, mas ainda está desenvolvendo as habilidades práticas do empreendedorismo. Cada erro no IdeaLab é um aprendizado que você não terá que repetir na vida real!';
-  } else {
-    emoji = '🌱'; title = 'Aprendiz Criativo';
-    sub   = 'Toda grande jornada começa com o primeiro passo.';
-    msg   = 'Empreender é difícil mesmo! Você passou por situações complexas e aprendeu com elas. O IdeaLab existe exatamente para isso: errar aqui e acertar na vida real. Tente de novo!';
-  }
-
-  document.getElementById('res-emoji').textContent = emoji;
-  document.getElementById('res-title').textContent = title;
-  document.getElementById('res-sub').textContent   = sub;
-  document.getElementById('res-pct').textContent   = pct + '%';
-  document.getElementById('res-msg').textContent   = msg;
-
-  const rStats = document.getElementById('res-stats');
-  const fills  = {criatividade:'f-cria', viabilidade:'f-viab', engajamento:'f-enga', impacto:'f-impa'};
-  const labels = {criatividade:'🧠 Criatividade', viabilidade:'⚙️ Viabilidade', engajamento:'📣 Engajamento', impacto:'🌍 Impacto'};
-  rStats.innerHTML = Object.keys(stats).map(k => `
-    <div class="rs-item">
-      <div class="rs-label"><span>${labels[k]}</span><span>${stats[k]}/100</span></div>
-      <div class="rs-bar"><div class="rs-fill ${fills[k]}" style="width:${stats[k]}%" id="rf-${k}"></div></div>
-    </div>
-  `).join('');
-
-  document.getElementById('res-bncc').innerHTML = `
-    <span class="bncc-badge">📚 BNCC 2 – Pensamento Crítico</span>
-    <span class="bncc-badge">📚 BNCC 4 – Comunicação</span>
-    <span class="bncc-badge">📚 BNCC 9 – Empatia</span>
-  `;
-
-  const el = document.getElementById('screen-result');
-  el.className = 'screen card scene-lancamento';
-  show('screen-result');
-
-  setTimeout(() => {
-    Object.keys(stats).forEach((k,i) => {
-      setTimeout(() => {
-        const fill = document.getElementById('rf-'+k);
-        if (fill) { fill.style.animation = 'none'; void fill.offsetWidth; fill.style.animation = 'statPop 0.6s ease both'; }
-      }, i * 150);
-    });
-  }, 400);
-}
-
-function restartGame() {
-  stats = { ...STATS_INIT };
-  step = 0; chShown = -1;
-  updateStatBars(false);
-  updateProgress();
-  show('screen-intro');
-}
-
-// Init
-window.addEventListener('DOMContentLoaded', () => {
-  updateStatBars(false);
-  show('screen-intro');
-});
 </script>
 </body>
 </html>
