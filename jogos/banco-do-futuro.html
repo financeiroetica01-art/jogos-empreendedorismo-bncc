@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Banco do Futuro — ALI Educação Empreendedora</title>
+  <script src="https://cdn.tailwindcss.com/3.4.1"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',300:'#93c5fd',400:'#60a5fa',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8',800:'#1e40af',900:'#1e3a8a' },
+            accent: { 400:'#fb923c',500:'#f97316',600:'#ea580c' },
+            finance: { 400:'#34d399',500:'#10b981',600:'#059669',700:'#047857',800:'#065f46',900:'#064e3b' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background: #0f172a; font-family: 'Segoe UI', system-ui, sans-serif; }
+    .progress-bar { transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+    .option-card { transition: all 0.2s ease; border: 2px solid transparent; }
+    .option-card:hover { border-color: #10b981; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(16,185,129,0.2); }
+    .option-card.selected { border-color: #10b981; background: rgba(16,185,129,0.1); }
+    .option-card.great { border-color: #10b981 !important; background: rgba(16,185,129,0.15) !important; }
+    .option-card.good  { border-color: #3b82f6 !important; background: rgba(59,130,246,0.15) !important; }
+    .option-card.ok    { border-color: #f59e0b !important; background: rgba(245,158,11,0.15) !important; }
+    .option-card.bad   { border-color: #ef4444 !important; background: rgba(239,68,68,0.15) !important; }
+    .feedback-box { animation: slideUp 0.4s ease; }
+    @keyframes slideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    .coin-spin { animation: coinSpin 0.6s ease; }
+    @keyframes coinSpin { 0%{transform:rotateY(0)} 50%{transform:rotateY(90deg)} 100%{transform:rotateY(0)} }
+    .xp-pop { animation: xpPop 0.5s ease; }
+    @keyframes xpPop { 0%{transform:scale(1)} 50%{transform:scale(1.4)} 100%{transform:scale(1)} }
+  </style>
+</head>
+<body class="min-h-screen text-white">
+
+  <!-- Navbar -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+    <a href="../index.html" class="flex items-center gap-2 text-slate-300 hover:text-white transition-colors text-sm">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+      Voltar aos jogos
+    </a>
+    <div class="flex items-center gap-3">
+      <span class="bg-finance-800 border border-finance-600 text-finance-400 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
+        <span>💰</span> XP: <span id="xp-display">0</span>
+      </span>
+      <img src="../assets/logo.png" alt="ALI educação empreendedora" class="h-8 w-auto object-contain" style="max-width:140px" />
+    </div>
+  </nav>
+
+  <!-- Progress bar -->
+  <div class="fixed top-[57px] left-0 right-0 z-40 h-1 bg-slate-800">
+    <div id="progress-bar" class="progress-bar h-full bg-gradient-to-r from-finance-500 to-brand-500" style="width:0%"></div>
+  </div>
+
+  <!-- Main content -->
+  <main class="pt-20 pb-12 px-4 max-w-2xl mx-auto">
+
+    <!-- Intro screen -->
+    <div id="screen-intro" class="text-center py-12">
+      <div class="text-7xl mb-6 coin-spin">💰</div>
+      <h1 class="text-4xl font-bold mb-4">Banco do Futuro</h1>
+      <p class="text-slate-300 text-lg mb-8 leading-relaxed">
+        Você vai aprender a cuidar do seu dinheiro como um verdadeiro gestor financeiro!
+        Tome decisões inteligentes sobre renda, gastos, poupança e investimentos.
+      </p>
+      <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6 mb-8 text-left space-y-3">
+        <div class="flex items-center gap-3 text-slate-200">
+          <span class="text-xl">📊</span>
+          <span><strong>6 desafios</strong> de educação financeira</span>
+        </div>
+        <div class="flex items-center gap-3 text-slate-200">
+          <span class="text-xl">⭐</span>
+          <span>Ganhe <strong>até 600 XP</strong> com escolhas inteligentes</span>
+        </div>
+        <div class="flex items-center gap-3 text-slate-200">
+          <span class="text-xl">🏆</span>
+          <span>Conquiste seu <strong>badge de gestor financeiro</strong></span>
+        </div>
+        <div class="flex items-center gap-3 text-slate-200">
+          <span class="text-xl">📚</span>
+          <span>Competências BNCC <strong>1 e 5</strong></span>
+        </div>
+      </div>
+      <p class="text-slate-400 text-sm mb-8">
+        💡 <em>Dica: Não existe resposta certa única — cada escolha tem consequências! Leia o feedback com atenção.</em>
+      </p>
+      <button onclick="startGame()" class="bg-gradient-to-r from-finance-500 to-finance-600 hover:from-finance-600 hover:to-finance-700 text-white font-bold py-4 px-10 rounded-2xl text-lg transition-all transform hover:scale-105 shadow-lg shadow-finance-900/50">
+        💰 Iniciar Desafio
+      </button>
+    </div>
+
+    <!-- Question screen -->
+    <div id="screen-question" class="hidden">
+      <div class="mb-6">
+        <p id="step-context" class="text-finance-400 text-sm font-medium mb-2"></p>
+        <div id="step-icon" class="text-5xl mb-4 text-center"></div>
+        <h2 id="step-question" class="text-xl font-bold text-white leading-snug"></h2>
+      </div>
+
+      <div id="options-container" class="space-y-3 mb-6"></div>
+
+      <div id="feedback-box" class="hidden feedback-box bg-slate-800/80 border border-slate-600 rounded-2xl p-5 mb-6">
+        <div class="flex items-start gap-3">
+          <span id="feedback-icon" class="text-2xl flex-shrink-0"></span>
+          <div>
+            <p id="feedback-quality" class="font-bold mb-1"></p>
+            <p id="feedback-text" class="text-slate-300 text-sm leading-relaxed"></p>
+            <p id="feedback-bncc" class="text-finance-400 text-xs mt-2 font-medium"></p>
+          </div>
+        </div>
+      </div>
+
+      <button id="btn-next" onclick="nextStep()" class="hidden w-full bg-gradient-to-r from-finance-500 to-finance-600 hover:from-finance-600 hover:to-finance-700 text-white font-bold py-4 rounded-2xl text-base transition-all transform hover:scale-[1.02]">
+        Próximo desafio →
+      </button>
+    </div>
+
+    <!-- Result screen -->
+    <div id="screen-result" class="hidden text-center py-8">
+      <div id="result-badge" class="text-8xl mb-4"></div>
+      <h2 id="result-title" class="text-3xl font-bold mb-2"></h2>
+      <p id="result-subtitle" class="text-slate-300 text-lg mb-6"></p>
+
+      <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6 mb-6">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="text-center">
+            <p class="text-3xl font-bold text-finance-400" id="result-xp"></p>
+            <p class="text-slate-400 text-sm">XP conquistado</p>
+          </div>
+          <div class="text-center">
+            <p class="text-3xl font-bold text-brand-400" id="result-pct"></p>
+            <p class="text-slate-400 text-sm">de aproveitamento</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="result-feedback" class="bg-slate-800/40 border border-slate-700 rounded-2xl p-5 mb-8 text-left">
+        <h3 class="font-bold text-finance-400 mb-2">📈 Análise financeira:</h3>
+        <p id="result-msg" class="text-slate-300 text-sm leading-relaxed"></p>
+      </div>
+
+      <div class="flex gap-3 justify-center flex-wrap">
+        <button onclick="restartGame()" class="bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 px-8 rounded-xl transition-all">
+          🔄 Jogar novamente
+        </button>
+        <a href="../index.html" class="bg-gradient-to-r from-finance-500 to-finance-600 hover:from-finance-600 hover:to-finance-700 text-white font-semibold py-3 px-8 rounded-xl transition-all">
+          🎮 Outros jogos
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    const STEPS = [
+      {
+        id: 'mesada',
+        icon: '💵',
+        context: 'Desafio 1 de 6 — Minha primeira renda',
+        question: 'Você recebe R$ 100 de mesada por mês. O que você faz com esse dinheiro?',
+        options: [
+          {
+            label: 'Guardo tudo no cofre para o futuro',
+            desc: 'Economizo 100% e não gasto nada agora.',
+            xp: 70,
+            quality: 'good',
+            feedback: 'Guardar tudo é seguro, mas o equilíbrio é a chave! Sem nada para gastos presentes, você pode acabar abandonando a meta. A regra 50-30-20 sugere: 50% necessidades, 30% desejos, 20% poupança.',
+            bncc: 'Competência 1: Valorizar o conhecimento financeiro para tomada de decisões.'
+          },
+          {
+            label: 'Sigo a regra 50-30-20',
+            desc: 'R$50 para necessidades, R$30 para lazer, R$20 na poupança.',
+            xp: 100,
+            quality: 'great',
+            feedback: 'Excelente! A regra 50-30-20 é usada por gestores financeiros do mundo todo. Você equilibra necessidades, prazer e futuro. Assim você constrói o hábito de poupar sem abrir mão de qualidade de vida!',
+            bncc: 'Competência 5: Pensamento financeiro e cultura de planejamento.'
+          },
+          {
+            label: 'Gasto tudo no que eu quero agora',
+            desc: 'Aproveito o dinheiro no presente.',
+            xp: 20,
+            quality: 'bad',
+            feedback: 'Gastar tudo agora é tentador, mas você perde a oportunidade de construir uma reserva. Sem poupança, qualquer imprevisto vira problema. Dinheiro que não é direcionado some sem que a gente perceba.',
+            bncc: 'Competência 1: Compreender conceitos básicos de finanças pessoais.'
+          },
+          {
+            label: 'Dou metade para minha família',
+            desc: 'Contribuo com as despesas de casa.',
+            xp: 60,
+            quality: 'ok',
+            feedback: 'Contribuir com a família mostra responsabilidade! Porém, é importante reservar algo para você também. Que tal guardar pelo menos 10% antes de dividir? Pequenas poupanças constroem grandes futuros.',
+            bncc: 'Competência 1: Equilibrar responsabilidades pessoais e coletivas.'
+          }
+        ]
+      },
+      {
+        id: 'orcamento',
+        icon: '📊',
+        context: 'Desafio 2 de 6 — Planejando os gastos',
+        question: 'Você quer comprar um tênis de R$ 250, mas só tem R$ 80. O que você faz?',
+        options: [
+          {
+            label: 'Peço emprestado para um amigo',
+            desc: 'Ele pode me emprestar sem juros.',
+            xp: 40,
+            quality: 'ok',
+            feedback: 'Pedir emprestado pode funcionar em emergências, mas misturar dinheiro com amizade é arriscado. Se você não conseguir pagar, a amizade pode acabar. Use isso só em casos reais de necessidade.',
+            bncc: 'Competência 9: Responsabilidade nas relações financeiras interpessoais.'
+          },
+          {
+            label: 'Parcelo no cartão de crédito',
+            desc: 'Pago em 3x e resolvo agora.',
+            xp: 30,
+            quality: 'bad',
+            feedback: 'Cuidado! Parcelar parece fácil, mas o cartão de crédito pode virar uma armadilha. Se você não pagar a fatura toda, os juros no Brasil chegam a 400% ao ano — um dos mais altos do mundo. Evite usar crédito para desejos, não necessidades.',
+            bncc: 'Competência 1: Compreender riscos do crédito e endividamento.'
+          },
+          {
+            label: 'Economizo por 3 meses e compro à vista',
+            desc: 'Poupando R$ 60/mês, em 3 meses tenho o valor.',
+            xp: 90,
+            quality: 'great',
+            feedback: 'Perfeito! Comprar à vista após poupar é o comportamento de quem tem inteligência financeira. Você ainda pode negociar desconto! E quando chegar lá, a satisfação vai ser muito maior.',
+            bncc: 'Competência 5: Planejamento financeiro e metas de curto prazo.'
+          },
+          {
+            label: 'Busco uma renda extra',
+            desc: 'Faço bicos ou vendo algo para juntar o restante.',
+            xp: 100,
+            quality: 'great',
+            feedback: 'Empreendedor! Criar uma fonte de renda extra é o que diferencia quem cresce financeiramente. Você pode vender artesanato, prestar serviços no bairro ou revender produtos. Isso acelera sua meta e ainda te ensina a empreender!',
+            bncc: 'Competência 2: Criatividade e iniciativa empreendedora como estratégia financeira.'
+          }
+        ]
+      },
+      {
+        id: 'poupanca',
+        icon: '🏦',
+        context: 'Desafio 3 de 6 — Onde guardar o dinheiro',
+        question: 'Você conseguiu juntar R$ 500. Onde é mais inteligente guardar esse dinheiro?',
+        options: [
+          {
+            label: 'Embaixo do colchão em casa',
+            desc: 'Seguro e acessível a qualquer hora.',
+            xp: 10,
+            quality: 'bad',
+            feedback: 'Dinheiro parado em casa perde valor com o tempo por causa da inflação. Se hoje você compra um lanche por R$ 10, em alguns anos vai custar mais. Além disso, dinheiro em casa corre riscos de roubo ou perda.',
+            bncc: 'Competência 1: Entender o conceito de inflação e perda de poder de compra.'
+          },
+          {
+            label: 'Na poupança do banco',
+            desc: 'Rende um pouco, mas é seguro.',
+            xp: 70,
+            quality: 'good',
+            feedback: 'A poupança é uma boa opção para começar! É segura e protegida pelo governo (FGC). O rendimento é baixo, mas melhor que guardar em casa. Para quem está começando a vida financeira, a poupança é um excelente primeiro passo.',
+            bncc: 'Competência 5: Uso de ferramentas financeiras digitais e bancárias.'
+          },
+          {
+            label: 'Em aplicativos de investimento (CDB/Tesouro)',
+            desc: 'Rende mais que a poupança com segurança.',
+            xp: 100,
+            quality: 'great',
+            feedback: 'Excelente escolha! CDB e Tesouro Selic são investimentos seguros, com rendimento acima da poupança e protegidos pelo governo. Aplicativos como Nubank, Inter e Rico permitem investir a partir de R$ 1. Você está pensando como um investidor!',
+            bncc: 'Competência 5: Cultura digital financeira e uso de plataformas de investimento.'
+          },
+          {
+            label: 'Investir em criptomoedas',
+            desc: 'Pode render muito mais.',
+            xp: 40,
+            quality: 'ok',
+            feedback: 'Criptomoedas podem render muito, mas também podem perder tudo rapidamente. Para uma reserva de R$ 500, o risco é alto demais. Especialistas recomendam investir em cripto só o que você aceita perder. Primeiro construa sua reserva de emergência em investimentos seguros!',
+            bncc: 'Competência 1: Avaliar riscos e benefícios de diferentes tipos de investimento.'
+          }
+        ]
+      },
+      {
+        id: 'credito',
+        icon: '💳',
+        context: 'Desafio 4 de 6 — Entendendo o crédito',
+        question: 'Uma loja oferece parcelamento em 12x sem juros num produto de R$ 360. Você realmente precisa desse produto. O que analisa antes de comprar?',
+        options: [
+          {
+            label: 'Verifico se cabe no meu orçamento mensal (R$ 30/mês)',
+            desc: 'Se os R$ 30 não comprometem minha vida, parcelo.',
+            xp: 100,
+            quality: 'great',
+            feedback: 'Análise perfeita! R$ 30/mês por 12 meses é exatamente o que você precisa calcular. Parcelamento sem juros pode ser uma boa estratégia SE você tem disciplina para não gastar a parcela em outra coisa. Você está pensando como um gestor financeiro!',
+            bncc: 'Competência 5: Planejamento financeiro e uso consciente do crédito.'
+          },
+          {
+            label: 'Parcelo sem pensar, é sem juros!',
+            desc: 'Sem juros é sempre vantagem.',
+            xp: 30,
+            quality: 'bad',
+            feedback: 'Cuidado com essa armadilha! Parcelamento sem juros pode parecer vantagem, mas compromete sua renda futura por 12 meses. Se surgir uma emergência, você ainda terá essa dívida. Sempre calcule quantas parcelas cabem no seu orçamento antes de fechar.',
+            bncc: 'Competência 1: Compreender o impacto do crédito no planejamento financeiro.'
+          },
+          {
+            label: 'Negoço desconto para pagar à vista',
+            desc: 'À vista posso conseguir mais barato.',
+            xp: 90,
+            quality: 'great',
+            feedback: 'Estratégia inteligente! Quando você paga à vista, a loja não perde para a financeira, então pode dar desconto. No Brasil, é comum conseguir de 5% a 15% de desconto pagando à vista. Só faça isso se não for mexer na sua reserva de emergência.',
+            bncc: 'Competência 2: Negociação e tomada de decisão financeira estratégica.'
+          },
+          {
+            label: 'Pesquiso o preço em outras lojas antes',
+            desc: 'O parcelamento pode ser mais caro que o produto em outro lugar.',
+            xp: 80,
+            quality: 'good',
+            feedback: 'Muito esperto! Comparar preços é fundamental. Às vezes uma loja anuncia "sem juros" mas o produto em si já está mais caro que a concorrência. Use aplicativos como Buscapé ou Google Shopping para comparar. Consumidor informado faz escolhas melhores!',
+            bncc: 'Competência 1: Pesquisa de mercado e consumo consciente.'
+          }
+        ]
+      },
+      {
+        id: 'investimento',
+        icon: '📈',
+        context: 'Desafio 5 de 6 — Fazendo o dinheiro trabalhar',
+        question: 'Você tem R$ 1.000 guardados e seu objetivo é aumentar esse valor em 1 ano. Qual estratégia faz mais sentido?',
+        options: [
+          {
+            label: 'Deixo tudo na poupança tradicional',
+            desc: 'Segurança máxima, rendimento mínimo.',
+            xp: 50,
+            quality: 'ok',
+            feedback: 'A poupança é segura, mas em 1 ano com inflação alta, você pode estar perdendo poder de compra. Hoje a poupança rende em torno de 6% ao ano, mas a inflação pode ficar próxima disso. Existem opções mais rentáveis com a mesma segurança.',
+            bncc: 'Competência 1: Comparar opções de investimento e taxa de rentabilidade.'
+          },
+          {
+            label: 'Invisto em Tesouro Selic ou CDB',
+            desc: 'Mais rendimento com segurança garantida pelo governo.',
+            xp: 100,
+            quality: 'great',
+            feedback: 'Excelente! Tesouro Selic e CDB de bancos sólidos são mais rentáveis que a poupança e igualmente seguros. Com R$ 1.000, em 1 ano você pode ganhar mais de 10% dependendo da taxa SELIC. São os investimentos recomendados para reserva de emergência e objetivos de médio prazo.',
+            bncc: 'Competência 5: Uso de plataformas digitais para investimentos acessíveis.'
+          },
+          {
+            label: 'Invisto tudo em ações da bolsa',
+            desc: 'Alto risco, alto retorno potencial.',
+            xp: 40,
+            quality: 'ok',
+            feedback: 'Ações podem render muito, mas em 1 ano podem perder 20%, 30% ou mais. Para objetivos de curto prazo (1 ano), renda variável é arriscada demais. Ações são melhores para quem pode esperar 5+ anos. Invista na bolsa apenas o que você não vai precisar tão cedo.',
+            bncc: 'Competência 1: Entender a relação entre prazo, risco e retorno nos investimentos.'
+          },
+          {
+            label: 'Divido: 70% em renda fixa e 30% em ações',
+            desc: 'Diversifico o risco entre segurança e crescimento.',
+            xp: 90,
+            quality: 'great',
+            feedback: 'Diversificação inteligente! Essa é uma estratégia usada por investidores profissionais. 70% em segurança garante que você não perde tudo, e 30% em ações te dá chance de rendimento maior. É o começo de uma carteira balanceada — parabéns pela visão estratégica!',
+            bncc: 'Competência 2: Pensamento crítico e estratégico na gestão de risco financeiro.'
+          }
+        ]
+      },
+      {
+        id: 'meta',
+        icon: '🎯',
+        context: 'Desafio 6 de 6 — Realizando sonhos financeiros',
+        question: 'Seu sonho é fazer uma viagem internacional em 3 anos que custa R$ 6.000. Como você planeja realizar esse objetivo?',
+        options: [
+          {
+            label: 'Espero ter o dinheiro um dia e então planejo',
+            desc: 'Já que é longe, não preciso me preocupar agora.',
+            xp: 10,
+            quality: 'bad',
+            feedback: 'Sonhos sem plano são só desejos! 3 anos parece muito, mas passa rápido. Quem não planeja hoje, daqui a 3 anos ainda está no mesmo lugar. A hora de começar a poupar para um objetivo é agora, não depois.',
+            bncc: 'Competência 1: Importância do planejamento financeiro de longo prazo.'
+          },
+          {
+            label: 'Divido R$ 6.000 por 36 meses = R$ 167/mês',
+            desc: 'Pouco mais de R$ 160 por mês e chego lá.',
+            xp: 80,
+            quality: 'good',
+            feedback: 'Ótimo cálculo! R$ 167 por mês é uma meta alcançável. Mas tem uma dica ainda melhor: se você investir esses R$ 167 mensalmente com rendimento de 10% ao ano, vai chegar a mais de R$ 7.000 em 3 anos! O investimento faz o dinheiro trabalhar por você.',
+            bncc: 'Competência 5: Matemática financeira e planejamento de metas de longo prazo.'
+          },
+          {
+            label: 'Pouco mensalmente + investimento com juros compostos',
+            desc: 'R$ 140/mês investidos crescem e superam R$ 6.000.',
+            xp: 100,
+            quality: 'great',
+            feedback: 'Você descobriu o segredo da riqueza: juros compostos! Einstein chamou de "a oitava maravilha do mundo". R$ 140/mês investidos a 10% ao ano chegam a mais de R$ 6.000 em 3 anos. Com o investimento trabalhando, você precisa guardar MENOS para realizar o mesmo sonho!',
+            bncc: 'Competência 5: Compreender juros compostos como ferramenta de crescimento financeiro.'
+          },
+          {
+            label: 'Faço uma renda extra exclusiva para esse objetivo',
+            desc: 'Um trabalho freelance ou negócio paralelo só para a viagem.',
+            xp: 90,
+            quality: 'great',
+            feedback: 'Mentalidade empreendedora! Criar uma fonte de renda específica para um objetivo é muito eficaz. Vender produtos, prestar serviços digitais, ou ensinar algo que você sabe são formas de acelerar sua meta. Você não depende apenas do salário — você cria novas fontes de riqueza!',
+            bncc: 'Competência 2: Empreendedorismo como caminho para realização de objetivos pessoais.'
+          }
+        ]
+      }
+    ];
+
+    let currentStep = 0;
+    let totalXP = 0;
+    let selectedOption = null;
+
+    function startGame() {
+      document.getElementById('screen-intro').classList.add('hidden');
+      document.getElementById('screen-question').classList.remove('hidden');
+      currentStep = 0;
+      totalXP = 0;
+      selectedOption = null;
+      updateProgress();
+      renderQuestion();
+    }
+
+    function updateProgress() {
+      const pct = (currentStep / STEPS.length) * 100;
+      document.getElementById('progress-bar').style.width = pct + '%';
+    }
+
+    function renderQuestion() {
+      const step = STEPS[currentStep];
+      document.getElementById('step-context').textContent = step.context;
+      document.getElementById('step-icon').textContent = step.icon;
+      document.getElementById('step-question').textContent = step.question;
+      document.getElementById('feedback-box').classList.add('hidden');
+      document.getElementById('btn-next').classList.add('hidden');
+      selectedOption = null;
+
+      const container = document.getElementById('options-container');
+      container.innerHTML = '';
+      step.options.forEach((opt, idx) => {
+        const div = document.createElement('div');
+        div.className = 'option-card bg-slate-800/70 rounded-xl p-4 cursor-pointer';
+        div.innerHTML = `
+          <p class="font-semibold text-white mb-1">${opt.label}</p>
+          <p class="text-slate-400 text-sm">${opt.desc}</p>
+        `;
+        div.addEventListener('click', () => selectOption(idx));
+        container.appendChild(div);
+      });
+    }
+
+    function selectOption(idx) {
+      if (selectedOption !== null) return;
+      selectedOption = idx;
+      const step = STEPS[currentStep];
+      const opt = step.options[idx];
+
+      const cards = document.querySelectorAll('.option-card');
+      cards.forEach(c => c.classList.add('pointer-events-none', 'opacity-50'));
+      cards[idx].classList.remove('opacity-50');
+      cards[idx].classList.add(opt.quality);
+
+      totalXP += opt.xp;
+      document.getElementById('xp-display').textContent = totalXP;
+      document.getElementById('xp-display').classList.add('xp-pop');
+      setTimeout(() => document.getElementById('xp-display').classList.remove('xp-pop'), 500);
+
+      const icons = { great: '🌟', good: '👍', ok: '💡', bad: '⚠️' };
+      const labels = { great: 'Decisão excelente!', good: 'Boa escolha!', ok: 'Escolha razoável', bad: 'Atenção!' };
+      document.getElementById('feedback-icon').textContent = icons[opt.quality];
+      document.getElementById('feedback-quality').textContent = labels[opt.quality] + ` (+${opt.xp} XP)`;
+      document.getElementById('feedback-text').textContent = opt.feedback;
+      document.getElementById('feedback-bncc').textContent = opt.bncc;
+      document.getElementById('feedback-box').classList.remove('hidden');
+
+      const nextLabel = currentStep < STEPS.length - 1 ? 'Próximo desafio →' : 'Ver resultado 🏆';
+      document.getElementById('btn-next').textContent = nextLabel;
+      document.getElementById('btn-next').classList.remove('hidden');
+    }
+
+    function nextStep() {
+      currentStep++;
+      updateProgress();
+      if (currentStep >= STEPS.length) {
+        showResult();
+      } else {
+        renderQuestion();
+      }
+    }
+
+    function showResult() {
+      document.getElementById('screen-question').classList.add('hidden');
+      document.getElementById('screen-result').classList.remove('hidden');
+      document.getElementById('progress-bar').style.width = '100%';
+
+      const maxXP = STEPS.length * 100;
+      const pct = Math.round((totalXP / maxXP) * 100);
+
+      document.getElementById('result-xp').textContent = totalXP + ' XP';
+      document.getElementById('result-pct').textContent = pct + '%';
+
+      let badge, title, subtitle, msg;
+      if (pct >= 85) {
+        badge = '🏦'; title = 'Gestor Financeiro do Futuro'; subtitle = 'Você pensa como um banqueiro profissional!';
+        msg = 'Suas decisões mostram maturidade financeira rara! Você entende poupança, investimento, crédito e planejamento de longo prazo. Com essa mentalidade, você tem tudo para construir uma vida financeiramente sólida e próspera. Continue se educando — o mercado financeiro recompensa quem sabe planejar!';
+      } else if (pct >= 65) {
+        badge = '📊'; title = 'Analista Financeiro em Ascensão'; subtitle = 'Você tem boas bases financeiras!';
+        msg = 'Você demonstrou bom conhecimento financeiro! Algumas decisões foram muito acertadas. Para ir além, explore conteúdos sobre juros compostos e diversificação de investimentos. Pequenas melhorias nos seus hábitos agora fazem grande diferença no longo prazo.';
+      } else if (pct >= 45) {
+        badge = '📚'; title = 'Aprendiz de Finanças'; subtitle = 'Você está no caminho certo!';
+        msg = 'Você tem as bases, mas ainda há muito para aprender sobre finanças. Revise os conceitos de planejamento orçamentário e investimentos. A educação financeira é um processo contínuo — o importante é começar agora e melhorar a cada decisão!';
+      } else {
+        badge = '🌱'; title = 'Iniciando a Jornada Financeira'; subtitle = 'Todo expert já foi iniciante!';
+        msg = 'Este é seu ponto de partida! Finanças pessoais não são ensinadas na escola, mas você pode mudar isso. Comece pelo básico: anote seus gastos por um mês, crie uma meta de poupança pequena e vá aumentando. Em breve, você vai olhar para trás e não vais acreditar no quanto cresceu!';
+      }
+
+      document.getElementById('result-badge').textContent = badge;
+      document.getElementById('result-title').textContent = title;
+      document.getElementById('result-subtitle').textContent = subtitle;
+      document.getElementById('result-msg').textContent = msg;
+    }
+
+    function restartGame() {
+      document.getElementById('screen-result').classList.add('hidden');
+      document.getElementById('screen-intro').classList.remove('hidden');
+      document.getElementById('progress-bar').style.width = '0%';
+      document.getElementById('xp-display').textContent = '0';
+      currentStep = 0;
+      totalXP = 0;
+      selectedOption = null;
+    }
+  </script>
+</body>
+</html>
