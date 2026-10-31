@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IdeaLab — Jogos de Empreendedorismo</title>
+<script src="https://cdn.tailwindcss.com/3.4.1"></script>
+<style>
+  :root {
+    --brand: #7c3aed;
+    --brand-dark: #5b21b6;
+    --accent: #06b6d4;
+    --bg: #0a0a14;
+    --card: #131325;
+    --border: #1e1e3f;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── NAVBAR ── */
+  #navbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    background: rgba(10,10,20,0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 1rem; height: 48px;
+  }
+  #navbar .nav-left { display: flex; align-items: center; gap: 0.5rem; }
+  #navbar .nav-back {
+    background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3);
+    color: #a78bfa; border-radius: 6px; padding: 4px 10px; font-size: 12px;
+    text-decoration: none; transition: all .2s; cursor: pointer;
+  }
+  #navbar .nav-back:hover { background: rgba(124,58,237,0.25); }
+  #navbar .nav-badge {
+    background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4);
+    color: #c4b5fd; border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 600;
+  }
+  #navbar .nav-logo {
+    font-size: 12px; font-weight: 700; color: #a78bfa; letter-spacing: 0.05em;
+  }
+
+  /* ── PROGRESS BAR ── */
+  #progress-bar {
+    position: fixed; top: 48px; left: 0; right: 0; z-index: 49;
+    height: 3px; background: rgba(124,58,237,0.15);
+  }
+  #progress-fill {
+    height: 100%; background: linear-gradient(90deg, #7c3aed, #06b6d4);
+    transition: width 0.6s ease; width: 0%;
+  }
+
+  /* ── STAT BARS ── */
+  #statbar {
+    position: fixed; top: 51px; left: 0; right: 0; z-index: 48;
+    background: rgba(10,10,20,0.95);
+    border-bottom: 1px solid var(--border);
+    padding: 6px 1rem;
+    display: flex; gap: 0.5rem; align-items: center;
+  }
+  .stat-item {
+    flex: 1; display: flex; flex-direction: column; gap: 3px;
+  }
+  .stat-label {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 10px; color: var(--muted);
+  }
+  .stat-label span:first-child { display: flex; align-items: center; gap: 3px; }
+  .stat-val { font-weight: 700; font-size: 10px; }
+  .stat-track {
+    height: 5px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;
+  }
+  .stat-fill {
+    height: 100%; border-radius: 3px;
+    transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  #stat-criatividade .stat-fill { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+  #stat-viabilidade  .stat-fill { background: linear-gradient(90deg, #059669, #34d399); }
+  #stat-engajamento  .stat-fill { background: linear-gradient(90deg, #d97706, #fbbf24); }
+  #stat-impacto      .stat-fill { background: linear-gradient(90deg, #0284c7, #38bdf8); }
+
+  /* ── MAIN CONTENT ── */
+  #main {
+    margin-top: 100px; /* navbar + progress + statbar */
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; padding: 1rem;
+    min-height: calc(100vh - 100px);
+  }
+
+  /* ── SCREENS ── */
+  .screen {
+    width: 100%; max-width: 640px;
+    animation: screenIn 0.4s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes screenIn {
+    from { opacity: 0; transform: translateY(24px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0)    scale(1); }
+  }
+  @keyframes chapterPop {
+    0%   { opacity: 0; transform: scale(0.7) rotate(-3deg); }
+    60%  { transform: scale(1.08) rotate(1deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+  @keyframes statPop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+  @keyframes spinIn {
+    from { transform: rotate(-180deg) scale(0); opacity: 0; }
+    to   { transform: rotate(0)       scale(1); opacity: 1; }
+  }
+
+  /* ── CARD BASE ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  /* ── SCENE BACKGROUNDS ── */
+  .scene-ideacao      { background: linear-gradient(135deg, #0c0a2e 0%, #06051a 100%); border: 1px solid #1a1650; }
+  .scene-prototipagem { background: linear-gradient(135deg, #1a1000 0%, #0d0800 100%); border: 1px solid #2a1a00; }
+  .scene-pitch        { background: linear-gradient(135deg, #1a002d 0%, #0a001a 100%); border: 1px solid #2d0050; }
+  .scene-lancamento   { background: linear-gradient(135deg, #001a10 0%, #000d08 100%); border: 1px solid #003020; }
+
+  /* ── INTRO SCREEN ── */
+  #screen-intro {
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; padding: 2rem 1rem;
+  }
+  .intro-icon {
+    font-size: 5rem; margin-bottom: 1rem;
+    animation: spinIn 0.8s cubic-bezier(0.34,1.56,0.64,1) both;
+    animation-delay: 0.2s;
+  }
+  .intro-title { font-size: 2rem; font-weight: 800; color: #a78bfa; margin-bottom: 0.5rem; }
+  .intro-sub { color: var(--muted); font-size: 0.95rem; line-height: 1.6; max-width: 460px; margin: 0 auto 1.5rem; }
+  .intro-tags { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+  .intro-tag {
+    background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3);
+    color: #c4b5fd; border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 600;
+  }
+  .intro-stats {
+    display: grid; grid-template-columns: repeat(2,1fr); gap: 0.75rem;
+    width: 100%; max-width: 360px; margin-bottom: 2rem;
+  }
+  .intro-stat {
+    background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.2);
+    border-radius: 10px; padding: 0.75rem; text-align: center;
+  }
+  .intro-stat .is-emoji { font-size: 1.5rem; }
+  .intro-stat .is-name { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .btn-primary {
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    color: white; border: none; border-radius: 12px;
+    padding: 14px 40px; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: all .2s; letter-spacing: 0.02em;
+    box-shadow: 0 4px 20px rgba(124,58,237,0.4);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(124,58,237,0.5); }
+  .btn-primary:active { transform: translateY(0); }
+
+  /* ── CHAPTER TRANSITION ── */
+  #screen-chapter {
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; padding: 2.5rem 1.5rem;
+    border-radius: 20px;
+  }
+  .ch-number { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; margin-bottom: 0.5rem; }
+  .ch-emoji {
+    font-size: 4rem; margin-bottom: 1rem;
+    animation: chapterPop 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+    animation-delay: 0.15s;
+  }
+  .ch-title { font-size: 1.6rem; font-weight: 800; color: #c4b5fd; margin-bottom: 0.5rem; }
+  .ch-tag {
+    display: inline-block; background: rgba(124,58,237,0.25); border: 1px solid rgba(124,58,237,0.4);
+    color: #a78bfa; border-radius: 20px; padding: 3px 12px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; margin-bottom: 1rem;
+  }
+  .ch-desc { color: var(--muted); font-size: 0.9rem; line-height: 1.6; max-width: 380px; margin: 0 auto 2rem; }
+  .ch-time { font-size: 11px; color: #7c3aed; font-weight: 600; margin-bottom: 1.5rem; }
+  .btn-chapter {
+    background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4);
+    color: #c4b5fd; border-radius: 10px; padding: 10px 28px; font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; transition: all .2s;
+  }
+  .btn-chapter:hover { background: rgba(124,58,237,0.35); }
+
+  /* ── QUESTION SCREEN ── */
+  #screen-question { border-radius: 16px; padding: 1.25rem; }
+  .q-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; }
+  .q-char-emoji { font-size: 2.5rem; flex-shrink: 0; }
+  .q-char-info { }
+  .q-char-name { font-size: 0.85rem; font-weight: 700; color: #c4b5fd; }
+  .q-char-role { font-size: 11px; color: var(--muted); }
+  .q-speech {
+    background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 1rem;
+    font-size: 0.9rem; color: #ddd6fe; line-height: 1.55; font-style: italic;
+  }
+  .q-context {
+    font-size: 0.8rem; color: var(--muted); line-height: 1.5;
+    margin-bottom: 1rem; padding: 0.6rem 0.75rem;
+    background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 2px solid rgba(124,58,237,0.4);
+  }
+  .q-question { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 1rem; line-height: 1.4; }
+  .options-grid { display: flex; flex-direction: column; gap: 0.6rem; }
+
+  .opt-card {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; padding: 0.85rem 1rem;
+    cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 6px;
+  }
+  .opt-card:hover:not(.picked):not(.disabled) {
+    background: rgba(124,58,237,0.15); border-color: rgba(124,58,237,0.4);
+    transform: translateX(3px);
+  }
+  .opt-top { display: flex; align-items: flex-start; gap: 0.5rem; }
+  .opt-letter {
+    background: rgba(124,58,237,0.2); color: #a78bfa;
+    border-radius: 6px; padding: 2px 7px; font-size: 11px; font-weight: 800;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .opt-label { font-size: 0.88rem; font-weight: 600; color: var(--text); line-height: 1.4; flex: 1; }
+  .opt-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.4; padding-left: calc(1.5rem + 0.5rem); }
+  .opt-fx { display: flex; gap: 4px; flex-wrap: wrap; padding-left: calc(1.5rem + 0.5rem); }
+  .fx-chip {
+    font-size: 10px; font-weight: 700; border-radius: 4px; padding: 2px 6px;
+    opacity: 0.7;
+  }
+  .fx-pos { background: rgba(52,211,153,0.15); color: #34d399; }
+  .fx-neg { background: rgba(248,113,113,0.15); color: #f87171; }
+
+  /* picked states */
+  .opt-card.picked-good  { background: rgba(52,211,153,0.12); border-color: rgba(52,211,153,0.5); }
+  .opt-card.picked-ok    { background: rgba(250,204,21,0.1);  border-color: rgba(250,204,21,0.4); }
+  .opt-card.picked-bad   { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.4); }
+  .opt-card.disabled     { opacity: 0.4; pointer-events: none; }
+
+  /* ── FEEDBACK ── */
+  #feedback-box {
+    margin-top: 1rem; padding: 1rem;
+    background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 12px; display: none;
+  }
+  .fb-quality { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .fb-text    { font-size: 0.82rem; color: #c4b5fd; line-height: 1.5; margin-bottom: 0.6rem; }
+  .fb-stats   { display: flex; gap: 6px; flex-wrap: wrap; }
+  .fb-stat    {
+    font-size: 11px; font-weight: 700; border-radius: 6px; padding: 3px 8px;
+  }
+  .fb-stat-pos { background: rgba(52,211,153,0.2); color: #34d399; }
+  .fb-stat-neg { background: rgba(248,113,113,0.2); color: #f87171; }
+  .bncc-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.25);
+    color: #67e8f9; border-radius: 20px; padding: 2px 8px; font-size: 10px; font-weight: 600;
+    margin-top: 0.4rem;
+  }
+
+  .btn-next {
+    display: block; width: 100%; margin-top: 1rem;
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    color: white; border: none; border-radius: 10px;
+    padding: 12px; font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; transition: all .2s;
+  }
+  .btn-next:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  /* ── RESULT SCREEN ── */
+  #screen-result { border-radius: 20px; padding: 2rem 1.5rem; text-align: center; }
+  .result-badge-emoji {
+    font-size: 5rem; display: block; margin-bottom: 0.75rem;
+    animation: spinIn 0.8s cubic-bezier(0.34,1.56,0.64,1) both;
+    animation-delay: 0.2s;
+  }
+  .result-title { font-size: 1.6rem; font-weight: 800; color: #a78bfa; margin-bottom: 0.25rem; }
+  .result-sub   { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .result-pct   { font-size: 3rem; font-weight: 900; color: #c4b5fd; line-height: 1; margin-bottom: 0.25rem; }
+  .result-pct-label { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .result-stats { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; text-align: left; }
+  .rs-item { }
+  .rs-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+  .rs-bar { height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+  .rs-fill {
+    height: 100%; border-radius: 4px;
+    transition: width 1s cubic-bezier(0.34,1.56,0.64,1);
+    animation: statPop 0.6s ease both;
+  }
+  .rs-fill.f-cria { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+  .rs-fill.f-viab { background: linear-gradient(90deg, #059669, #34d399); }
+  .rs-fill.f-enga { background: linear-gradient(90deg, #d97706, #fbbf24); }
+  .rs-fill.f-impa { background: linear-gradient(90deg, #0284c7, #38bdf8); }
+
+  .result-bncc { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 1.5rem; }
+  .result-msg { font-size: 0.85rem; color: #c4b5fd; line-height: 1.6; margin-bottom: 1.5rem; background: rgba(124,58,237,0.08); border-radius: 10px; padding: 0.9rem; }
+  .btn-restart {
+    background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4);
+    color: #c4b5fd; border-radius: 10px; padding: 10px 28px; font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; transition: all .2s; margin-right: 0.5rem;
+  }
+  .btn-restart:hover { background: rgba(124,58,237,0.35); }
+  .btn-home {
+    background: rgba(6,182,212,0.15); border: 1px solid rgba(6,182,212,0.3);
+    color: #67e8f9; border-radius: 10px; padding: 10px 28px; font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; transition: all .2s; text-decoration: none; display: inline-block;
+  }
+  .btn-home:hover { background: rgba(6,182,212,0.25); }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div id="navbar">
+  <div class="nav-left">
+    <a href="../index.html" class="nav-back">← Voltar</a>
+    <span id="nav-badge" class="nav-badge">Fase 1 · Decisão 1/12</span>
+  </div>
+  <span class="nav-logo">🔬 IdeaLab</span>
+</div>
+
+<!-- PROGRESS BAR -->
+<div id="progress-bar"><div id="progress-fill"></div></div>
+
+<!-- STAT BARS -->
+<div id="statbar">
+  <div class="stat-item" id="stat-criatividade">
+    <div class="stat-label">
+      <span>🧠 <span>Criatividade</span></span>
+      <span class="stat-val" id="val-criatividade">50</span>
+    </div>
+    <div class="stat-track"><div class="stat-fill" id="fill-criatividade" style="width:50%"></div></div>
+  </div>
+  <div class="stat-item" id="stat-viabilidade">
+    <div class="stat-label">
+      <span>⚙️ <span>Viabilidade</span></span>
+      <span class="stat-val" id="val-viabilidade">40</span>
+    </div>
+    <div class="stat-track"><div class="stat-fill" id="fill-viabilidade" style="width:40%"></div></div>
+  </div>
+  <div class="stat-item" id="stat-engajamento">
+    <div class="stat-label">
+      <span>📣 <span>Engajamento</span></span>
+      <span class="stat-val" id="val-engajamento">45</span>
+    </div>
+    <div class="stat-track"><div class="stat-fill" id="fill-engajamento" style="width:45%"></div></div>
+  </div>
+  <div class="stat-item" id="stat-impacto">
+    <div class="stat-label">
+      <span>🌍 <span>Impacto</span></span>
+      <span class="stat-val" id="val-impacto">35</span>
+    </div>
+    <div class="stat-track"><div class="stat-fill" id="fill-impacto" style="width:35%"></div></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- INTRO -->
+  <div id="screen-intro" class="screen" style="display:none">
+    <div class="intro-icon">🔬</div>
+    <h1 class="intro-title">IdeaLab</h1>
+    <p class="intro-sub">Bem-vindo ao laboratório de inovação! Você vai criar uma startup do zero — da ideia ao lançamento. Cada decisão molda seu produto e seu futuro como empreendedor.</p>
+    <div class="intro-tags">
+      <span class="intro-tag">🧠 Pensamento Criativo</span>
+      <span class="intro-tag">📣 Comunicação</span>
+      <span class="intro-tag">12 Decisões</span>
+      <span class="intro-tag">4 Fases</span>
+    </div>
+    <div class="intro-stats">
+      <div class="intro-stat"><div class="is-emoji">🧠</div><div class="is-name">Criatividade</div></div>
+      <div class="intro-stat"><div class="is-emoji">⚙️</div><div class="is-name">Viabilidade</div></div>
+      <div class="intro-stat"><div class="is-emoji">📣</div><div class="is-name">Engajamento</div></div>
+      <div class="intro-stat"><div class="is-emoji">🌍</div><div class="is-name">Impacto</div></div>
+    </div>
+    <button class="btn-primary" onclick="startGame()">🚀 Iniciar IdeaLab</button>
+  </div>
+
+  <!-- CHAPTER TRANSITION -->
+  <div id="screen-chapter" class="screen" style="display:none">
+    <div class="ch-number" id="ch-number"></div>
+    <div class="ch-emoji" id="ch-emoji"></div>
+    <div class="ch-tag"  id="ch-tag"></div>
+    <h2 class="ch-title" id="ch-title"></h2>
+    <div class="ch-time" id="ch-time"></div>
+    <p class="ch-desc"   id="ch-desc"></p>
+    <button class="btn-chapter" onclick="nextScreen()">Continuar →</button>
+  </div>
+
+  <!-- QUESTION -->
+  <div id="screen-question" class="screen" style="display:none">
+    <div class="q-header">
+      <div class="q-char-emoji" id="q-char-emoji"></div>
+      <div class="q-char-info">
+        <div class="q-char-name" id="q-char-name"></div>
+        <div class="q-char-role" id="q-char-role"></div>
+      </div>
+    </div>
+    <div class="q-speech"  id="q-speech"></div>
+    <div class="q-context" id="q-context"></div>
+    <div class="q-question" id="q-question"></div>
+    <div class="options-grid" id="options-grid"></div>
+    <div id="feedback-box">
+      <div class="fb-quality" id="fb-quality"></div>
+      <div class="fb-text"    id="fb-text"></div>
+      <div class="fb-stats"   id="fb-stats"></div>
+      <div id="fb-bncc"></div>
+    </div>
+    <button class="btn-next" id="btn-next" onclick="nextScreen()" style="display:none">
+      Próxima Decisão →
+    </button>
+  </div>
+
+  <!-- RESULT -->
+  <div id="screen-result" class="screen" style="display:none">
+    <span class="result-badge-emoji" id="res-emoji"></span>
+    <div class="result-title" id="res-title"></div>
+    <div class="result-sub"   id="res-sub"></div>
+    <div class="result-pct"   id="res-pct"></div>
+    <div class="result-pct-label">pontuação final</div>
+    <div class="result-stats" id="res-stats"></div>
+    <div class="result-bncc"  id="res-bncc"></div>
+    <div class="result-msg"   id="res-msg"></div>
+    <div>
+      <button class="btn-restart" onclick="restartGame()">🔄 Jogar Novamente</button>
+      <a href="../index.html" class="btn-home">🏠 Início</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const CHAPTERS = [
+  { num:'Capítulo 1', emoji:'🔭', tag:'IDEAÇÃO',       title:'A Faísca',     time:'⏱ ~15 min', tagCss:'scene-ideacao',
+    desc:'Todo grande produto começa com uma boa pergunta. Antes de construir qualquer coisa, você precisa entender o problema, o usuário e o modelo de negócio.' },
+  { num:'Capítulo 2', emoji:'🛠️', tag:'PROTOTIPAGEM',  title:'Mãos à Obra',  time:'⏱ ~15 min', tagCss:'scene-prototipagem',
+    desc:'Agora é hora de transformar ideias em algo tangível. Mas cuidado: construir sem testar é o erro mais comum de startups que fracassam.' },
+  { num:'Capítulo 3', emoji:'🎤', tag:'PITCH',         title:'No Palco',     time:'⏱ ~15 min', tagCss:'scene-pitch',
+    desc:'Sua ideia só existe para os outros quando você consegue comunicá-la. É hora de defender seu projeto para investidores e lidar com a concorrência.' },
+  { num:'Capítulo 4', emoji:'🚀', tag:'LANÇAMENTO',    title:'Decolagem',    time:'⏱ ~15 min', tagCss:'scene-lancamento',
+    desc:'O lançamento é o teste final. Estratégia, crise e escalabilidade vão definir se sua startup vai decolar ou ficar no chão.' }
+];
+
+const STEPS = [
+  // ── CAPÍTULO 1: IDEAÇÃO ──
+  { chapter:0, scene:'A Faísca', sceneClass:'scene-ideacao',
+    char:{ emoji:'👩‍🏫', name:'Marina', role:'Mentora de Inovação' },
+    speech:'"Antes de criar qualquer produto, você precisa escolher o problema certo. Um bom problema é a metade da solução."',
+    context:'Você está no primeiro dia do IdeaLab. Dezenas de ideias surgem na sua cabeça. Marina, sua mentora, te desafia a definir o foco.',
+    question:'Qual problema sua startup vai resolver?',
+    options:[
+      { l:'Um problema que eu mesmo tenho no dia a dia', d:'Você conhece bem o problema porque o viveu na pele.', fx:{criatividade:15,viabilidade:10,engajamento:5,impacto:5}, q:'good',
+        fb:'Excelente ponto de partida! Empreendedores que resolvem seus próprios problemas têm mais motivação e entendem melhor o usuário.', bncc:'BNCC 2' },
+      { l:'Um problema que identifiquei pesquisando usuários', d:'Dados e entrevistas indicam uma dor real no mercado.', fx:{criatividade:5,viabilidade:15,engajamento:5,impacto:15}, q:'good',
+        fb:'Pesquisa de mercado sólida! Você tem evidências reais antes de construir — isso reduz muito o risco de fracasso.', bncc:'BNCC 2' },
+      { l:'Uma ideia legal que parece inovadora', d:'Você ainda não sabe se alguém realmente precisa disso.', fx:{criatividade:20,viabilidade:-10,engajamento:0,impacto:-5}, q:'ok',
+        fb:'Criatividade nota 10! Mas cuidado: ideias sem problema claro costumam não ter mercado. Valide antes de construir.', bncc:'BNCC 2' },
+      { l:'Seguir a tendência do momento no mercado', d:'Todo mundo está fazendo apps de IA, por que não você?', fx:{criatividade:-5,viabilidade:5,engajamento:20,impacto:-10}, q:'bad',
+        fb:'Cuidado com o efeito manada! Tendências passam rápido e o mercado fica saturado. Diferenciais são mais duradouros.', bncc:'BNCC 2' }
+    ]
+  },
+  { chapter:0, scene:'A Faísca', sceneClass:'scene-ideacao',
+    char:{ emoji:'👩‍🎓', name:'Julia', role:'Usuária Potencial' },
+    speech:'"Eu já usei 5 apps parecidos e nenhum funcionou pra mim. Você realmente sabe o que eu preciso?"',
+    context:'Julia representa seu público-alvo: jovens estudantes que precisam de ferramentas melhores. Ela está disposta a te ajudar, mas apenas se você mostrar que realmente quer ouvi-la.',
+    question:'Como você vai entender profundamente o usuário antes de construir?',
+    options:[
+      { l:'Entrevistas presenciais com 10 usuários reais', d:'Conversa cara a cara revela muito mais do que formulários.', fx:{criatividade:10,viabilidade:10,engajamento:15,impacto:10}, q:'good',
+        fb:'A melhor abordagem! Entrevistas qualitativas revelam motivações ocultas e dores que nenhum formulário captura.', bncc:'BNCC 4' },
+      { l:'Criar um formulário online e divulgar', d:'Alcança mais pessoas, mas perguntas podem ser mal interpretadas.', fx:{criatividade:0,viabilidade:15,engajamento:10,impacto:5}, q:'ok',
+        fb:'Boa escala, mas atenção: formulários tendem a ter baixa taxa de resposta e perdem as nuances das conversas reais.', bncc:'BNCC 4' },
+      { l:'Observar o que as pessoas falam nas redes sociais', d:'Você analisa posts, comentários e reclamações online.', fx:{criatividade:5,viabilidade:5,engajamento:10,impacto:0}, q:'ok',
+        fb:'Útil como complemento! Mas redes sociais mostram o que as pessoas dizem, não necessariamente o que fazem na prática.', bncc:'BNCC 4' },
+      { l:'Ir direto ao produto — já sei o que as pessoas precisam', d:'Você pula a pesquisa e começa a construir imediatamente.', fx:{criatividade:20,viabilidade:-15,engajamento:-10,impacto:-10}, q:'bad',
+        fb:'Suposição arriscada! 90% das startups que falham dizem que sabiam o que o usuário precisava sem nunca ter perguntado.', bncc:'BNCC 4' }
+    ]
+  },
+  { chapter:0, scene:'A Faísca', sceneClass:'scene-ideacao',
+    char:{ emoji:'👨‍💻', name:'Rafael', role:'Co-fundador Técnico' },
+    speech:'"Antes de construir, precisamos saber como vamos ganhar dinheiro. Senão é projeto escolar, não startup."',
+    context:'Rafael é pragmático: sem modelo de negócio sustentável, não adianta ter a melhor ideia do mundo. Ele apresenta quatro caminhos diferentes.',
+    question:'Qual modelo de negócio faz mais sentido para sua startup?',
+    options:[
+      { l:'Gratuito com publicidade (freemium/ads)', d:'Qualquer um acessa, mas o produto vira o usuário, não o cliente.', fx:{criatividade:-5,viabilidade:-5,engajamento:20,impacto:-10}, q:'ok',
+        fb:'Fácil de adotar, mas difícil de manter! Receita por anúncios exige escala enorme e pode comprometer a experiência do usuário.', bncc:'BNCC 2' },
+      { l:'Assinatura mensal (SaaS)', d:'Receita previsível e usuário comprometido — mas barreira de entrada maior.', fx:{criatividade:5,viabilidade:20,engajamento:-10,impacto:5}, q:'good',
+        fb:'Modelo sólido! Receita recorrente é o sonho de qualquer investidor. O desafio é convencer o usuário a pagar desde o início.', bncc:'BNCC 2' },
+      { l:'Freemium (versão grátis + paga)', d:'Usuário experimenta grátis e paga para desbloquear funcionalidades.', fx:{criatividade:5,viabilidade:15,engajamento:15,impacto:5}, q:'good',
+        fb:'Equilíbrio inteligente! O freemium permite crescimento orgânico e converte os usuários mais engajados em pagantes.', bncc:'BNCC 2' },
+      { l:'Doações voluntárias (modelo Wikipedia)', d:'Você acredita no produto e quer que os usuários apoiem por vontade própria.', fx:{criatividade:10,viabilidade:-15,engajamento:5,impacto:20}, q:'bad',
+        fb:'Nobre, mas arriscado! Modelos baseados em doações raramente geram receita suficiente. Wikipedia é exceção, não regra.', bncc:'BNCC 2' }
+    ]
+  },
+
+  // ── CAPÍTULO 2: PROTOTIPAGEM ──
+  { chapter:1, scene:'Mãos à Obra', sceneClass:'scene-prototipagem',
+    char:{ emoji:'👩‍🎨', name:'Ana', role:'Designer de Produto' },
+    speech:'"Antes de codar qualquer coisa, precisamos visualizar o produto. O que você prefere como primeiro protótipo?"',
+    context:'A equipe está animada para começar, mas Ana insiste em criar um protótipo antes de desenvolver o produto final. Ela tem razão — mas qual nível de fidelidade?',
+    question:'Como será o primeiro protótipo da sua startup?',
+    options:[
+      { l:'Desenho no papel (wireframe à mão)', d:'Rápido, barato e permite testar a lógica do produto antes de qualquer código.', fx:{criatividade:15,viabilidade:20,engajamento:0,impacto:5}, q:'good',
+        fb:'Método lean perfeito! Protótipos em papel podem ser feitos em horas e já revelam problemas fundamentais de usabilidade.', bncc:'BNCC 2' },
+      { l:'Mockup digital detalhado (Figma/Canva)', d:'Visual mais fiel ao produto final, facilita testes com usuários reais.', fx:{criatividade:10,viabilidade:10,engajamento:10,impacto:5}, q:'good',
+        fb:'Boa escolha! Mockups digitais facilitam testes com usuários e apresentações para investidores. Só tome cuidado com o perfeccionismo.', bncc:'BNCC 2' },
+      { l:'Código funcional desde o início', d:'Você prefere construir logo e testar com a versão real do produto.', fx:{criatividade:20,viabilidade:-10,engajamento:0,impacto:5}, q:'ok',
+        fb:'Espírito hacker! Mas construir sem prototipar antes costuma gerar retrabalho enorme quando o usuário não entende o produto.', bncc:'BNCC 2' },
+      { l:'Apenas apresentação verbal da ideia', d:'Você descreve o produto em palavras, sem nenhum visual.', fx:{criatividade:5,viabilidade:-5,engajamento:-5,impacto:0}, q:'bad',
+        fb:'Difícil de testar sem nenhum visual! Usuários têm dificuldade de imaginar produtos abstratos. Um esboço já muda tudo.', bncc:'BNCC 2' }
+    ]
+  },
+  { chapter:1, scene:'Mãos à Obra', sceneClass:'scene-prototipagem',
+    char:{ emoji:'👩‍🎓', name:'Julia', role:'Usuária Potencial' },
+    speech:'"Vocês querem saber se o produto funciona ou ficam só testando entre vocês? Me chama para testar!"',
+    context:'O protótipo está pronto. Agora vem a pergunta crucial: como testar? Testar com as pessoas certas pode salvar meses de retrabalho.',
+    question:'Como você vai testar o protótipo?',
+    options:[
+      { l:'Amigos e familiares (círculo próximo)', d:'Feedback fácil de conseguir, mas pode ser muito positivo por gentileza.', fx:{criatividade:0,viabilidade:10,engajamento:15,impacto:0}, q:'ok',
+        fb:'Útil para detectar bugs óbvios, mas amigos tendem a poupar seus sentimentos. Busque também usuários que não te conhecem.', bncc:'BNCC 4' },
+      { l:'Público real fora da minha rede', d:'Recrutamento de usuários desconhecidos que representam o público-alvo.', fx:{criatividade:5,viabilidade:20,engajamento:20,impacto:10}, q:'good',
+        fb:'Excelente! Usuários sem viés afetivo dão o feedback mais honesto e realista sobre seu produto.', bncc:'BNCC 4' },
+      { l:'Apenas com a equipe interna', d:'Vocês próprios usam o produto e identificam problemas.', fx:{criatividade:10,viabilidade:5,engajamento:0,impacto:0}, q:'ok',
+        fb:'Melhor que nada, mas a equipe já conhece o produto e não representa o usuário real. Cuidado com o viés de confirmação.', bncc:'BNCC 4' },
+      { l:'Não testamos — lançamos direto', d:'Você prefere coletar feedback do mercado real no lançamento.', fx:{criatividade:10,viabilidade:-15,engajamento:0,impacto:-15}, q:'bad',
+        fb:'Erro clássico! Lançar sem testar é arriscar a reputação da startup com um produto que pode falhar publicamente.', bncc:'BNCC 4' }
+    ]
+  },
+  { chapter:1, scene:'Mãos à Obra', sceneClass:'scene-prototipagem',
+    char:{ emoji:'👩‍🏫', name:'Marina', role:'Mentora de Inovação' },
+    speech:'"Os usuários testaram e o feedback foi claro: nenhum deles entendeu como usar o produto. O que você faz agora?"',
+    context:'Momento crítico! O teste revelou um problema sério: o fluxo do produto confunde os usuários. Isso não é falha — é aprendizado. Mas a reação agora define o futuro da startup.',
+    question:'Como você reage ao feedback negativo dos usuários?',
+    options:[
+      { l:'Pivotar: redesenhar o produto com base no feedback', d:'Você aceita que estava errado e muda a direção do produto.', fx:{criatividade:20,viabilidade:-5,engajamento:0,impacto:15}, q:'good',
+        fb:'Mentalidade de startup! Pivotar com base em evidências é sinal de maturidade, não de fraqueza. As melhores empresas pivotaram.', bncc:'BNCC 2' },
+      { l:'Melhorar a comunicação e interface do produto', d:'A ideia está certa, mas a apresentação precisa melhorar.', fx:{criatividade:5,viabilidade:10,engajamento:20,impacto:0}, q:'good',
+        fb:'Diagnóstico preciso! Às vezes o produto é bom mas a interface confunde. UX melhorada pode resolver sem mudar o core do produto.', bncc:'BNCC 2' },
+      { l:'Insistir na ideia original — os usuários vão se adaptar', d:'Você acredita que o mercado ainda não está pronto para sua visão.', fx:{criatividade:-10,viabilidade:-5,engajamento:-10,impacto:-10}, q:'bad',
+        fb:'Armadilha perigosa! Muito poucas startups são tão inovadoras que o mercado ainda não entende. Normalmente é o produto que precisa mudar.', bncc:'BNCC 2' },
+      { l:'Coletar mais dados antes de qualquer mudança', d:'Você quer mais evidências antes de tomar uma decisão grande.', fx:{criatividade:5,viabilidade:15,engajamento:0,impacto:10}, q:'ok',
+        fb:'Abordagem cuidadosa! Mais dados sempre ajudam, mas tome cuidado com a paralisia por análise. Às vezes um teste simples já dá a resposta.', bncc:'BNCC 2' }
+    ]
+  },
+
+  // ── CAPÍTULO 3: PITCH ──
+  { chapter:2, scene:'No Palco', sceneClass:'scene-pitch',
+    char:{ emoji:'💼', name:'Carlos', role:'Investidor Anjo' },
+    speech:'"Você tem exatamente 3 minutos para me convencer. Comece já."',
+    context:'Carlos já ouviu mais de 200 pitches. Ele detecta despreparo em segundos. Este é o momento que pode mudar tudo para sua startup.',
+    question:'Como você abre seu pitch para o investidor?',
+    options:[
+      { l:'Começa com o problema real que resolve', d:'Um caso concreto que ilustra a dor do usuário de forma poderosa.', fx:{criatividade:0,viabilidade:10,engajamento:15,impacto:20}, q:'good',
+        fb:'Abertura clássica e eficaz! Investidores se conectam com problemas reais. "Existe um problema..." é o começo perfeito.', bncc:'BNCC 4' },
+      { l:'Mostra números e dados de mercado', d:'Tamanho do mercado, crescimento e oportunidade financeira.', fx:{criatividade:0,viabilidade:20,engajamento:10,impacto:0}, q:'good',
+        fb:'Abordagem racional sólida! Números convencem a cabeça. Combine com a emoção do problema para um pitch completo.', bncc:'BNCC 4' },
+      { l:'Conta uma história pessoal emocionante', d:'Por que você criou isso? Qual experiência te motivou?', fx:{criatividade:5,viabilidade:-5,engajamento:25,impacto:0}, q:'ok',
+        fb:'História pessoal cria conexão emocional poderosa! Mas não esqueça os números — investidores precisam de lógica também.', bncc:'BNCC 4' },
+      { l:'Faz uma demo ao vivo do produto', d:'Abre o app e mostra funcionando na frente do investidor.', fx:{criatividade:15,viabilidade:10,engajamento:15,impacto:0}, q:'good',
+        fb:'Demo ao vivo é muito persuasiva! "Mostrar é melhor que contar." Só tenha um plano B se o app travar na hora errada.', bncc:'BNCC 4' }
+    ]
+  },
+  { chapter:2, scene:'No Palco', sceneClass:'scene-pitch',
+    char:{ emoji:'🕵️', name:'Thiago', role:'Startup Concorrente' },
+    speech:'"Pessoal, meu produto faz exatamente isso e já tem 5 mil usuários. Boa sorte para vocês!"',
+    context:'Durante o evento de pitches, uma startup concorrente apresenta um produto muito parecido com o seu — e já tem tração! O investidor te olha esperando sua reação.',
+    question:'Como você reage à existência de um concorrente direto durante o pitch?',
+    options:[
+      { l:'Mostra claramente o diferencial do seu produto', d:'Você explica ponto a ponto por que o seu é superior ou diferente.', fx:{criatividade:15,viabilidade:0,engajamento:15,impacto:10}, q:'good',
+        fb:'Resposta madura e assertiva! Concorrência valida o mercado. Mostrar diferencial demonstra que você fez sua lição de casa.', bncc:'BNCC 4' },
+      { l:'Ignora o concorrente e continua o pitch', d:'Você finge que não ouviu e foca no seu produto.', fx:{criatividade:0,viabilidade:5,engajamento:0,impacto:0}, q:'ok',
+        fb:'Evita confronto, mas parece que você não conhece o mercado. Investidores sempre perguntam sobre concorrentes.', bncc:'BNCC 4' },
+      { l:'Critica o produto do concorrente publicamente', d:'Você aponta as falhas do produto deles para o investidor.', fx:{criatividade:-10,viabilidade:0,engajamento:-15,impacto:0}, q:'bad',
+        fb:'Postura amadora! Criticar concorrentes publicamente transmite insegurança e falta de classe. O ecossistema de startups é pequeno.', bncc:'BNCC 4' },
+      { l:'Propõe uma possível parceria com o concorrente', d:'Você sugere que os dois produtos podem ser complementares.', fx:{criatividade:10,viabilidade:5,engajamento:0,impacto:20}, q:'good',
+        fb:'Pensamento estratégico! Parcerias podem ser mais poderosas que competição. Demonstra maturidade e visão de longo prazo.', bncc:'BNCC 4' }
+    ]
+  },
+  { chapter:2, scene:'No Palco', sceneClass:'scene-pitch',
+    char:{ emoji:'💼', name:'Carlos', role:'Investidor Anjo' },
+    speech:'"Gostei do produto. Quero investir, mas quero 40% da empresa. O que você acha?"',
+    context:'Carlos está interessado! Mas a oferta é agressiva: 40% da empresa por aporte de R$50.000. É muito? É pouco? A decisão afeta o futuro da startup para sempre.',
+    question:'O investidor quer 40% da empresa. Como você negocia?',
+    options:[
+      { l:'Contra-proposta: aceita 15-20%, não mais', d:'Você sabe o valor da sua startup e negocia com firmeza.', fx:{criatividade:10,viabilidade:20,engajamento:0,impacto:0}, q:'good',
+        fb:'Negociação inteligente! 40% é muito alto para uma rodada inicial. Manter controle da empresa preserva sua capacidade de tomar decisões.', bncc:'BNCC 2' },
+      { l:'Aceita os 40% sem questionar', d:'Você está tão empolgado com o investimento que aceita qualquer condição.', fx:{criatividade:0,viabilidade:25,engajamento:0,impacto:-10}, q:'ok',
+        fb:'Dinheiro na conta, mas a que custo? Com 40%, Carlos terá voz decisiva na empresa. Fundadores que perdem controle cedo raramente ficam no projeto.', bncc:'BNCC 2' },
+      { l:'Recusa e busca outros investidores', d:'Você acredita que pode encontrar condições melhores no mercado.', fx:{criatividade:15,viabilidade:-5,engajamento:0,impacto:15}, q:'ok',
+        fb:'Corajoso! Às vezes recusar uma oferta ruim é melhor que aceitar. Mas sem dinheiro, o crescimento fica lento. Tenha outras opções em mente.', bncc:'BNCC 2' },
+      { l:'Pede 48h para pensar e consultar mentores', d:'Você não decide sozinho e em cima da hora.', fx:{criatividade:5,viabilidade:10,engajamento:5,impacto:5}, q:'good',
+        fb:'Decisão madura! Decisões importantes de negócio não devem ser tomadas sob pressão. Consultar mentores demonstra inteligência, não fraqueza.', bncc:'BNCC 2' }
+    ]
+  },
+
+  // ── CAPÍTULO 4: LANÇAMENTO ──
+  { chapter:3, scene:'Decolagem', sceneClass:'scene-lancamento',
+    char:{ emoji:'👩‍🎨', name:'Ana', role:'Designer de Produto' },
+    speech:'"Produto pronto! Agora como vamos fazer o mundo saber que existimos? Cada estratégia tem seu custo e alcance."',
+    context:'Chegou o grande dia! O produto está pronto para o lançamento. Mas o lançamento em si é uma arte — a estratégia errada pode desperdiçar meses de trabalho.',
+    question:'Qual será a estratégia de lançamento da sua startup?',
+    options:[
+      { l:'Lançamento silencioso para beta testers', d:'Você lança só para um grupo seleto, coleta feedback e melhora antes de escalar.', fx:{criatividade:0,viabilidade:20,engajamento:5,impacto:5}, q:'good',
+        fb:'Estratégia lean! Beta testing permite corrigir problemas antes da exposição pública. Muitas grandes empresas lançaram assim.', bncc:'BNCC 4' },
+      { l:'Grande evento de lançamento', d:'Você organiza um evento presencial com imprensa e formadores de opinião.', fx:{criatividade:10,viabilidade:-10,engajamento:25,impacto:0}, q:'ok',
+        fb:'Alto impacto, alto custo! Eventos criam buzz poderoso, mas se o produto não impressionar no dia, a queda é proporcional ao hype.', bncc:'BNCC 4' },
+      { l:'Parceria com influenciadores digitais', d:'Você fecha com criadores de conteúdo para divulgar o produto.', fx:{criatividade:-5,viabilidade:5,engajamento:20,impacto:0}, q:'ok',
+        fb:'Alcance rápido! Mas escolha influenciadores alinhados com seu público-alvo, senão o engajamento não se converte em usuários reais.', bncc:'BNCC 4' },
+      { l:'Programa de embaixadores na escola', d:'Você recruta alunos para usar e divulgar o produto organicamente.', fx:{criatividade:5,viabilidade:0,engajamento:15,impacto:20}, q:'good',
+        fb:'Crescimento orgânico e autêntico! Embaixadores criam comunidade genuína e o produto cresce de dentro para fora.', bncc:'BNCC 4' }
+    ]
+  },
+  { chapter:3, scene:'Decolagem', sceneClass:'scene-lancamento',
+    char:{ emoji:'👩‍🎓', name:'Julia', role:'Usuária Inicial' },
+    speech:'"Ei, tem um bug sério no app! Os dados de vários usuários aparecem misturados. Todo mundo está reclamando nos grupos!"',
+    context:'A startup acaba de lançar e já aparece o primeiro incêndio: um bug crítico que afeta dados de usuários. Como você responde vai definir a reputação da startup para sempre.',
+    question:'Apareceu um bug crítico no lançamento. Como você reage?',
+    options:[
+      { l:'Corrige imediatamente e comunica ativamente', d:'Você lança um patch em horas e avisa todos os usuários afetados.', fx:{criatividade:0,viabilidade:20,engajamento:15,impacto:10}, q:'good',
+        fb:'Gestão de crise exemplar! Transparência e velocidade de resposta são mais valorizadas que a ausência de bugs. Usuários perdoam erros; não perdoam mentiras.', bncc:'BNCC 9' },
+      { l:'Nega o problema publicamente', d:'Você posta que "o app está funcionando perfeitamente" enquanto corrige internamente.', fx:{criatividade:0,viabilidade:-20,engajamento:-20,impacto:-15}, q:'bad',
+        fb:'Desastre de reputação! Mentir sobre problemas destroi a confiança que levou meses para construir. Usuários descobrem e a credibilidade acaba.', bncc:'BNCC 9' },
+      { l:'Corrige silenciosamente sem comunicar', d:'Você resolve o bug sem avisar os usuários sobre o que aconteceu.', fx:{criatividade:0,viabilidade:15,engajamento:-5,impacto:0}, q:'ok',
+        fb:'Corrige o problema técnico, mas perde a oportunidade de ganhar pontos com transparência. Usuários que descobriram o bug ficam sem resposta.', bncc:'BNCC 9' },
+      { l:'Compensa os usuários afetados com benefícios', d:'Você oferece mês grátis e recursos premium para quem foi impactado.', fx:{criatividade:0,viabilidade:5,engajamento:20,impacto:20}, q:'good',
+        fb:'Gestão empática! Compensar usuários transforma uma crise em oportunidade de fidelização. Mostra que a empresa se importa de verdade.', bncc:'BNCC 9' }
+    ]
+  },
+  { chapter:3, scene:'Decolagem', sceneClass:'scene-lancamento',
+    char:{ emoji:'👩‍🏫', name:'Marina', role:'Mentora de Inovação' },
+    speech:'"Parabéns! Seu produto cresceu e agora tem 500 usuários ativos. Momento de escalar. Como você vai expandir?"',
+    context:'A startup sobreviveu ao lançamento e está crescendo! Agora vem a grande decisão estratégica: como escalar de forma inteligente e sustentável.',
+    question:'Sua startup deu certo — como você vai escalar?',
+    options:[
+      { l:'Expandir para outras escolas e regiões', d:'Você replica o modelo em outros contextos mantendo o foco no impacto social.', fx:{criatividade:0,viabilidade:5,engajamento:15,impacto:25}, q:'good',
+        fb:'Escalabilidade com propósito! Expansão geográfica mantém o impacto social e constrói uma marca forte com valores claros.', bncc:'BNCC 7' },
+      { l:'Adicionar funcionalidades premium pagas', d:'Você cria uma versão avançada para usuários que querem mais recursos.', fx:{criatividade:15,viabilidade:25,engajamento:0,impacto:0}, q:'good',
+        fb:'Estratégia sólida de monetização! Funcionalidades premium podem gerar receita sem alienar a base de usuários gratuitos.', bncc:'BNCC 7' },
+      { l:'Construir uma comunidade em torno do produto', d:'Você investe em criar um ecossistema de usuários que se ajudam mutuamente.', fx:{criatividade:10,viabilidade:0,engajamento:20,impacto:20}, q:'good',
+        fb:'Visão de longo prazo! Comunidades criam fidelidade e crescimento orgânico. Produto + comunidade = moat difícil de copiar.', bncc:'BNCC 9' },
+      { l:'Aceitar proposta de aquisição por grande empresa', d:'Uma corporação quer comprar sua startup por um valor tentador.', fx:{criatividade:0,viabilidade:30,engajamento:0,impacto:-10}, q:'ok',
+        fb:'Saída financeira válida! Mas pense: você fundou a startup por dinheiro ou por impacto? Aquisições nem sempre preservam a missão original do produto.', bncc:'BNCC 8' }
+    ]
+  }
+];
+
+const STATS_INIT = { criatividade:50, viabilidade:40, engajamento:45, impacto:35 };
+let stats = {}, step = 0, chShown = -1, answered = false;
+
+function clamp(v) { return Math.max(0, Math.min(100, v)); }
+
+function updateStatBars(animate) {
+  ['criatividade','viabilidade','engajamento','impacto'].forEach(k => {
+    const v = stats[k];
+    document.getElementById('val-'+k).textContent = v;
+    const fill = document.getElementById('fill-'+k);
+    fill.style.width = v + '%';
+    if (animate) {
+      fill.style.animation = 'none';
+      void fill.offsetWidth;
+      fill.style.animation = 'statPop 0.5s ease both';
+    }
+  });
+}
+
+function updateProgress() {
+  const pct = (step / STEPS.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  const s = STEPS[Math.min(step, STEPS.length-1)];
+  const ch = CHAPTERS[s ? s.chapter : 3];
+  const d = step + 1 <= STEPS.length ? (step + 1) : STEPS.length;
+  document.getElementById('nav-badge').textContent = `Fase ${s ? s.chapter+1 : 4} · Decisão ${d}/12`;
+}
+
+function show(id) {
+  ['screen-intro','screen-chapter','screen-question','screen-result'].forEach(s => {
+    document.getElementById(s).style.display = 'none';
+  });
+  const el = document.getElementById(id);
+  el.style.display = (id === 'screen-intro' || id === 'screen-result') ? 'flex' : 'block';
+  void el.offsetWidth;
+  el.classList.remove('screen');
+  void el.offsetWidth;
+  el.classList.add('screen');
+}
+
+function startGame() {
+  stats = { ...STATS_INIT };
+  step = 0; chShown = -1;
+  updateStatBars(false);
+  updateProgress();
+  nextScreen();
+}
+
+function nextScreen() {
+  if (step >= STEPS.length) { showResult(); return; }
+  const s = STEPS[step];
+  if (s.chapter > chShown) {
+    chShown = s.chapter;
+    showChapter(s.chapter);
+  } else {
+    showQuestion(s);
+  }
+}
+
+function showChapter(idx) {
+  const c = CHAPTERS[idx];
+  document.getElementById('ch-number').textContent = c.num;
+  document.getElementById('ch-emoji').textContent  = c.emoji;
+  document.getElementById('ch-tag').textContent    = c.tag;
+  document.getElementById('ch-title').textContent  = c.title;
+  document.getElementById('ch-time').textContent   = c.time;
+  document.getElementById('ch-desc').textContent   = c.desc;
+  const el = document.getElementById('screen-chapter');
+  el.className = 'screen card ' + c.tagCss;
+  show('screen-chapter');
+}
+
+function showQuestion(s) {
+  answered = false;
+  document.getElementById('q-char-emoji').textContent = s.char.emoji;
+  document.getElementById('q-char-name').textContent  = s.char.name;
+  document.getElementById('q-char-role').textContent  = s.char.role;
+  document.getElementById('q-speech').textContent     = s.speech;
+  document.getElementById('q-context').textContent    = s.context;
+  document.getElementById('q-question').textContent   = s.question;
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  s.options.forEach((opt, i) => {
+    const fxHtml = Object.entries(opt.fx)
+      .filter(([,v]) => v !== 0)
+      .map(([k,v]) => {
+        const icons = {criatividade:'🧠',viabilidade:'⚙️',engajamento:'📣',impacto:'🌍'};
+        const cls = v > 0 ? 'fx-pos' : 'fx-neg';
+        return `<span class="fx-chip ${cls}">${icons[k]} ${v > 0 ? '+':''}${v}</span>`;
+      }).join('');
+
+    const card = document.createElement('div');
+    card.className = 'opt-card';
+    card.dataset.idx = i;
+    card.innerHTML = `
+      <div class="opt-top">
+        <span class="opt-letter">${letters[i]}</span>
+        <span class="opt-label">${opt.l}</span>
+      </div>
+      <div class="opt-desc">${opt.d}</div>
+      <div class="opt-fx">${fxHtml}</div>
+    `;
+    card.addEventListener('click', () => pick(i));
+    grid.appendChild(card);
+  });
+
+  document.getElementById('feedback-box').style.display = 'none';
+  document.getElementById('btn-next').style.display = 'none';
+
+  const el = document.getElementById('screen-question');
+  el.className = 'screen card ' + s.sceneClass;
+  show('screen-question');
+}
+
+function pick(idx) {
+  if (answered) return;
+  answered = true;
+  const s = STEPS[step];
+  const opt = s.options[idx];
+
+  Object.entries(opt.fx).forEach(([k,v]) => { stats[k] = clamp(stats[k] + v); });
+  updateStatBars(true);
+
+  const cards = document.querySelectorAll('.opt-card');
+  cards.forEach((c, i) => {
+    if (i === idx) {
+      const qMap = { good:'picked-good', ok:'picked-ok', bad:'picked-bad' };
+      c.classList.add(qMap[opt.q] || 'picked-ok');
+    } else {
+      c.classList.add('disabled');
+    }
+  });
+
+  const qLabels = { good:'🌟 Excelente escolha!', ok:'👍 Boa tentativa!', bad:'💡 Momento de aprendizado' };
+  const statNames = { criatividade:'Criatividade', viabilidade:'Viabilidade', engajamento:'Engajamento', impacto:'Impacto' };
+  const statIcons = { criatividade:'🧠', viabilidade:'⚙️', engajamento:'📣', impacto:'🌍' };
+
+  document.getElementById('fb-quality').textContent = qLabels[opt.q] || '👍 Ok!';
+  document.getElementById('fb-text').textContent    = opt.fb;
+
+  const fbStats = document.getElementById('fb-stats');
+  fbStats.innerHTML = Object.entries(opt.fx).filter(([,v]) => v !== 0).map(([k,v]) => {
+    const cls = v > 0 ? 'fb-stat-pos' : 'fb-stat-neg';
+    return `<span class="fb-stat ${cls}">${statIcons[k]} ${statNames[k]} ${v > 0 ? '+':''}${v}</span>`;
+  }).join('');
+
+  document.getElementById('fb-bncc').innerHTML = `<span class="bncc-badge">📚 ${opt.bncc}</span>`;
+  document.getElementById('feedback-box').style.display = 'block';
+
+  const btnLabel = (step + 1 >= STEPS.length) ? 'Ver Resultado →' : 'Próxima Decisão →';
+  const btn = document.getElementById('btn-next');
+  btn.textContent = btnLabel;
+  btn.style.display = 'block';
+
+  step++;
+  updateProgress();
+}
+
+function showResult() {
+  const total = stats.criatividade + stats.viabilidade + stats.engajamento + stats.impacto;
+  const pct   = Math.round((total / 400) * 100);
+  let emoji, title, sub, msg;
+
+  if (pct >= 75) {
+    emoji = '🦄'; title = 'Unicórnio em Potencial';
+    sub   = 'Você tem tudo para criar uma startup de impacto real!';
+    msg   = 'Sua jornada no IdeaLab foi excepcional! Você demonstrou criatividade, visão estratégica e capacidade de aprender com erros. Se continuar assim, pode criar algo que vai mudar vidas.';
+  } else if (pct >= 60) {
+    emoji = '🚀'; title = 'Empreendedor Inovador';
+    sub   = 'Grande potencial! Você sabe pensar como um founder.';
+    msg   = 'Você mostrou habilidades sólidas de inovação e comunicação. Algumas decisões foram desafiadoras, mas você navegou bem. Continue aprimorando sua visão estratégica!';
+  } else if (pct >= 45) {
+    emoji = '💡'; title = 'Idealizador em Crescimento';
+    sub   = 'Boas ideias! Agora é hora de desenvolver a execução.';
+    msg   = 'Você tem instinto criativo, mas ainda está desenvolvendo as habilidades práticas do empreendedorismo. Cada erro no IdeaLab é um aprendizado que você não terá que repetir na vida real!';
+  } else {
+    emoji = '🌱'; title = 'Aprendiz Criativo';
+    sub   = 'Toda grande jornada começa com o primeiro passo.';
+    msg   = 'Empreender é difícil mesmo! Você passou por situações complexas e aprendeu com elas. O IdeaLab existe exatamente para isso: errar aqui e acertar na vida real. Tente de novo!';
+  }
+
+  document.getElementById('res-emoji').textContent = emoji;
+  document.getElementById('res-title').textContent = title;
+  document.getElementById('res-sub').textContent   = sub;
+  document.getElementById('res-pct').textContent   = pct + '%';
+  document.getElementById('res-msg').textContent   = msg;
+
+  const rStats = document.getElementById('res-stats');
+  const fills  = {criatividade:'f-cria', viabilidade:'f-viab', engajamento:'f-enga', impacto:'f-impa'};
+  const labels = {criatividade:'🧠 Criatividade', viabilidade:'⚙️ Viabilidade', engajamento:'📣 Engajamento', impacto:'🌍 Impacto'};
+  rStats.innerHTML = Object.keys(stats).map(k => `
+    <div class="rs-item">
+      <div class="rs-label"><span>${labels[k]}</span><span>${stats[k]}/100</span></div>
+      <div class="rs-bar"><div class="rs-fill ${fills[k]}" style="width:${stats[k]}%" id="rf-${k}"></div></div>
+    </div>
+  `).join('');
+
+  document.getElementById('res-bncc').innerHTML = `
+    <span class="bncc-badge">📚 BNCC 2 – Pensamento Crítico</span>
+    <span class="bncc-badge">📚 BNCC 4 – Comunicação</span>
+    <span class="bncc-badge">📚 BNCC 9 – Empatia</span>
+  `;
+
+  const el = document.getElementById('screen-result');
+  el.className = 'screen card scene-lancamento';
+  show('screen-result');
+
+  setTimeout(() => {
+    Object.keys(stats).forEach((k,i) => {
+      setTimeout(() => {
+        const fill = document.getElementById('rf-'+k);
+        if (fill) { fill.style.animation = 'none'; void fill.offsetWidth; fill.style.animation = 'statPop 0.6s ease both'; }
+      }, i * 150);
+    });
+  }, 400);
+}
+
+function restartGame() {
+  stats = { ...STATS_INIT };
+  step = 0; chShown = -1;
+  updateStatBars(false);
+  updateProgress();
+  show('screen-intro');
+}
+
+// Init
+window.addEventListener('DOMContentLoaded', () => {
+  updateStatBars(false);
+  show('screen-intro');
+});
+</script>
+</body>
+</html>
