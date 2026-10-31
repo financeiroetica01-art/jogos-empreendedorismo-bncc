@@ -31,6 +31,14 @@ canvas{display:block}
   <h1>Pesca no São Francisco</h1>
   <p>Às margens do lendário Rio São Francisco, no Cânion do Xingó — coração de Sergipe.<br>Clique nos peixes para pescá-los e ganhe dinheiro!</p>
   <p style="color:#475569;font-size:.85rem">🐟 Tilápia · 🟠 Tucunaré · ⚪ Sururu · 🟢 Piau · 🔵 Dourado</p>
+  <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:10px 16px;margin:8px 0;text-align:left;font-size:.82rem;color:#e2e8f0;max-width:420px">
+    <b>🕹️ Como Jogar:</b><br>
+    1. Clique nos peixes que nadam no Rio São Francisco<br>
+    2. Cada espécie tem um valor diferente em dinheiro<br>
+    3. O Dourado (🔵) é o mais valioso mas nada muito rápido!<br>
+    4. Você tem 90 segundos — pesque o máximo que conseguir<br>
+    5. Quanto mais peixes raros você pegar, mais rico fica!
+  </div>
   <button class="btn" onclick="startGame()">Começar a Pescar!</button>
 </div>
 <script>
@@ -50,8 +58,10 @@ function drawBG(t){
   const sk=ctx.createLinearGradient(0,44,0,H*.42);
   sk.addColorStop(0,'#3b82f6');sk.addColorStop(1,'#93c5fd');
   ctx.fillStyle=sk;ctx.fillRect(0,44,W,H*.42-44);
-  ctx.fillStyle='#fde68a';ctx.beginPath();ctx.arc(W*.8,H*.12,38,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='rgba(253,230,138,.3)';ctx.beginPath();ctx.arc(W*.8,H*.12,56,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#fde68a';
+  ctx.beginPath();ctx.arc(W*.8,H*.12,38,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='rgba(253,230,138,.3)';
+  ctx.beginPath();ctx.arc(W*.8,H*.12,56,0,Math.PI*2);ctx.fill();
   [[W*.15,H*.09,1],[W*.55,H*.07,.85],[W*.88,H*.14,.7]].forEach(([cx,cy,s])=>{
     ctx.fillStyle='rgba(255,255,255,.88)';
     [[0,0,30],[22,-8,22],[-22,-8,20],[38,0,18],[-40,4,16]].forEach(([dx,dy,r])=>{
