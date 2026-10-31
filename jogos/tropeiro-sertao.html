@@ -2,12 +2,12 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Tropeiro do Sertão</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#6b3d0e;overflow:hidden;font-family:system-ui,sans-serif}
-canvas{display:block}
+body{background:#6b3d0e;overflow:hidden;font-family:system-ui,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none}
+canvas{display:block;touch-action:none}
 #hud{position:fixed;top:0;left:0;right:0;height:44px;background:#3d1505;border-bottom:1px solid #78350f;display:flex;align-items:center;padding:0 1.2rem;gap:1.4rem;color:#fef3c7;font-size:14px;z-index:10}
 #hud b{font-weight:600}
 #hud .ml{margin-left:auto;color:#fbbf24;font-size:12px}
@@ -35,9 +35,9 @@ canvas{display:block}
   <p style="color:#78350f;font-size:.85rem">🌵 Desvie de Cactos · 🪨 Pule Pedras · ☀️ Cuidado com o Sol!</p>
   <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:10px 16px;margin:8px 0;text-align:left;font-size:.82rem;color:#e2e8f0;max-width:420px">
     <b>🕹️ Como Jogar:</b><br>
-    1. Clique na tela ou pressione ESPAÇO para pular<br>
+    1. <b>Toque na tela</b> para fazer o tropeiro pular<br>
     2. Desvie de cactos, pedras e buracos no caminho<br>
-    3. Colete produtos regionais (umbu, rapadura, queijo coalho…)<br>
+    3. Toque nos produtos regionais para coletá-los (umbu, rapadura…)<br>
     4. Você tem 3 vidas — cuidado com os obstáculos!<br>
     5. Quanto mais longe você vai, mais difícil fica!
   </div>
@@ -65,11 +65,7 @@ const OBST=[
   {type:'cactus2',w:50,h:70,clr:'#166534'},
 ];
 
-const player={
-  x:W*.18||120,y:0,vy:0,grounded:true,
-  fr:0,jumped:false,hitFlash:0,
-  sc:1.0,squat:0
-};
+const player={x:120,y:0,vy:0,grounded:true,fr:0,jumped:false,hitFlash:0,sc:1.0,squat:0};
 
 function resize(){
   W=cv.width=window.innerWidth;
@@ -106,7 +102,6 @@ function update(dt){
   speed=Math.min(8,3+dist/300*.5);
   scrollX+=speed*(dt/16);
   player.fr+=dt*.06;
-
   if(!player.grounded){
     player.vy+=0.65*(dt/16);
     player.y+=player.vy*(dt/16);
@@ -114,13 +109,11 @@ function update(dt){
   }
   if(player.hitFlash>0)player.hitFlash-=dt*.003;
   if(player.squat>0)player.squat-=dt*.005;
-
   clouds.forEach(cl=>{cl.x-=speed*.25*(dt/16);if(cl.x<-200)cl.x=W+100;});
-
   spawnObT-=dt;
   if(spawnObT<=0){
     const ob=OBST[Math.floor(Math.random()*OBST.length)];
-    obstacles.push({...ob,x:W+100,grounded:true});
+    obstacles.push({...ob,x:W+100});
     spawnObT=1000+Math.random()*1200;
   }
   spawnColT-=dt;
@@ -130,30 +123,23 @@ function update(dt){
     collectibles.push({...it,x:W+80,y:groundY-(flying?H*.18:H*.06),collected:false,bob:Math.random()*Math.PI*2});
     spawnColT=700+Math.random()*900;
   }
-
   obstacles.forEach(ob=>{ob.x-=speed*(dt/16);});
   obstacles=obstacles.filter(ob=>ob.x>-100);
-
   collectibles.forEach(c=>{c.x-=speed*(dt/16);c.bob+=dt*.004;});
   collectibles=collectibles.filter(c=>!c.collected&&c.x>-80);
-
   for(const ob of obstacles){
-    const px=player.x,py=player.y;
-    const ox=ob.x,oy=groundY-(ob.type==='hole'?0:ob.h*.5);
     if(ob.type==='hole'){
-      if(px>ob.x-10&&px<ob.x+ob.w+10&&player.grounded){hit();}
+      if(player.x>ob.x-10&&player.x<ob.x+ob.w+10&&player.grounded){hit();}
     }else{
-      if(Math.abs(px-ob.x-ob.w/2)<(ob.w/2+18)&&Math.abs(py-oy)<(ob.h/2+30)&&player.grounded){hit();}
+      if(Math.abs(player.x-ob.x-ob.w/2)<(ob.w/2+18)&&Math.abs(player.y-(groundY-ob.h*.5))<(ob.h/2+30)&&player.grounded){hit();}
     }
   }
-
   for(const it of collectibles){
     if(!it.collected&&Math.abs(player.x-it.x)<32&&Math.abs(player.y-it.y)<40){
       it.collected=true;money+=it.val;items++;
       floats.push(new FloatTxt(`+R$${it.val} ${it.nm}`,it.x,it.y-40,'#22c55e',17));
     }
   }
-
   floats=floats.filter(f=>f.update(dt));
   document.getElementById('hm').textContent=money.toFixed(0);
   document.getElementById('hd').textContent=Math.floor(dist);
@@ -177,25 +163,21 @@ function render(now){
   const sk=ctx.createLinearGradient(0,44,0,H*.5);
   sk.addColorStop(0,'#fb923c');sk.addColorStop(1,'#fbbf24');
   ctx.fillStyle=sk;ctx.fillRect(0,44,W,H*.5-44);
-
   ctx.fillStyle='#fde68a';ctx.beginPath();ctx.arc(W*.85,H*.12,40,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='rgba(253,230,138,.3)';ctx.beginPath();ctx.arc(W*.85,H*.12,60,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='rgba(255,200,100,.15)';
   for(let i=0;i<5;i++) ctx.fillRect(i*W*.2,H*.48,W*.15,6);
-
   clouds.forEach(cl=>{
     ctx.fillStyle='rgba(255,220,180,.6)';
     [[0,0,28],[20,-7,20],[40,0,22],[-20,-5,18]].forEach(([dx,dy,r])=>{
       ctx.beginPath();ctx.arc(cl.x+dx*cl.w,H*.1+dy,r*cl.w,0,Math.PI*2);ctx.fill();
     });
   });
-
   ctx.fillStyle='rgba(180,60,10,.25)';
   [0,.15,.32,.5,.67,.82].forEach((px,i)=>{
     const hh=H*.09+i*H*.012;
     ctx.beginPath();ctx.moveTo(px*W,H*.48);ctx.bezierCurveTo(px*W+W*.04,H*.48-hh,px*W+W*.08,H*.48-hh*.8,px*W+W*.12,H*.48);ctx.fill();
   });
-
   const gnd=ctx.createLinearGradient(0,groundY,0,H);
   gnd.addColorStop(0,'#d97706');gnd.addColorStop(.3,'#b45309');gnd.addColorStop(1,'#78350f');
   ctx.fillStyle=gnd;ctx.fillRect(0,groundY,W,H-groundY);
@@ -204,7 +186,6 @@ function render(now){
     const gx=(i*W*.09-scrollX*.08)%W;
     ctx.beginPath();ctx.moveTo(gx,groundY+5);ctx.lineTo(gx+25,groundY+12);ctx.lineTo(gx+14,groundY+22);ctx.stroke();
   }
-
   ctx.fillStyle='rgba(21,128,61,.35)';
   for(let i=0;i<6;i++){
     const bx=((i*W*.18+scrollX*.15)%W)-20,by=groundY;
@@ -212,7 +193,6 @@ function render(now){
     ctx.beginPath();ctx.roundRect(bx-12,by-30,12,10,2);ctx.fill();
     ctx.beginPath();ctx.roundRect(bx+14,by-35,12,10,2);ctx.fill();
   }
-
   collectibles.forEach(it=>{
     const bob=Math.sin(it.bob)*8;
     ctx.fillStyle=it.clr;ctx.beginPath();ctx.arc(it.x,it.y+bob,18,0,Math.PI*2);ctx.fill();
@@ -221,7 +201,6 @@ function render(now){
     ctx.fillStyle='rgba(0,0,0,.6)';ctx.beginPath();ctx.roundRect(it.x-22,it.y+bob-36,44,16,4);ctx.fill();
     ctx.fillStyle='#fff';ctx.font='bold 10px system-ui';ctx.fillText(`R$${it.val}`,it.x,it.y+bob-24);
   });
-
   obstacles.forEach(ob=>{
     if(ob.type==='cactus'||ob.type==='cactus2'){
       ctx.fillStyle=ob.clr;
@@ -241,15 +220,12 @@ function render(now){
       ctx.ellipse(ob.x+ob.w/2,groundY+4,ob.w/2,8,0,0,Math.PI*2);ctx.fill();
     }
   });
-
   drawTropeiro(now);
   floats.forEach(f=>f.draw());
-
   if(player.hitFlash>0){
     ctx.fillStyle=`rgba(239,68,68,${player.hitFlash*.25})`;
     ctx.fillRect(0,44,W,H);
   }
-
   ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(W*.35,H*.75,W*.3,28);
   ctx.fillStyle='#fef3c7';ctx.font='bold 14px system-ui';ctx.textAlign='center';
   ctx.fillText(`🗺️ Canindé → Itabaiana: ${Math.floor(dist)}m`,W*.5,H*.75+19);

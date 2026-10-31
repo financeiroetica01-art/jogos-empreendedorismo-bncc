@@ -2,12 +2,12 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Ateliê de Laranjeiras</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#1a0a00;overflow:hidden;font-family:system-ui,sans-serif}
-canvas{display:block}
+body{background:#1a0a00;overflow:hidden;font-family:system-ui,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none}
+canvas{display:block;touch-action:none}
 #hud{position:fixed;top:0;left:0;right:0;height:44px;background:#2d0f00;border-bottom:1px solid #7c2d12;display:flex;align-items:center;padding:0 1.2rem;gap:1.4rem;color:#fef3c7;font-size:14px;z-index:10}
 #hud b{font-weight:600}
 #hud .ml{margin-left:auto;color:#fbbf24;font-size:12px}
@@ -36,7 +36,7 @@ canvas{display:block}
     <b>🕹️ Como Jogar:</b><br>
     1. Um turista chega pedindo uma peça artesanal específica<br>
     2. Veja a receita mostrada acima do turista (ex: Argila → Tinta → Argila)<br>
-    3. Clique nos materiais no painel na ordem EXATA da receita<br>
+    3. <b>Toque nos materiais</b> no painel (parte baixa) na ordem EXATA da receita<br>
     4. Entregue antes do tempo acabar para ganhar dinheiro<br>
     5. Quanto mais rápido você serve, mais clientes aparecem!
   </div>
@@ -79,10 +79,8 @@ function drawBG(t){
   const sk=ctx.createLinearGradient(0,44,0,H*.42);
   sk.addColorStop(0,'#f97316');sk.addColorStop(.5,'#fbbf24');sk.addColorStop(1,'#fde68a');
   ctx.fillStyle=sk;ctx.fillRect(0,44,W,H*.42-44);
-
   ctx.fillStyle='#fde68a';ctx.beginPath();ctx.arc(W*.9,H*.28,35,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='rgba(253,230,138,.25)';ctx.beginPath();ctx.arc(W*.9,H*.28,55,0,Math.PI*2);ctx.fill();
-
   const bx=W*.55,by=H*.42;
   ctx.fillStyle='#e8d5b0';ctx.fillRect(bx-55,by-120,110,120);
   ctx.fillStyle='#e0c99a';ctx.fillRect(bx-18,by-175,36,55);
@@ -96,7 +94,6 @@ function drawBG(t){
   });
   ctx.fillStyle='#8b4513';ctx.beginPath();ctx.roundRect(bx-15,by-40,30,40,12,0,0,0);ctx.fill();
   ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.roundRect(bx-13,by-38,26,38,10,0,0,0);ctx.fill();
-
   const gy=H*.42;
   ctx.fillStyle='#c4a882';ctx.fillRect(0,gy,W,H);
   ctx.strokeStyle='rgba(100,60,20,.35)';ctx.lineWidth=1;
@@ -107,7 +104,6 @@ function drawBG(t){
       ctx.strokeRect(col*cw-off,gy+row*ch,cw,ch);
     }
   }
-
   [[0,'#e8d5b0','#c4a882'],[W*.2,'#f0d9b5','#d4a882'],[W*.75,'#eddbb5','#c8a87a']].forEach(([bx,wallC,trimC])=>{
     ctx.fillStyle=wallC;ctx.fillRect(bx,44,W*.18,gy-44);
     ctx.fillStyle=trimC;ctx.fillRect(bx,gy-24,W*.18,24);
@@ -118,17 +114,14 @@ function drawBG(t){
       ctx.strokeStyle=trimC;ctx.lineWidth=3;ctx.strokeRect(wx-12,wy-20,24,30);
     }
   });
-
   ctx.fillStyle='#5c2a00';ctx.beginPath();ctx.roundRect(W*.02,H*.4-50,W*.3,45,6);ctx.fill();
   ctx.fillStyle='#fde68a';ctx.font=`bold ${Math.round(H*.025)}px system-ui`;ctx.textAlign='center';
   ctx.fillText('🏺 Ateliê de Laranjeiras',W*.17,H*.4-22);
   ctx.fillStyle='#d97706';ctx.font=`${Math.round(H*.018)}px system-ui`;
   ctx.fillText('Artesanato Sergipano',W*.17,H*.4-5);
-
   ctx.fillStyle='#78350f';ctx.fillRect(0,H*.62,W*.52,16);
   ctx.fillStyle='#92400e';ctx.fillRect(0,H*.62-2,W*.52,6);
   ctx.fillStyle='#5c2a00';ctx.fillRect(0,H*.78,W*.52,H*.22);
-
   ctx.fillStyle='#5c2a00';ctx.fillRect(W*.55,H*.55,W*.43,10);
   ['🏺','🕸️','👒','👜'].forEach((em,i)=>{
     ctx.font='22px system-ui';ctx.textAlign='center';
@@ -161,7 +154,7 @@ function drawMatsPanel(){
   ctx.fillStyle='rgba(20,8,0,.85)';ctx.fillRect(0,py,W,pH);
   ctx.strokeStyle='rgba(251,146,60,.3)';ctx.lineWidth=1;ctx.strokeRect(0,py,W,pH);
   ctx.fillStyle='rgba(255,255,255,.6)';ctx.font='bold 12px system-ui';ctx.textAlign='left';
-  ctx.fillText('MATERIAIS — clique para usar:',14,py+22);
+  ctx.fillText('MATERIAIS — toque para usar:',14,py+22);
   MATS.forEach((m,i)=>{
     const mx=18+i*(W*.155),my=py+30,mw=W*.14,mh=pH-45;
     const sel=selectedMats.some(s=>s===m.id);
@@ -320,9 +313,8 @@ function useMaterial(mid){
   }
 }
 
-cv.addEventListener('click',e=>{
+function handleMatInput(mx,my){
   if(!running)return;
-  const r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
   const pH=H*.18,py=H-pH;
   MATS.forEach((m,i)=>{
     const bx=18+i*(W*.155),bw=W*.14,mby=py+30,bh=pH-45;
@@ -330,7 +322,16 @@ cv.addEventListener('click',e=>{
       useMaterial(m.id);
     }
   });
+}
+cv.addEventListener('click',e=>{
+  const r=cv.getBoundingClientRect();
+  handleMatInput(e.clientX-r.left,e.clientY-r.top);
 });
+cv.addEventListener('touchend',e=>{
+  e.preventDefault();
+  const t=e.changedTouches[0],r=cv.getBoundingClientRect();
+  handleMatInput(t.clientX-r.left,t.clientY-r.top);
+},{passive:false});
 
 function showResult(){
   let badge='🏺',title='',msg='';

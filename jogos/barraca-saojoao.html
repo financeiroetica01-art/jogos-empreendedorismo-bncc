@@ -2,12 +2,12 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Barraca do São João</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#1a0a2e;overflow:hidden;font-family:system-ui,sans-serif}
-canvas{display:block}
+body{background:#1a0a2e;overflow:hidden;font-family:system-ui,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none}
+canvas{display:block;touch-action:none}
 #hud{position:fixed;top:0;left:0;right:0;height:44px;background:#1a0536;border-bottom:1px solid #3b1f6e;display:flex;align-items:center;padding:0 1.2rem;gap:1.4rem;color:#f1f5f9;font-size:14px;z-index:10}
 #hud b{font-weight:600}
 #hud .ml{margin-left:auto;color:#a78bfa;font-size:12px}
@@ -35,10 +35,10 @@ canvas{display:block}
   <p style="color:#6d28d9;font-size:.85rem">🌽 Milho · 🍡 Paçoca · 🥜 Canjica · 🍰 Bolo de Milho · 🎂 Cocada</p>
   <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:10px 16px;margin:8px 0;text-align:left;font-size:.82rem;color:#e2e8f0;max-width:420px">
     <b>🕹️ Como Jogar:</b><br>
-    1. Clientes chegam com um balão de pedido de comida<br>
-    2. Clique na comida certa no painel na parte de baixo da tela<br>
+    1. Clientes chegam com um balão mostrando o pedido<br>
+    2. <b>Toque na comida certa</b> no painel na parte de baixo da tela<br>
     3. Atenda antes que o cliente perca a paciência!<br>
-    4. Ganhe mais dinheiro atendendo rápido<br>
+    4. Quanto mais rápido atender, mais dinheiro ganha<br>
     5. Passe pelos 3 dias do Arraial — cada dia é mais agitado!
   </div>
   <button class="btn" onclick="startDay()">Acender a Fogueira! 🔥</button>
@@ -79,7 +79,6 @@ function drawBG(t){
   ctx.fillStyle='#fde68a';
   ctx.beginPath();ctx.arc(W*.88,H*.1,28,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='#0a0118';ctx.beginPath();ctx.arc(W*.88+10,H*.1-5,22,0,Math.PI*2);ctx.fill();
-
   flagOff+=.012;
   const colors=['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899'];
   const FY=44+H*.04;
@@ -92,11 +91,9 @@ function drawBG(t){
     ctx.beginPath();ctx.moveTo(x,fy);ctx.lineTo(x+14,fy+5);ctx.lineTo(x+14,fy+22);ctx.lineTo(x,fy+17);ctx.closePath();ctx.fill();
     ctx.strokeStyle='rgba(0,0,0,.3)';ctx.lineWidth=.5;ctx.stroke();
   }
-
   const gr=ctx.createLinearGradient(0,H*.55,0,H);
   gr.addColorStop(0,'#6b3d0e');gr.addColorStop(1,'#3d1f05');
   ctx.fillStyle=gr;ctx.fillRect(0,H*.55,W,H*.45);
-
   const bx=W*.72,by=H*.6;
   ctx.strokeStyle='#78350f';ctx.lineWidth=8;ctx.lineCap='round';
   ctx.beginPath();ctx.moveTo(bx-30,by+30);ctx.lineTo(bx+30,by+10);ctx.stroke();
@@ -109,7 +106,6 @@ function drawBG(t){
   ctx.globalAlpha=1;
   ctx.fillStyle=`rgba(251,146,60,${.12+Math.sin(t*.006)*.04})`;
   ctx.beginPath();ctx.arc(bx,by,120,0,Math.PI*2);ctx.fill();
-
   drawBarraca(t);
 }
 
@@ -304,16 +300,24 @@ function showResult(){
   ov.style.display='flex';
 }
 
-cv.addEventListener('click',e=>{
+function handleServeInput(mx,my){
   if(!running)return;
-  const r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
   const bw=W*.38,by=H*.5,bh=H*.2;
   const cy=by+bh*.25;
   COMIDAS.forEach((c,i)=>{
     const cx=bw*.09+i*(bw*.17);
-    if(Math.abs(mx-cx)<28&&Math.abs(my-cy)<28)tryServe(c.id);
+    if(Math.abs(mx-cx)<44&&Math.abs(my-cy)<44)tryServe(c.id);
   });
+}
+cv.addEventListener('click',e=>{
+  const r=cv.getBoundingClientRect();
+  handleServeInput(e.clientX-r.left,e.clientY-r.top);
 });
+cv.addEventListener('touchend',e=>{
+  e.preventDefault();
+  const t=e.changedTouches[0],r=cv.getBoundingClientRect();
+  handleServeInput(t.clientX-r.left,t.clientY-r.top);
+},{passive:false});
 
 (function tloop(n){if(!running){const dt=Math.min(n-(lt||n),50);lt=n;ctx.clearRect(0,44,W,H-44);drawBG(n);}requestAnimationFrame(tloop);})(0);
 </script>

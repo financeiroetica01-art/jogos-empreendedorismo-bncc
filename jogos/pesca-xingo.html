@@ -2,12 +2,12 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Pesca no São Francisco</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0c1a2e;overflow:hidden;font-family:system-ui,sans-serif}
-canvas{display:block}
+body{background:#0c1a2e;overflow:hidden;font-family:system-ui,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none}
+canvas{display:block;touch-action:none}
 #hud{position:fixed;top:0;left:0;right:0;height:44px;background:#0f172a;border-bottom:1px solid #1e293b;display:flex;align-items:center;padding:0 1.2rem;gap:1.4rem;color:#f1f5f9;font-size:14px;z-index:10}
 #hud b{font-weight:600}
 #hud .ml{margin-left:auto;color:#94a3b8;font-size:12px}
@@ -29,11 +29,11 @@ canvas{display:block}
 <div id="ov">
   <div style="font-size:3.5rem">🎣</div>
   <h1>Pesca no São Francisco</h1>
-  <p>Às margens do lendário Rio São Francisco, no Cânion do Xingó — coração de Sergipe.<br>Clique nos peixes para pescá-los e ganhe dinheiro!</p>
+  <p>Às margens do lendário Rio São Francisco, no Cânion do Xingó — coração de Sergipe.<br>Toque nos peixes para pescá-los e ganhe dinheiro!</p>
   <p style="color:#475569;font-size:.85rem">🐟 Tilápia · 🟠 Tucunaré · ⚪ Sururu · 🟢 Piau · 🔵 Dourado</p>
   <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:10px 16px;margin:8px 0;text-align:left;font-size:.82rem;color:#e2e8f0;max-width:420px">
     <b>🕹️ Como Jogar:</b><br>
-    1. Clique nos peixes que nadam no Rio São Francisco<br>
+    1. <b>Toque nos peixes</b> que nadam no Rio São Francisco<br>
     2. Cada espécie tem um valor diferente em dinheiro<br>
     3. O Dourado (🔵) é o mais valioso mas nada muito rápido!<br>
     4. Você tem 90 segundos — pesque o máximo que conseguir<br>
@@ -132,7 +132,10 @@ class Fish{
     ctx.fillStyle='#111';ctx.beginPath();ctx.arc(-this.sz*.44,-this.sz*.12,this.sz*.07,0,Math.PI*2);ctx.fill();
     ctx.restore();
   }
-  hit(mx,my){const dy=Math.sin(this.w)*5;return Math.hypot(mx-this.x,my-(this.y+dy))<this.sz*1.3;}
+  hit(mx,my,touch=false){
+    const dy=Math.sin(this.w)*5;
+    return Math.hypot(mx-this.x,my-(this.y+dy))<this.sz*(touch?2.0:1.3);
+  }
 }
 class Splash{
   constructor(x,y,clr){this.x=x;this.y=y;this.clr=clr;this.t=0;
@@ -173,12 +176,26 @@ function showResult(){
   <p>${msg}</p><p style="color:#475569;font-size:.8rem">🌊 Cânion do Xingó — Sergipe</p>
   <button class="btn" onclick="startGame()">Pescar de Novo!</button>`;ov.style.display='flex';
 }
+function catchFish(mx,my,touch=false){
+  if(!running)return;
+  for(let f of fish){
+    if(f.alive&&f.hit(mx,my,touch)){
+      f.alive=false;money+=f.t.val;caught++;
+      splashes.push(new Splash(f.x,f.y,'#7dd3fc'));
+      floats.push(new FloatTxt(`+R$${f.t.val}`,f.x,f.y-35,'#22c55e',20));
+      floats.push(new FloatTxt(f.t.nm,f.x,f.y-58,'#e2e8f0',13));break;
+    }
+  }
+}
 cv.addEventListener('click',e=>{
-  if(!running)return;const r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
-  for(let f of fish){if(f.alive&&f.hit(mx,my)){f.alive=false;money+=f.t.val;caught++;
-    splashes.push(new Splash(f.x,f.y,'#7dd3fc'));floats.push(new FloatTxt(`+R$${f.t.val}`,f.x,f.y-35,'#22c55e',20));
-    floats.push(new FloatTxt(f.t.nm,f.x,f.y-58,'#e2e8f0',13));break;}}
+  const r=cv.getBoundingClientRect();
+  catchFish(e.clientX-r.left,e.clientY-r.top,false);
 });
+cv.addEventListener('touchend',e=>{
+  e.preventDefault();
+  const t=e.changedTouches[0],r=cv.getBoundingClientRect();
+  catchFish(t.clientX-r.left,t.clientY-r.top,true);
+},{passive:false});
 (function tloop(n){if(!running){const dt=Math.min(n-(lt||n),50);lt=n;ctx.clearRect(0,44,W,H-44);drawBG(n);drawFisherman(n);}requestAnimationFrame(tloop);})(0);
 </script>
 </body>
