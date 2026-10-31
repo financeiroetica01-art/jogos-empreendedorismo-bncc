@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CEO por um Dia — ALI Educação Empreendedora</title>
+  <script src="https://cdn.tailwindcss.com/3.4.1"></script>
+  <style>
+    body { background: #0f172a; font-family: 'Segoe UI', system-ui, sans-serif; }
+    .stat-bar { transition: width 0.8s cubic-bezier(.4,0,.2,1); }
+    .val-num { transition: color 0.3s; }
+    .option-card { transition: all 0.18s ease; border: 2px solid transparent; cursor: pointer; }
+    .option-card:hover:not(.locked) { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
+    .option-card.locked { cursor: default; }
+    .option-card.chosen-great { border-color: #10b981 !important; background: rgba(16,185,129,0.12) !important; }
+    .option-card.chosen-good  { border-color: #3b82f6 !important; background: rgba(59,130,246,0.12) !important; }
+    .option-card.chosen-ok    { border-color: #f59e0b !important; background: rgba(245,158,11,0.12) !important; }
+    .option-card.chosen-bad   { border-color: #ef4444 !important; background: rgba(239,68,68,0.12) !important; }
+    .scene-manha        { background: linear-gradient(135deg, #0c2d50 0%, #071828 100%); border: 1px solid #1e3a5f; }
+    .scene-tarde        { background: linear-gradient(135deg, #2d1a00 0%, #180e00 100%); border: 1px solid #3d2500; }
+    .scene-crise        { background: linear-gradient(135deg, #3b0000 0%, #1a0000 100%); border: 1px solid #5a0000; }
+    .scene-encerramento { background: linear-gradient(135deg, #12003d 0%, #07001a 100%); border: 1px solid #1f0060; }
+    .screen { animation: screenIn 0.35s ease; }
+    @keyframes screenIn { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+    .chapter-card { animation: chapterPop 0.45s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes chapterPop { from{opacity:0;transform:scale(0.92)} to{opacity:1;transform:scale(1)} }
+    .badge-up   { background:rgba(16,185,129,.18); color:#34d399; border:1px solid #10b981; }
+    .badge-down { background:rgba(239,68,68,.18); color:#f87171; border:1px solid #ef4444; }
+    .progress-bar-inner { transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+    .spin-emoji { animation: spinIn 0.6s ease; }
+    @keyframes spinIn { from{transform:rotate(-20deg) scale(0.8);opacity:0} to{transform:rotate(0) scale(1);opacity:1} }
+    .feedback-slide { animation: feedSlide 0.4s ease; }
+    @keyframes feedSlide { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .stat-pop { animation: statPop 0.4s ease; }
+    @keyframes statPop { 0%{transform:scale(1)} 50%{transform:scale(1.25)} 100%{transform:scale(1)} }
+  </style>
+</head>
+<body class="min-h-screen text-white">
+
+  <!-- ── Navbar ── -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-slate-900/96 backdrop-blur border-b border-slate-800 px-4 py-2.5 flex items-center justify-between">
+    <a href="../index.html" class="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors text-sm">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+      Voltar
+    </a>
+    <div class="flex items-center gap-3">
+      <div class="text-right hidden sm:block">
+        <span id="current-time" class="text-sm font-bold text-white">08:00</span>
+        <span id="chapter-label" class="text-xs text-slate-400 ml-2">Cap. 1 — Manhã</span>
+      </div>
+      <img src="../assets/logo.png" alt="ALI" class="h-7 w-auto object-contain" style="max-width:120px" />
+    </div>
+  </nav>
+
+  <!-- ── Progress ── -->
+  <div class="fixed top-[49px] left-0 right-0 z-40 h-1 bg-slate-800">
+    <div id="progress-bar" class="progress-bar-inner h-full bg-gradient-to-r from-blue-500 to-purple-600" style="width:0%"></div>
+  </div>
+
+  <!-- ── Stat bars ── -->
+  <div class="fixed top-[50px] left-0 right-0 z-40 bg-slate-900/96 backdrop-blur border-b border-slate-800/80 px-3 py-2">
+    <div class="grid grid-cols-4 gap-2 max-w-2xl mx-auto">
+      <div>
+        <div class="flex justify-between mb-0.5">
+          <span class="text-[10px] text-slate-500">💰 Receita</span>
+          <span id="val-receita" class="val-num text-[10px] font-bold text-green-400">50</span>
+        </div>
+        <div class="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+          <div id="bar-receita" class="stat-bar h-full bg-green-500 rounded-full" style="width:50%"></div>
+        </div>
+      </div>
+      <div>
+        <div class="flex justify-between mb-0.5">
+          <span class="text-[10px] text-slate-500">👥 Moral</span>
+          <span id="val-moral" class="val-num text-[10px] font-bold text-blue-400">60</span>
+        </div>
+        <div class="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+          <div id="bar-moral" class="stat-bar h-full bg-blue-500 rounded-full" style="width:60%"></div>
+        </div>
+      </div>
+      <div>
+        <div class="flex justify-between mb-0.5">
+          <span class="text-[10px] text-slate-500">📣 Reputa</span>
+          <span id="val-reputacao" class="val-num text-[10px] font-bold text-purple-400">50</span>
+        </div>
+        <div class="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+          <div id="bar-reputacao" class="stat-bar h-full bg-purple-500 rounded-full" style="width:50%"></div>
+        </div>
+      </div>
+      <div>
+        <div class="flex justify-between mb-0.5">
+          <span class="text-[10px] text-slate-500">🎯 Inova</span>
+          <span id="val-inovacao" class="val-num text-[10px] font-bold text-orange-400">40</span>
+        </div>
+        <div class="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+          <div id="bar-inovacao" class="stat-bar h-full bg-orange-500 rounded-full" style="width:40%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main content ── -->
+  <main class="pt-28 pb-12 px-4 max-w-2xl mx-auto">
+
+    <!-- INTRO -->
+    <div id="screen-intro" class="screen text-center py-8">
+      <div class="spin-emoji text-7xl mb-5">👑</div>
+      <h1 class="text-4xl font-bold mb-3">CEO por um Dia</h1>
+      <p class="text-slate-300 text-base mb-8 leading-relaxed max-w-lg mx-auto">
+        Você assume o comando de uma startup de tecnologia por um dia inteiro. 10 decisões reais distribuídas em 4 capítulos — cada escolha afeta 4 áreas estratégicas da empresa.
+      </p>
+      <div class="grid grid-cols-2 gap-3 mb-6 text-left">
+        <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-3">
+          <div class="flex items-center gap-2 mb-1"><span>💰</span><span class="text-sm font-semibold">Receita</span></div>
+          <p class="text-xs text-slate-400">Saúde financeira</p>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-3">
+          <div class="flex items-center gap-2 mb-1"><span>👥</span><span class="text-sm font-semibold">Moral da Equipe</span></div>
+          <p class="text-xs text-slate-400">Motivação do time</p>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-3">
+          <div class="flex items-center gap-2 mb-1"><span>📣</span><span class="text-sm font-semibold">Reputação</span></div>
+          <p class="text-xs text-slate-400">Imagem no mercado</p>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-3">
+          <div class="flex items-center gap-2 mb-1"><span>🎯</span><span class="text-sm font-semibold">Inovação</span></div>
+          <p class="text-xs text-slate-400">Capacidade criativa</p>
+        </div>
+      </div>
+      <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-5 mb-8 text-left space-y-2">
+        <div class="flex items-center gap-3 text-sm"><span>📋</span><span><strong>10 decisões</strong> em 4 capítulos ao longo do dia</span></div>
+        <div class="flex items-center gap-3 text-sm"><span>⚖️</span><span>Cada escolha afeta <strong>múltiplas áreas</strong> da empresa</span></div>
+        <div class="flex items-center gap-3 text-sm"><span>🏆</span><span>Descubra que <strong>tipo de CEO</strong> você é</span></div>
+        <div class="flex items-center gap-3 text-sm"><span>📚</span><span>Competências BNCC <strong>8 e 9</strong></span></div>
+      </div>
+      <button onclick="startGame()" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-12 rounded-2xl text-lg transition-all transform hover:scale-105 shadow-lg shadow-blue-900/40">
+        👑 Iniciar como CEO
+      </button>
+    </div>
+
+    <!-- CHAPTER TRANSITION -->
+    <div id="screen-chapter" class="hidden">
+      <div class="chapter-card text-center py-16">
+        <div id="ch-emoji" class="text-8xl mb-5"></div>
+        <div id="ch-tag" class="inline-block text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full border mb-4"></div>
+        <h2 id="ch-title" class="text-4xl font-bold mb-2"></h2>
+        <p id="ch-time" class="text-slate-400 text-lg mb-5"></p>
+        <p id="ch-desc" class="text-slate-300 text-sm leading-relaxed mb-10 max-w-md mx-auto"></p>
+        <button onclick="afterChapter()" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold py-3 px-10 rounded-xl transition-all">
+          Continuar →
+        </button>
+      </div>
+    </div>
+
+    <!-- QUESTION -->
+    <div id="screen-question" class="hidden screen">
+      <div id="scene-card" class="rounded-2xl p-5 mb-4">
+        <p id="scene-label" class="text-xs font-medium text-white/50 mb-3"></p>
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 text-center w-16">
+            <div id="ch-char-emoji" class="text-4xl mb-1"></div>
+            <p id="ch-char-role" class="text-[10px] text-white/40 leading-tight"></p>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p id="ch-char-name" class="text-xs font-bold text-white/70 mb-1.5"></p>
+            <div class="bg-white/10 rounded-xl rounded-tl-none p-3">
+              <p id="ch-speech" class="text-sm text-white leading-relaxed"></p>
+            </div>
+          </div>
+        </div>
+        <div id="scene-context" class="mt-3 bg-black/30 rounded-xl p-3 text-xs text-white/60 leading-relaxed"></div>
+      </div>
+
+      <div class="mb-4">
+        <p id="step-num" class="text-xs text-slate-500 mb-1"></p>
+        <h3 id="step-q" class="text-lg font-bold text-white leading-snug"></h3>
+      </div>
+
+      <div id="options-container" class="space-y-2.5 mb-4"></div>
+
+      <div id="feedback-area" class="hidden feedback-slide bg-slate-800/80 border border-slate-600 rounded-2xl p-4 mb-4">
+        <div class="flex items-start gap-3">
+          <span id="fb-icon" class="text-2xl flex-shrink-0 mt-0.5"></span>
+          <div class="flex-1">
+            <p id="fb-quality" class="font-bold text-sm mb-1"></p>
+            <p id="fb-text" class="text-slate-300 text-sm leading-relaxed mb-3"></p>
+            <div id="fb-effects" class="flex flex-wrap gap-1.5 mb-3"></div>
+            <p id="fb-bncc" class="text-slate-400 text-xs"></p>
+          </div>
+        </div>
+      </div>
+
+      <button id="btn-next" onclick="nextAction()" class="hidden w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3.5 rounded-2xl text-sm transition-all transform hover:scale-[1.02]"></button>
+    </div>
+
+    <!-- RESULT -->
+    <div id="screen-result" class="hidden screen text-center py-8">
+      <div id="res-badge" class="text-8xl mb-4 spin-emoji"></div>
+      <p id="res-type" class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2"></p>
+      <h1 id="res-title" class="text-3xl font-bold mb-3"></h1>
+      <p id="res-subtitle" class="text-slate-300 mb-8"></p>
+
+      <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-5 mb-5">
+        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Relatório Final da Empresa</h3>
+        <div class="space-y-3">
+          <div>
+            <div class="flex justify-between mb-1"><span class="text-sm">💰 Receita</span><span id="fr-receita" class="text-sm font-bold text-green-400"></span></div>
+            <div class="h-3 bg-slate-700 rounded-full overflow-hidden"><div id="fb-bar-receita" class="h-full bg-green-500 rounded-full transition-all duration-1000" style="width:0%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><span class="text-sm">👥 Moral da Equipe</span><span id="fr-moral" class="text-sm font-bold text-blue-400"></span></div>
+            <div class="h-3 bg-slate-700 rounded-full overflow-hidden"><div id="fb-bar-moral" class="h-full bg-blue-500 rounded-full transition-all duration-1000" style="width:0%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><span class="text-sm">📣 Reputação</span><span id="fr-reputacao" class="text-sm font-bold text-purple-400"></span></div>
+            <div class="h-3 bg-slate-700 rounded-full overflow-hidden"><div id="fb-bar-reputacao" class="h-full bg-purple-500 rounded-full transition-all duration-1000" style="width:0%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><span class="text-sm">🎯 Inovação</span><span id="fr-inovacao" class="text-sm font-bold text-orange-400"></span></div>
+            <div class="h-3 bg-slate-700 rounded-full overflow-hidden"><div id="fb-bar-inovacao" class="h-full bg-orange-500 rounded-full transition-all duration-1000" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-slate-800/40 border border-slate-700 rounded-2xl p-5 mb-8 text-left">
+        <h3 class="font-bold text-purple-400 mb-2">👑 Avaliação de CEO:</h3>
+        <p id="res-msg" class="text-slate-300 text-sm leading-relaxed"></p>
+      </div>
+
+      <div class="flex gap-3 justify-center flex-wrap">
+        <button onclick="restartGame()" class="bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 px-8 rounded-xl transition-all">🔄 Jogar novamente</button>
+        <a href="../index.html" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-8 rounded-xl transition-all">🎮 Outros jogos</a>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    const CHAPTERS = [
+      { id:'manha',         emoji:'🌅', tag:'Capítulo 1', title:'Manhã',        time:'08:00 — 12:00', tagCss:'bg-blue-900/60 text-blue-300 border-blue-700',   desc:'O dia começa com reuniões, ligações com investidores e decisões de produto. Você ainda está no primeiro café quando os desafios aparecem.' },
+      { id:'tarde',         emoji:'☀️',  tag:'Capítulo 2', title:'Tarde',        time:'13:00 — 17:00', tagCss:'bg-amber-900/60 text-amber-300 border-amber-700', desc:'A tarde traz crise de marketing, dilemas de RH e uma proposta de parceria milionária. Cada hora conta.' },
+      { id:'crise',         emoji:'🆘',  tag:'Capítulo 3', title:'Crise!',       time:'18:30 — 20:00', tagCss:'bg-red-900/60 text-red-300 border-red-700',       desc:'Servidores caídos, imprensa na linha, equipe exausta. O verdadeiro CEO aparece nos momentos mais difíceis.' },
+      { id:'encerramento',  emoji:'🌙',  tag:'Capítulo 4', title:'Encerramento', time:'21:00 — 22:00', tagCss:'bg-purple-900/60 text-purple-300 border-purple-700', desc:'O dia está terminando. Hora de cuidar da sua equipe e definir os próximos passos da empresa.' }
+    ];
+
+    const STEPS = [
+      /* ─── CAP 1 ─── */
+      {
+        time:'08:15', chapter:0, scene:'Sala de reuniões — Início do dia', sceneClass:'scene-manha',
+        char:{ emoji:'👨‍💼', name:'Carlos Mendes', role:'Gerente de Operações' },
+        speech:'"CEO, temos uma situação séria. Lucas e Mariana, nossos líderes de produto e marketing, estão em conflito aberto. Dois projetos já atrasaram e o clima está pesado."',
+        context:'É 08h15. Você ainda está no primeiro café quando Carlos aparece com expressão preocupada. A equipe inteira já percebeu a tensão e está ansiosa.',
+        question:'Como você resolve o conflito entre os dois líderes?',
+        options:[
+          { l:'Mediação imediata — reúno os dois agora', d:'Sento com Lucas e Mariana e facilito um acordo.', fx:{moral:+15,reputacao:+5,receita:-5}, q:'great', fb:'Mediação direta demonstra liderança madura. Ao colocar todos na mesma sala, você evita que o conflito escale e mostra que valoriza as relações humanas. O custo é tempo — mas o ganho em coesão é duradouro.', bncc:'BNCC 9: Empatia e cooperação — resolver conflitos com escuta ativa e diálogo.' },
+          { l:'Autonomia total — cada um cuida do seu lado', d:'Não interfiro. Cada líder gerencia seu departamento.', fx:{inovacao:+10,moral:-10}, q:'ok', fb:'Autonomia estimula responsabilidade, mas sem mediação conflitos crescem. Falta de alinhamento entre produto e marketing é uma das maiores causas de falha em startups. Monitore os próximos sinais de perto.', bncc:'BNCC 8: Autoconhecimento — reconhecer quando interferir e quando dar espaço.' },
+          { l:'Removo Lucas e coloco alguém novo', d:'Mudança radical: novo líder para produto imediatamente.', fx:{receita:+5,moral:-15,inovacao:+5}, q:'bad', fb:'Trocar lideranças em crise pode parecer solução rápida, mas gera insegurança generalizada. Toda a equipe fica se perguntando: "O próximo sou eu?" A confiança no CEO despenca junto com a moral.', bncc:'BNCC 8: Reconhecer as consequências de decisões impulsivas em liderança.' },
+          { l:'Contrato um coach profissional de equipes', d:'Investimento externo para desenvolvimento do time.', fx:{moral:+10,reputacao:+10,receita:-10}, q:'good', fb:'Trazer um facilitador externo remove o viés e sinaliza à equipe que a empresa investe em desenvolvimento humano. O custo financeiro existe, mas o retorno em cultura e clima organizacional é alto.', bncc:'BNCC 9: Cooperação e desenvolvimento coletivo como estratégia de liderança.' }
+        ]
+      },
+      {
+        time:'09:30', chapter:0, scene:'Seu escritório — Ligação com investidor', sceneClass:'scene-manha',
+        char:{ emoji:'📱', name:'Pedro Alves', role:'Investidor Principal' },
+        speech:'"Crescimento de 15% no Q2 está abaixo do esperado — esperávamos 25%. Os outros portfolios estão entregando mais. Quero saber: vocês têm capacidade real de acelerar?"',
+        context:'A ligação com Pedro chega 30 minutos antes do planejado. Você está com os dados do trimestre na tela, mas sabe que os números contam só parte da história.',
+        question:'Como você responde à pressão do investidor?',
+        options:[
+          { l:'Apresento dados reais e um plano sólido de 6 meses', d:'Honestidade com projeções fundamentadas e realistas.', fx:{reputacao:+15,moral:+5,receita:+5}, q:'great', fb:'Investidores experientes valorizam previsibilidade acima de promessas. Apresentar dados reais com um plano consistente constrói credibilidade de longo prazo — e evita a armadilha de prometer o que não pode cumprir.', bncc:'BNCC 2: Pensamento crítico — fundamentar argumentos com dados reais.' },
+          { l:'Prometo 30% de crescimento no próximo trimestre', d:'Compromisso arrojado para manter o investidor animado.', fx:{receita:+10,reputacao:-10,moral:-5}, q:'bad', fb:'Prometer além do que pode entregar resolve o momento, mas cria uma armadilha. Se não cumprir, a perda de credibilidade é irreversível — e a equipe percebe quando o CEO faz promessas vazias para investidores.', bncc:'BNCC 2: Reconhecer a diferença entre análise crítica e pensamento desejoso.' },
+          { l:'Proponho ajuste de metas em troca de mais runway', d:'Negociação: menos pressão agora, mais tempo para construir.', fx:{inovacao:+10,receita:-5,reputacao:+5}, q:'good', fb:'Negociar prazo é estratégia legítima se feita com argumentos sólidos. Você demonstra maturidade ao reconhecer os limites reais — e ganha espaço para inovar sem pressão excessiva.', bncc:'BNCC 2: Argumentação racional em processos de negociação empresarial.' },
+          { l:'Convido o investidor para uma sessão de co-criação', d:'Parceria estratégica: trazer o investidor para ajudar a resolver.', fx:{moral:+15,reputacao:+15,receita:-5}, q:'great', fb:'Transformar o investidor de cobrador em parceiro estratégico é um movimento brilhante! Ele passa a ter skin in the game nas soluções, reduz a pressão e traz expertise valiosa. Liderança que sabe pedir ajuda cresce mais rápido.', bncc:'BNCC 9: Cooperação estratégica — transformar tensão em parceria produtiva.' }
+        ]
+      },
+      {
+        time:'11:00', chapter:0, scene:'Sala de produto — Decisão crítica de lançamento', sceneClass:'scene-manha',
+        char:{ emoji:'💻', name:'Beatriz Santos', role:'CTO' },
+        speech:'"CEO, a v2.0 está em 87%. Se lançarmos agora, temos bugs conhecidos em casos de borda. Se esperarmos 6 semanas, perdemos a janela antes do grande evento do setor."',
+        context:'Beatriz é direta: há bugs reais, mas o timing de mercado é importante. A concorrência lança algo parecido em 8 semanas. A equipe está dividida.',
+        question:'Quando e como você lança a nova versão do produto?',
+        options:[
+          { l:'Lançamos agora — velocidade é vantagem competitiva', d:'Go-to-market imediato com o que temos pronto.', fx:{receita:+15,reputacao:-10,inovacao:+5}, q:'ok', fb:'Velocidade pode ser vantagem, mas bugs em produção prejudicam usuários reais. Depende da gravidade: bugs cosméticos são toleráveis; bugs funcionais afastam clientes. Monitore de perto o feedback nas primeiras 48h.', bncc:'BNCC 2: Avaliar riscos e benefícios de decisões científicas e técnicas.' },
+          { l:'Aguardamos 6 semanas — qualidade acima de tudo', d:'Lançamento polido, mesmo que mais tarde.', fx:{reputacao:+15,receita:-10,moral:+5}, q:'good', fb:'Qualidade é difícil de recuperar uma vez perdida. Usuários com má primeira experiência raramente voltam. A paciência protege a base de clientes atual — e o produto lançado bem gera muito mais boca-a-boca positivo.', bncc:'BNCC 1: Valorizar conhecimento técnico como base para decisões de negócio.' },
+          { l:'Beta fechado para 200 clientes selecionados', d:'Lançamento progressivo com feedback real antes do go-to-market total.', fx:{inovacao:+20,reputacao:+5,receita:+5}, q:'great', fb:'Excelente estratégia! Beta fechado combina velocidade com controle de qualidade. Você aprende com usuários reais, corrige o que precisa e ainda cria defensores da marca antes do lançamento oficial. É o caminho das empresas mais inovadoras do mundo.', bncc:'BNCC 2: Método científico aplicado ao produto — teste, iteração e aprendizado.' },
+          { l:'Cancelamos a v2.0 e pivotamos para produto mais simples', d:'Mudança de direção radical baseada em percepção de mercado.', fx:{inovacao:+10,receita:-15,moral:-10}, q:'bad', fb:'Pivôs podem ser geniais — mas não devem ser decisão de última hora com 87% do produto pronto. A equipe ficará desmotivada após tanto trabalho descartado. Pivôs devem vir de dados sólidos de mercado, não de medo de lançar.', bncc:'BNCC 2: Distinguir inovação fundamentada de decisão impulsiva.' }
+        ]
+      },
+      /* ─── CAP 2 ─── */
+      {
+        time:'14:30', chapter:1, scene:'Celular tocando — Crise nas redes sociais', sceneClass:'scene-tarde',
+        char:{ emoji:'😰', name:'Ana Lima', role:'Diretora de Marketing' },
+        speech:'"CEO, a TechRival postou um vídeo comparando nosso produto ao deles! Já tem 80 mil views em 3 horas. Os comentários estão destruindo nossa reputação!"',
+        context:'Você acabou de voltar do almoço. O vídeo usa screenshots reais de bugs da v1.0 — já corrigidos na v1.5, mas poucos usuários sabem disso.',
+        question:'Como você responde à crise de reputação nas redes?',
+        options:[
+          { l:'Transparência total — publico nosso roadmap e resposta', d:'Post honesto explicando o histórico e os próximos passos.', fx:{reputacao:+18,moral:+8,inovacao:-5}, q:'great', fb:'Transparência em crise é a estratégia mais poderosa. Ao mostrar que os bugs já foram corrigidos e compartilhar o roadmap, você transforma a crise em demonstração de maturidade. O público tende a aplaudir CEOs que admitem falhas passadas e mostram evolução.', bncc:'BNCC 4: Comunicação clara e ética em situações de crise.' },
+          { l:'Contra-ataque — revelamos as fraquezas deles também', d:'Post comparativo expondo os problemas da TechRival.', fx:{reputacao:-10,receita:+5,moral:+5}, q:'bad', fb:'Contra-ataques em redes sociais quase sempre saem pela culatra. O público percebe como briga de marca e ambos perdem reputação. A TechRival pode escalar a discussão — e vocês estão em desvantagem de audiência. Evite guerras no social.', bncc:'BNCC 4: Reconhecer formas de comunicação que prejudicam a imagem organizacional.' },
+          { l:'Silêncio — deixo o produto falar por si com o lançamento', d:'Acelero a v2.0 como resposta implícita à crítica.', fx:{inovacao:+15,reputacao:-5,receita:-5}, q:'ok', fb:'O silêncio pode ser interpretado como admissão de culpa. Em crises de reputação, a inação tem custo real. A v2.0 pode ser uma resposta poderosa — mas sem comunicação, o vídeo da TechRival continuará moldando a narrativa.', bncc:'BNCC 4: Avaliar o impacto da ausência de comunicação em situações críticas.' },
+          { l:'Mobilizo influenciadores parceiros para conteúdo positivo', d:'Criadores publicam reviews reais e favoráveis ao produto.', fx:{reputacao:+10,receita:-8,moral:+5}, q:'good', fb:'Usar vozes de terceiros confiáveis é estratégia inteligente — especialmente se são usuários genuínos. O custo financeiro existe, mas o retorno em credibilidade é alto. Prova social independente tem muito mais peso do que qualquer post corporativo.', bncc:'BNCC 4: Comunicação estratégica e uso ético de mídias digitais.' }
+        ]
+      },
+      {
+        time:'15:45', chapter:1, scene:'Sala privada — Conversa difícil de RH', sceneClass:'scene-tarde',
+        char:{ emoji:'😟', name:'Rodrigo Costa', role:'Dev Sênior — 4 anos na empresa' },
+        speech:'"CEO, preciso ser honesto. Recebi uma proposta da TechRival: 40% a mais de salário. Gosto muito daqui, da equipe, do produto... Mas tenho família para sustentar."',
+        context:'Rodrigo é o principal arquiteto do sistema core. Perder ele agora, no meio da v2.0, seria um golpe severo. Ele está claramente constrangido, mas a proposta é real.',
+        question:'Como você responde à ameaça de perder seu melhor desenvolvedor?',
+        options:[
+          { l:'Contra-oferta: aumento de 30% + participação acionária', d:'Investimento financeiro e equity para reter o talento.', fx:{moral:+15,receita:-12,inovacao:+5}, q:'great', fb:'Reter talentos-chave é um dos investimentos com maior ROI em tecnologia. Equity alinha os interesses de Rodrigo com o sucesso de longo prazo — ele passa de funcionário a co-dono. O custo imediato é real, mas o custo de perder Rodrigo seria muito maior.', bncc:'BNCC 8: Reconhecer o valor das pessoas e investir no desenvolvimento humano.' },
+          { l:'Desejo sorte e começo a recrutar substituto', d:'Aceito a saída e plano continuidade com novo talento.', fx:{moral:-15,inovacao:-10,receita:-5}, q:'bad', fb:'Deixar Rodrigo ir sem tentar reter afeta toda a equipe. Além da perda de conhecimento insubstituível, outros ficam inseguros: "Se não valorizaram o Rodrigo, o que esperar por mim?" O risco de efeito cascata de saídas é alto.', bncc:'BNCC 8: Entender o impacto das decisões de liderança na cultura organizacional.' },
+          { l:'Ofereço trabalho 100% remoto + pequeno aumento', d:'Qualidade de vida sem grande impacto financeiro.', fx:{moral:+8,receita:-3,inovacao:+3}, q:'ok', fb:'Flexibilidade é muito valorizada — mas pode não resolver um gap salarial de 40%. Se Rodrigo está motivado por necessidade financeira real, flexibilidade cobre só parte do problema. Avalie se isso seria suficiente ou apenas adiamento da decisão.', bncc:'BNCC 8: Empatia e autoconhecimento como ferramentas de liderança eficaz.' },
+          { l:'Proponho promoção para Tech Lead + novo salário', d:'Crescimento de carreira com desafios novos e reconhecimento.', fx:{moral:+12,receita:-8,inovacao:+10}, q:'great', fb:'Promoção com propósito! Rodrigo vira líder técnico, com novos desafios e mais impacto. Tech Leads engajados são multiplicadores de conhecimento. Você resolve o gap salarial e cria um caminho de crescimento que a TechRival provavelmente não oferece.', bncc:'BNCC 8: Desenvolver outros como parte essencial da liderança — delegação e empoderamento.' }
+        ]
+      },
+      {
+        time:'17:00', chapter:1, scene:'Sala de reunião — Proposta de parceria', sceneClass:'scene-tarde',
+        char:{ emoji:'🤝', name:'Marina Souza', role:'VP de Parcerias — GrandeCorp' },
+        speech:'"Sua plataforma é exatamente o que precisamos. Queremos integrar com nossa base de 5 milhões de usuários. Nossa proposta: 15% de participação na empresa."',
+        context:'GrandeCorp é uma das maiores empresas de tecnologia do Brasil. 5 milhões de usuários ativos. A proposta poderia ser um game-changer — mas 15% de equity é um preço alto.',
+        question:'Como você negocia a proposta da GrandeCorp?',
+        options:[
+          { l:'Aceito a proposta — essa escala muda o jogo!', d:'15% de equity pela parceria com 5 milhões de usuários.', fx:{receita:+20,inovacao:-10,reputacao:+10}, q:'ok', fb:'A escala é tentadora — mas aceitar 15% de equity sem negociar é deixar valor na mesa. GrandeCorp claramente precisa de vocês, o que te dá poder de negociação. Parcerias com grandes corporações frequentemente limitam a agilidade da startup. Avalie as cláusulas com cuidado.', bncc:'BNCC 1: Avaliar contrapartidas em decisões estratégicas complexas.' },
+          { l:'Negocio para 8% com mais garantias contratuais', d:'Menos equity, mas com proteções jurídicas robustas.', fx:{receita:+12,reputacao:+8,moral:+5}, q:'great', fb:'Negociação inteligente! 8% em vez de 15% mantém maior controle e ainda garante acesso à base de usuários. Garantias contratuais protegem propriedade intelectual e evitam armadilhas. Liderança que negocia bem cria mais valor para todos.', bncc:'BNCC 2: Pensamento crítico e estratégico em processos de negociação empresarial.' },
+          { l:'Recuso — prefiro crescer de forma independente', d:'Independência total e crescimento orgânico sem diluição.', fx:{inovacao:+15,receita:-5,moral:+10}, q:'good', fb:'Independência é um ativo real. Muitas startups perderam identidade e agilidade após parcerias com grandes corporações. Crescer de forma independente mantém você no controle do produto e da cultura — uma decisão corajosa que pode pagar dividendos.', bncc:'BNCC 8: Autodeterminação estratégica como forma de liderança autêntica.' },
+          { l:'Aceito apenas licenciamento tecnológico, sem equity', d:'Eles usam a tecnologia pagando royalties, sem participação.', fx:{receita:+8,inovacao:+5,reputacao:+5}, q:'good', fb:'Modelo criativo e equilibrado! Você monetiza sem abrir mão de controle acionário. Licenciamento é uma forma de parceria adotada por empresas que querem escalar sem diluição. O valor é menor no curto prazo, mas preserva 100% da sua visão.', bncc:'BNCC 1: Conhecer diferentes modelos de negócio e estruturas de parceria.' }
+        ]
+      },
+      /* ─── CAP 3 ─── */
+      {
+        time:'18:30', chapter:2, scene:'Alerta crítico — Servidores offline', sceneClass:'scene-crise',
+        char:{ emoji:'🆘', name:'Beatriz Santos', role:'CTO — URGENTE' },
+        speech:'"CEO!! Os servidores caíram. 8.000 usuários ativos estão bloqueados agora. Pode ser DDoS ou falha de infraestrutura — ainda estamos diagnosticando!"',
+        context:'São 18h30. A equipe está exausta após um dia longo. A queda aconteceu no horário de pico. Nas redes, usuários já reclamam em tempo real — e o status do site ainda mostra "operacional".',
+        question:'Como você conduz a resposta à queda dos servidores?',
+        options:[
+          { l:'Comunicamos os usuários em tempo real imediatamente', d:'Status page atualizada + posts nas redes a cada 15 min.', fx:{reputacao:+15,moral:+10,receita:-8}, q:'great', fb:'Comunicação proativa em crises é o padrão das empresas mais confiáveis. Usuários que acompanham atualizações em tempo real ficam muito mais tolerantes — sentem que a empresa está trabalhando. Silêncio durante queda é a pior resposta possível.', bncc:'BNCC 4: Comunicação ética e responsável em situações de crise técnica.' },
+          { l:'Silêncio total até resolvermos — depois explicamos', d:'Nenhuma comunicação externa enquanto o problema persiste.', fx:{reputacao:-15,receita:-5,inovacao:+5}, q:'bad', fb:'Silêncio durante queda é suicídio de reputação na era das redes sociais. Usuários já estão falando — e na ausência de informação oficial, o pior cenário vira o mais compartilhado. Quando você finalmente falar, a credibilidade já estará abalada.', bncc:'BNCC 4: Reconhecer o impacto devastador da falta de comunicação em crises.' },
+          { l:'Ativamos servidor de contingência imediatamente', d:'Prioridade técnica: migrar para infraestrutura de backup.', fx:{inovacao:+10,reputacao:+8,receita:-5}, q:'good', fb:'Ação técnica rápida é essencial! Migrar para o backup resolve o problema técnico — mas não esqueça de comunicar simultaneamente. Resolver o técnico sem comunicar é metade da equação. Reputação se reconstrói com ação + transparência combinados.', bncc:'BNCC 2: Pensamento científico para resolução de problemas técnicos sob pressão.' },
+          { l:'Anuncio crédito proativo para todos os usuários afetados', d:'Reembolso automático antes de qualquer reclamação.', fx:{reputacao:+20,receita:-12,moral:+8}, q:'great', fb:'Compensação proativa transforma insatisfação em lealdade. Quando uma empresa antecipa a dor do cliente sem ele precisar pedir, cria um nível de confiança difícil de quebrar. O custo financeiro existe, mas o valor de marca construído compensa amplamente.', bncc:'BNCC 9: Empatia com stakeholders como estratégia de negócio sustentável.' }
+        ]
+      },
+      {
+        time:'19:15', chapter:2, scene:'Telefone tocando — Imprensa na linha', sceneClass:'scene-crise',
+        char:{ emoji:'📰', name:'Julia Ramos', role:'Repórter — TechNews Brasil' },
+        speech:'"Boa noite! Sou da TechNews Brasil. Estamos recebendo relatos da queda dos seus servidores. Já temos prints das reclamações nas redes. Você pode comentar oficialmente?"',
+        context:'Julia é respeitada, com 50 mil seguidores no LinkedIn. O artigo dela pode aparecer amanhã nos principais agregadores de tecnologia. Você tem 30 segundos para decidir.',
+        question:'Como você lida com a jornalista?',
+        options:[
+          { l:'Entrevista completa — explico tudo agora', d:'Abertura total: o que aconteceu, como estamos resolvendo e o que mudaremos.', fx:{reputacao:+18,moral:+8,receita:+5}, q:'great', fb:'Transparência com a imprensa é a escolha mais corajosa e mais eficaz. Julia vai escrever o artigo de qualquer forma — mas com sua versão, ele será equilibrado. Jornalistas valorizam acesso e podem se tornar aliadas quando tratadas com respeito.', bncc:'BNCC 4: Comunicação clara, corajosa e ética com meios de comunicação.' },
+          { l:'"Sem comentários por ora" — nada até resolvermos', d:'Silêncio oficial enquanto a crise técnica persiste.', fx:{reputacao:-5,receita:-5,moral:-5}, q:'bad', fb:'"Sem comentários" é quase sempre a pior resposta para a imprensa em tech. Julia vai publicar com ou sem você — e sem a versão da empresa, o artigo será desfavorável por padrão. O silêncio corporativo é lido como ocultação.', bncc:'BNCC 4: Compreender por que a ausência de comunicação tem consequências negativas.' },
+          { l:'Peço 30 minutos para um comunicado oficial', d:'Prazo curto para preparar uma resposta completa e cuidadosa.', fx:{reputacao:+8,inovacao:+5,receita:-3}, q:'good', fb:'Pedir prazo para um comunicado oficial é profissional e demonstra organização. 30 minutos é razoável para Julia e suficiente para você preparar uma resposta cuidadosa — melhor que improvisar ao vivo ou ficar em silêncio.', bncc:'BNCC 4: Preparação e responsabilidade na comunicação externa.' },
+          { l:'Ofereço acesso exclusivo ao processo de resolução ao vivo', d:'Julia acompanha em tempo real como resolvemos a crise.', fx:{reputacao:+25,inovacao:+10,moral:+10}, q:'great', fb:'Movimento de transparência radical! Ao deixar a jornalista acompanhar ao vivo, você transforma a cobertura de "empresa em crise" para "empresa que resolve problemas em tempo real". O artigo vai mostrar sua equipe trabalhando — não fugindo. Constrói confiança pública duradoura.', bncc:'BNCC 4: Uso inovador da comunicação como ferramenta estratégica de liderança.' }
+        ]
+      },
+      /* ─── CAP 4 ─── */
+      {
+        time:'21:00', chapter:3, scene:'Reunião virtual — All-hands de encerramento', sceneClass:'scene-encerramento',
+        char:{ emoji:'👥', name:'Toda a Equipe', role:'47 pessoas online agora' },
+        speech:'"[O chat está cheio de mensagens. Alguns exaustos mas orgulhosos. Outros frustrados com o caos do dia. Você convoca all-hands de 15 minutos.]"',
+        context:'São 21h. A equipe inteira está online — uns de casa, outros ainda no escritório. Foi um dia histórico: conflitos, crises, servidores caídos. Como CEO, esta é sua chance de definir o tom para amanhã.',
+        question:'Como você encerra o dia com sua equipe?',
+        options:[
+          { l:'Reconheço cada área publicamente + compartilho próximos passos', d:'Agradecimento específico por departamento + transparência sobre os planos.', fx:{moral:+20,reputacao:+8,inovacao:+5}, q:'great', fb:'Reconhecimento público específico é um dos gestos mais poderosos de liderança. Não é genérico — é "Marketing, vocês responderam à crise em 20 minutos; Tech, ficaram 4h extras. Isso importa." Equipes reconhecidas chegam no dia seguinte com muito mais energia.', bncc:'BNCC 8: Liderança empática — reconhecer e valorizar contribuições individuais.' },
+          { l:'Foco no que deu errado e cobro melhorias para amanhã', d:'Análise direta das falhas e altas expectativas para o dia seguinte.', fx:{moral:-15,inovacao:+5,receita:+5}, q:'bad', fb:'Cobranças após um dia intenso têm efeito contrário: a equipe sente que o esforço não foi visto. Sessões de melhoria são importantes — mas no momento certo, não quando todos estão exaustos às 21h. O timing do feedback importa tanto quanto o conteúdo.', bncc:'BNCC 8: Reconhecer o impacto do feedback na motivação e cultura da equipe.' },
+          { l:'Anuncio folga compensatória amanhã para todos', d:'Dia de descanso para recuperar após o dia mais intenso do ano.', fx:{moral:+25,reputacao:+10,receita:-5}, q:'great', fb:'Gesto poderoso de humanidade! A equipe acabou de atravessar um dia excepcional — folga não é fraqueza, é inteligência emocional aplicada à gestão. Empresas que cuidam das pessoas nos momentos difíceis constroem culturas de alta performance sustentável.', bncc:'BNCC 8: Autocuidado coletivo como pilar de liderança sustentável.' },
+          { l:'Compartilho os números do dia e plano claro para amanhã', d:'Dados reais + roadmap das próximas 24h para toda a equipe.', fx:{moral:+10,inovacao:+10,receita:+5}, q:'good', fb:'Transparência com dados é altamente valorizada por equipes técnicas. Saber o estado real da empresa — mesmo após um dia difícil — cria senso de realidade compartilhada e reduz a ansiedade sobre o amanhã. Combine com um plano claro e você energiza o time.', bncc:'BNCC 2: Pensamento crítico e uso de dados para comunicação organizacional.' }
+        ]
+      },
+      {
+        time:'22:00', chapter:3, scene:'Escritório vazio — Reflexão estratégica', sceneClass:'scene-encerramento',
+        char:{ emoji:'🌙', name:'Você — CEO', role:'Reflexão solitária' },
+        speech:'"O escritório está vazio. Você olha para os dados do dia no notebook. Foi um dia de aprendizados intensos. Antes de dormir, precisa definir o foco estratégico do próximo mês."',
+        context:'São 22h. A empresa sobreviveu ao dia. Qual será a prioridade real para os próximos 30 dias? Essa decisão vai guiar todas as reuniões de segunda-feira.',
+        question:'Qual será a prioridade estratégica do próximo mês?',
+        options:[
+          { l:'Crescimento de receita acelerado — foco total em vendas', d:'Metas agressivas de aquisição e conversão de clientes.', fx:{receita:+20,moral:-10,inovacao:-5}, q:'ok', fb:'Foco em receita é legítimo — mas crescimento sustentável precisa de base. Uma equipe esgotada não converte bem, e produto ruim gera churn alto. Certifique-se de que o foco em receita não sacrifica as fundações que tornaram a empresa atrativa.', bncc:'BNCC 1: Equilibrar objetivos de curto e longo prazo na gestão empresarial.' },
+          { l:'Cultura e bem-estar da equipe antes de tudo', d:'Mês de revisão de processos, benefícios e saúde mental.', fx:{moral:+20,reputacao:+10,receita:-10}, q:'good', fb:'Cultura é o ativo mais difícil de construir e o mais fácil de destruir. Após um dia como esse, investir no bem-estar pode ser o que previne turnover alto e garante que o próximo mês seja mais produtivo do que esse foi caótico.', bncc:'BNCC 8: Liderança que prioriza o desenvolvimento humano como estratégia.' },
+          { l:'Inovação de produto — criar o que ninguém tem ainda', d:'Sprint de inovação: pesquisa, prototipagem e testes ousados.', fx:{inovacao:+25,receita:-5,moral:+5}, q:'good', fb:'Diferenciação via produto é a estratégia que cria barreiras de entrada competitivas. Empresas que param de inovar começam a morrer — mesmo quando lucrativas. Uma sprint de inovação pode ser exatamente o que a equipe precisa para sentir propósito após um dia difícil.', bncc:'BNCC 2: Pensamento criativo e científico como motor de inovação organizacional.' },
+          { l:'Reputação e confiança de marca como prioridade máxima', d:'Foco em customer success, NPS e relações com a imprensa.', fx:{reputacao:+20,moral:+8,receita:+5}, q:'great', fb:'Após um dia de crises de reputação, focar em reconstruir e fortalecer a confiança é a decisão mais estratégica. Empresas com NPS alto têm churn baixo e crescimento orgânico por indicação. Confiança é o ativo mais valioso que uma empresa pode ter.', bncc:'BNCC 9: Empatia com stakeholders como alicerce de negócios sustentáveis.' }
+        ]
+      }
+    ];
+
+    /* ── State ── */
+    let stats = { receita:50, moral:60, reputacao:50, inovacao:40 };
+    let step = 0;
+    let chShown = -1;
+    const STAT_KEYS = ['receita','moral','reputacao','inovacao'];
+
+    /* ── Utils ── */
+    const clamp = v => Math.max(0, Math.min(100, Math.round(v)));
+    function renderStats(animated) {
+      STAT_KEYS.forEach(k => {
+        const bar = document.getElementById('bar-' + k);
+        const val = document.getElementById('val-' + k);
+        if (bar) bar.style.width = stats[k] + '%';
+        if (val) {
+          val.textContent = stats[k];
+          if (animated) { val.classList.add('stat-pop'); setTimeout(() => val.classList.remove('stat-pop'), 450); }
+        }
+      });
+    }
+    function applyFx(fx) {
+      Object.entries(fx).forEach(([k,v]) => { stats[k] = clamp(stats[k] + v); });
+      renderStats(true);
+    }
+    function setProgress() {
+      document.getElementById('progress-bar').style.width = (step / STEPS.length * 100) + '%';
+    }
+    function setNav() {
+      const s = STEPS[Math.min(step, STEPS.length - 1)];
+      document.getElementById('current-time').textContent = s.time;
+      const ch = CHAPTERS[s.chapter];
+      document.getElementById('chapter-label').textContent = ch.tag + ' — ' + ch.title;
+    }
+    function show(id) {
+      ['screen-intro','screen-chapter','screen-question','screen-result'].forEach(s => {
+        const el = document.getElementById(s);
+        el.classList.add('hidden');
+        el.classList.remove('screen','chapter-card');
+      });
+      const el = document.getElementById(id);
+      el.classList.remove('hidden');
+      void el.offsetWidth;
+      el.classList.add(id === 'screen-chapter' ? 'chapter-card' : 'screen');
+    }
+    function fxBadge(k, v) {
+      if (!v) return '';
+      const icons = { receita:'💰', moral:'👥', reputacao:'📣', inovacao:'🎯' };
+      const names = { receita:'Receita', moral:'Moral', reputacao:'Reputação', inovacao:'Inovação' };
+      const cls = v > 0 ? 'badge-up' : 'badge-down';
+      return `<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:600" class="${cls}">${icons[k]} ${names[k]} ${v>0?'+':''}${v}</span>`;
+    }
+
+    /* ── Flow ── */
+    function startGame() {
+      step = 0; chShown = -1;
+      stats = { receita:50, moral:60, reputacao:50, inovacao:40 };
+      renderStats(false); setProgress();
+      nextScreen();
+    }
+    function nextScreen() {
+      setNav(); setProgress();
+      const s = STEPS[step];
+      if (s.chapter > chShown) {
+        chShown = s.chapter;
+        showChapter(s.chapter);
+      } else {
+        showQuestion();
+      }
+    }
+    function showChapter(idx) {
+      const ch = CHAPTERS[idx];
+      document.getElementById('ch-emoji').textContent = ch.emoji;
+      document.getElementById('ch-tag').textContent = ch.tag;
+      document.getElementById('ch-tag').className = 'inline-block text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full border mb-4 ' + ch.tagCss;
+      document.getElementById('ch-title').textContent = ch.title;
+      document.getElementById('ch-time').textContent = ch.time;
+      document.getElementById('ch-desc').textContent = ch.desc;
+      show('screen-chapter');
+    }
+    function afterChapter() { showQuestion(); }
+    function showQuestion() {
+      const s = STEPS[step];
+      document.getElementById('scene-card').className = s.sceneClass + ' rounded-2xl p-5 mb-4';
+      document.getElementById('scene-label').textContent = '📍 ' + s.scene;
+      document.getElementById('ch-char-emoji').textContent = s.char.emoji;
+      document.getElementById('ch-char-name').textContent = s.char.name;
+      document.getElementById('ch-char-role').textContent = s.char.role;
+      document.getElementById('ch-speech').textContent = s.speech;
+      document.getElementById('scene-context').textContent = s.context;
+      document.getElementById('step-num').textContent = 'Decisão ' + (step + 1) + ' de ' + STEPS.length;
+      document.getElementById('step-q').textContent = s.question;
+      document.getElementById('feedback-area').classList.add('hidden');
+      document.getElementById('btn-next').classList.add('hidden');
+
+      const icons = {receita:'💰',moral:'👥',reputacao:'📣',inovacao:'🎯'};
+      const container = document.getElementById('options-container');
+      container.innerHTML = '';
+      s.options.forEach((opt, idx) => {
+        const div = document.createElement('div');
+        div.className = 'option-card bg-slate-800/70 rounded-xl p-4';
+        const badges = Object.entries(opt.fx).filter(([,v])=>v!==0).map(([k,v])=>{
+          const cls = v>0 ? 'text-green-400' : 'text-red-400';
+          return `<span class="text-xs ${cls} font-medium">${icons[k]} ${v>0?'+':''}${v>0?'':'-'}${Math.abs(v)}</span>`;
+        }).join('');
+        div.innerHTML = `<p class="font-semibold text-white text-sm mb-0.5">${opt.l}</p><p class="text-slate-400 text-xs mb-2 leading-relaxed">${opt.d}</p><div class="flex flex-wrap gap-2">${badges}</div>`;
+        div.addEventListener('click', () => pick(idx));
+        container.appendChild(div);
+      });
+      show('screen-question');
+    }
+    function pick(idx) {
+      const s = STEPS[step];
+      const opt = s.options[idx];
+      document.querySelectorAll('.option-card').forEach((c,i) => {
+        c.classList.add('locked','pointer-events-none');
+        if (i !== idx) c.classList.add('opacity-40');
+      });
+      document.querySelectorAll('.option-card')[idx].classList.add('chosen-' + opt.q);
+      applyFx(opt.fx);
+      const icons = { great:'🌟', good:'👍', ok:'💡', bad:'⚠️' };
+      const labels = { great:'Excelente decisão!', good:'Boa escolha!', ok:'Escolha razoável', bad:'Decisão arriscada' };
+      document.getElementById('fb-icon').textContent = icons[opt.q];
+      document.getElementById('fb-quality').textContent = labels[opt.q];
+      document.getElementById('fb-text').textContent = opt.fb;
+      document.getElementById('fb-effects').innerHTML = Object.entries(opt.fx).map(([k,v])=>fxBadge(k,v)).join(' ');
+      document.getElementById('fb-bncc').textContent = opt.bncc;
+      document.getElementById('feedback-area').classList.remove('hidden');
+      const btn = document.getElementById('btn-next');
+      btn.textContent = step === STEPS.length - 1 ? 'Ver resultado final 👑' : 'Próxima situação →';
+      btn.classList.remove('hidden');
+    }
+    function nextAction() {
+      step++;
+      if (step >= STEPS.length) showResult();
+      else nextScreen();
+    }
+    function showResult() {
+      const total = STAT_KEYS.reduce((a,k) => a + stats[k], 0);
+      const pct = Math.round(total / 400 * 100);
+      let badge, type, title, sub, msg;
+      if (pct >= 75) {
+        badge='👑'; type='CEO Visionário'; title='Você é um CEO Extraordinário!';
+        sub='Liderança estratégica com humanidade e visão de longo prazo.';
+        msg='Suas decisões mostram que liderança de verdade equilibra resultado, pessoas e propósito. Você navegou crises com transparência, reteve talentos com inteligência e construiu uma cultura de confiança. Empresas lideradas assim são as que mudam mercados inteiros.';
+      } else if (pct >= 60) {
+        badge='🏆'; type='Líder Estratégico'; title='Líder Estratégico em Ascensão';
+        sub='Boas decisões com oportunidades claras de crescimento.';
+        msg='Você demonstrou maturidade em situações complexas. Algumas escolhas foram muito acertadas, outras deixaram pontos cegos. Líderes estratégicos aprendem constantemente — e você está claramente nessa trilha. Continue desenvolvendo sua habilidade de comunicação em crise e gestão de pessoas.';
+      } else if (pct >= 45) {
+        badge='📈'; type='Gestor em Desenvolvimento'; title='Gestor em Desenvolvimento';
+        sub='Base sólida com muito espaço para crescer.';
+        msg='Você tem as bases da liderança, mas algumas decisões custaram caro em áreas importantes. Liderança é uma habilidade desenvolvida com prática e reflexão — não nasce pronta. Analise os feedbacks das situações que mais impactaram negativamente as stats.';
+      } else {
+        badge='🌱'; type='Aprendiz de Liderança'; title='Aprendiz no Caminho Certo';
+        sub='Todo grande CEO já foi um iniciante.';
+        msg='Foi um dia desafiador! As crises pegaram você de surpresa? Isso é completamente normal. Liderança é a habilidade mais complexa que existe — envolve pessoas, dados, emoções e estratégia ao mesmo tempo. Jogar novamente com os feedbacks em mente vai mudar seus resultados completamente.';
+      }
+      document.getElementById('res-badge').textContent = badge;
+      document.getElementById('res-type').textContent = type;
+      document.getElementById('res-title').textContent = title;
+      document.getElementById('res-subtitle').textContent = sub;
+      document.getElementById('res-msg').textContent = msg;
+      STAT_KEYS.forEach(k => {
+        document.getElementById('fr-' + k).textContent = stats[k] + '/100';
+        setTimeout(() => { document.getElementById('fb-bar-' + k).style.width = stats[k] + '%'; }, 400);
+      });
+      document.getElementById('progress-bar').style.width = '100%';
+      document.getElementById('current-time').textContent = '22:00';
+      document.getElementById('chapter-label').textContent = 'Resultado Final';
+      show('screen-result');
+    }
+    function restartGame() {
+      step = 0; chShown = -1;
+      stats = { receita:50, moral:60, reputacao:50, inovacao:40 };
+      renderStats(false);
+      document.getElementById('progress-bar').style.width = '0%';
+      document.getElementById('current-time').textContent = '08:00';
+      document.getElementById('chapter-label').textContent = 'Cap. 1 — Manhã';
+      show('screen-intro');
+    }
+  </script>
+</body>
+</html>
