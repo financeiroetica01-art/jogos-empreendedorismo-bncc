@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoNegócio — Jogos de Empreendedorismo</title>
+<script src="https://cdn.tailwindcss.com/3.4.1"></script>
+<style>
+  :root {
+    --brand: #059669;
+    --bg: #030f09;
+    --card: #071a10;
+    --border: #0f3020;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* ── NAVBAR ── */
+  #navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 50; background: rgba(3,15,9,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; height: 48px; }
+  #navbar .nav-back { background: rgba(5,150,105,0.15); border: 1px solid rgba(5,150,105,0.3); color: #6ee7b7; border-radius: 6px; padding: 4px 10px; font-size: 12px; text-decoration: none; transition: all .2s; }
+  #navbar .nav-back:hover { background: rgba(5,150,105,0.25); }
+  #navbar .nav-badge { background: rgba(5,150,105,0.2); border: 1px solid rgba(5,150,105,0.4); color: #a7f3d0; border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 600; }
+  #navbar .nav-logo { font-size: 12px; font-weight: 700; color: #6ee7b7; letter-spacing: 0.05em; }
+
+  /* ── PROGRESS BAR ── */
+  #progress-bar { position: fixed; top: 48px; left: 0; right: 0; z-index: 49; height: 3px; background: rgba(5,150,105,0.15); }
+  #progress-fill { height: 100%; background: linear-gradient(90deg, #059669, #84cc16); transition: width 0.6s ease; width: 0%; }
+
+  /* ── STAT BARS ── */
+  #statbar { position: fixed; top: 51px; left: 0; right: 0; z-index: 48; background: rgba(3,15,9,0.95); border-bottom: 1px solid var(--border); padding: 6px 1rem; display: flex; gap: 0.5rem; }
+  .stat-item { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+  .stat-label { display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: var(--muted); }
+  .stat-label span:first-child { display: flex; align-items: center; gap: 3px; }
+  .stat-val { font-weight: 700; font-size: 10px; }
+  .stat-track { height: 5px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+  .stat-fill { height: 100%; border-radius: 3px; transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1); }
+  #stat-planeta  .stat-fill { background: linear-gradient(90deg, #059669, #34d399); }
+  #stat-receita  .stat-fill { background: linear-gradient(90deg, #0891b2, #38bdf8); }
+  #stat-comunid  .stat-fill { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+  #stat-inov     .stat-fill { background: linear-gradient(90deg, #d97706, #fbbf24); }
+
+  /* ── MAIN ── */
+  #main { margin-top: 100px; flex: 1; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+
+  /* ── SCREENS ── */
+  .screen { width: 100%; max-width: 640px; animation: screenIn 0.4s cubic-bezier(0.22,1,0.36,1) both; }
+  @keyframes screenIn { from { opacity:0; transform:translateY(24px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+  @keyframes chapterPop { 0% { opacity:0; transform:scale(0.7) rotate(-3deg); } 60% { transform:scale(1.08) rotate(1deg); } 100% { opacity:1; transform:scale(1) rotate(0deg); } }
+  @keyframes statPop { 0% { transform:scale(1); } 40% { transform:scale(1.15); } 100% { transform:scale(1); } }
+  @keyframes spinIn { from { transform:rotate(-180deg) scale(0); opacity:0; } to { transform:rotate(0) scale(1); opacity:1; } }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 1rem; }
+
+  /* ── SCENE BACKGROUNDS ── */
+  .scene-diagnostico { background: linear-gradient(135deg, #001a08 0%, #000d04 100%); border: 1px solid #003015; }
+  .scene-producao    { background: linear-gradient(135deg, #001510 0%, #000a08 100%); border: 1px solid #002518; }
+  .scene-comunidade  { background: linear-gradient(135deg, #0a0a00 0%, #060600 100%); border: 1px solid #1a1a00; }
+  .scene-legado      { background: linear-gradient(135deg, #001a00 0%, #000d00 100%); border: 1px solid #002a00; }
+
+  /* ── INTRO ── */
+  #screen-intro { display:flex; flex-direction:column; align-items:center; text-align:center; padding:2rem 1rem; }
+  .intro-icon { font-size:5rem; margin-bottom:1rem; animation:spinIn 0.8s cubic-bezier(0.34,1.56,0.64,1) both; animation-delay:0.2s; }
+  .intro-title { font-size:2rem; font-weight:800; color:#6ee7b7; margin-bottom:0.5rem; }
+  .intro-sub { color:var(--muted); font-size:0.95rem; line-height:1.6; max-width:460px; margin:0 auto 1.5rem; }
+  .intro-tags { display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap; margin-bottom:2rem; }
+  .intro-tag { background:rgba(5,150,105,0.15); border:1px solid rgba(5,150,105,0.3); color:#a7f3d0; border-radius:20px; padding:4px 12px; font-size:11px; font-weight:600; }
+  .intro-stats { display:grid; grid-template-columns:repeat(2,1fr); gap:0.75rem; width:100%; max-width:360px; margin-bottom:2rem; }
+  .intro-stat { background:rgba(5,150,105,0.08); border:1px solid rgba(5,150,105,0.2); border-radius:10px; padding:0.75rem; text-align:center; }
+  .intro-stat .is-emoji { font-size:1.5rem; }
+  .intro-stat .is-name  { font-size:11px; color:var(--muted); margin-top:2px; }
+  .btn-primary { background:linear-gradient(135deg,#059669,#047857); color:white; border:none; border-radius:12px; padding:14px 40px; font-size:1rem; font-weight:700; cursor:pointer; transition:all .2s; box-shadow:0 4px 20px rgba(5,150,105,0.4); }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 6px 28px rgba(5,150,105,0.5); }
+
+  /* ── CHAPTER ── */
+  #screen-chapter { display:flex; flex-direction:column; align-items:center; text-align:center; padding:2.5rem 1.5rem; border-radius:20px; }
+  .ch-number { font-size:11px; font-weight:700; letter-spacing:0.15em; color:var(--muted); text-transform:uppercase; margin-bottom:0.5rem; }
+  .ch-emoji  { font-size:4rem; margin-bottom:1rem; animation:chapterPop 0.6s cubic-bezier(0.34,1.56,0.64,1) both; animation-delay:0.15s; }
+  .ch-title  { font-size:1.6rem; font-weight:800; color:#a7f3d0; margin-bottom:0.5rem; }
+  .ch-tag    { display:inline-block; background:rgba(5,150,105,0.25); border:1px solid rgba(5,150,105,0.4); color:#6ee7b7; border-radius:20px; padding:3px 12px; font-size:11px; font-weight:700; letter-spacing:0.08em; margin-bottom:1rem; }
+  .ch-desc   { color:var(--muted); font-size:0.9rem; line-height:1.6; max-width:380px; margin:0 auto 2rem; }
+  .ch-time   { font-size:11px; color:#059669; font-weight:600; margin-bottom:1.5rem; }
+  .btn-chapter { background:rgba(5,150,105,0.2); border:1px solid rgba(5,150,105,0.4); color:#a7f3d0; border-radius:10px; padding:10px 28px; font-size:0.9rem; font-weight:700; cursor:pointer; transition:all .2s; }
+  .btn-chapter:hover { background:rgba(5,150,105,0.35); }
+
+  /* ── QUESTION ── */
+  #screen-question { border-radius:16px; padding:1.25rem; }
+  .q-header { display:flex; align-items:center; gap:0.75rem; margin-bottom:1.25rem; }
+  .q-char-emoji { font-size:2.5rem; flex-shrink:0; }
+  .q-char-name  { font-size:0.85rem; font-weight:700; color:#a7f3d0; }
+  .q-char-role  { font-size:11px; color:var(--muted); }
+  .q-speech  { background:rgba(5,150,105,0.1); border:1px solid rgba(5,150,105,0.25); border-radius:10px; padding:0.85rem 1rem; margin-bottom:1rem; font-size:0.9rem; color:#d1fae5; line-height:1.55; font-style:italic; }
+  .q-context { font-size:0.8rem; color:var(--muted); line-height:1.5; margin-bottom:1rem; padding:0.6rem 0.75rem; background:rgba(255,255,255,0.03); border-radius:8px; border-left:2px solid rgba(5,150,105,0.4); }
+  .q-question { font-size:1rem; font-weight:700; color:var(--text); margin-bottom:1rem; line-height:1.4; }
+  .options-grid { display:flex; flex-direction:column; gap:0.6rem; }
+  .opt-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:0.85rem 1rem; cursor:pointer; transition:all 0.2s; display:flex; flex-direction:column; gap:6px; }
+  .opt-card:hover:not(.picked):not(.disabled) { background:rgba(5,150,105,0.15); border-color:rgba(5,150,105,0.4); transform:translateX(3px); }
+  .opt-top { display:flex; align-items:flex-start; gap:0.5rem; }
+  .opt-letter { background:rgba(5,150,105,0.2); color:#6ee7b7; border-radius:6px; padding:2px 7px; font-size:11px; font-weight:800; flex-shrink:0; margin-top:1px; }
+  .opt-label { font-size:0.88rem; font-weight:600; color:var(--text); line-height:1.4; flex:1; }
+  .opt-desc  { font-size:0.78rem; color:var(--muted); line-height:1.4; padding-left:calc(1.5rem + 0.5rem); }
+  .opt-fx    { display:flex; gap:4px; flex-wrap:wrap; padding-left:calc(1.5rem + 0.5rem); }
+  .fx-chip { font-size:10px; font-weight:700; border-radius:4px; padding:2px 6px; opacity:0.7; }
+  .fx-pos { background:rgba(52,211,153,0.15); color:#34d399; }
+  .fx-neg { background:rgba(248,113,113,0.15); color:#f87171; }
+  .opt-card.picked-good { background:rgba(52,211,153,0.12); border-color:rgba(52,211,153,0.5); }
+  .opt-card.picked-ok   { background:rgba(250,204,21,0.1);  border-color:rgba(250,204,21,0.4); }
+  .opt-card.picked-bad  { background:rgba(248,113,113,0.1); border-color:rgba(248,113,113,0.4); }
+  .opt-card.disabled    { opacity:0.4; pointer-events:none; }
+
+  /* ── FEEDBACK ── */
+  #feedback-box { margin-top:1rem; padding:1rem; background:rgba(5,150,105,0.08); border:1px solid rgba(5,150,105,0.25); border-radius:12px; display:none; }
+  .fb-quality { font-size:0.85rem; font-weight:700; margin-bottom:0.4rem; }
+  .fb-text    { font-size:0.82rem; color:#a7f3d0; line-height:1.5; margin-bottom:0.6rem; }
+  .fb-stats   { display:flex; gap:6px; flex-wrap:wrap; }
+  .fb-stat    { font-size:11px; font-weight:700; border-radius:6px; padding:3px 8px; }
+  .fb-stat-pos { background:rgba(52,211,153,0.2); color:#34d399; }
+  .fb-stat-neg { background:rgba(248,113,113,0.2); color:#f87171; }
+  .bncc-badge { display:inline-flex; align-items:center; gap:4px; background:rgba(5,150,105,0.1); border:1px solid rgba(5,150,105,0.25); color:#6ee7b7; border-radius:20px; padding:2px 8px; font-size:10px; font-weight:600; margin-top:0.4rem; }
+  .btn-next { display:block; width:100%; margin-top:1rem; background:linear-gradient(135deg,#059669,#047857); color:white; border:none; border-radius:10px; padding:12px; font-size:0.9rem; font-weight:700; cursor:pointer; transition:all .2s; }
+  .btn-next:hover { opacity:0.9; transform:translateY(-1px); }
+
+  /* ── RESULT ── */
+  #screen-result { border-radius:20px; padding:2rem 1.5rem; text-align:center; }
+  .result-badge-emoji { font-size:5rem; display:block; margin-bottom:0.75rem; animation:spinIn 0.8s cubic-bezier(0.34,1.56,0.64,1) both; animation-delay:0.2s; }
+  .result-title { font-size:1.6rem; font-weight:800; color:#6ee7b7; margin-bottom:0.25rem; }
+  .result-sub   { font-size:0.9rem; color:var(--muted); margin-bottom:1.5rem; }
+  .result-pct   { font-size:3rem; font-weight:900; color:#a7f3d0; line-height:1; margin-bottom:0.25rem; }
+  .result-pct-label { font-size:0.8rem; color:var(--muted); margin-bottom:1.5rem; }
+  .result-stats { display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.5rem; text-align:left; }
+  .rs-label { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:3px; }
+  .rs-bar  { height:8px; background:rgba(255,255,255,0.08); border-radius:4px; overflow:hidden; }
+  .rs-fill { height:100%; border-radius:4px; transition:width 1s cubic-bezier(0.34,1.56,0.64,1); animation:statPop 0.6s ease both; }
+  .rs-fill.f-plan { background:linear-gradient(90deg,#059669,#34d399); }
+  .rs-fill.f-rece { background:linear-gradient(90deg,#0891b2,#38bdf8); }
+  .rs-fill.f-comu { background:linear-gradient(90deg,#7c3aed,#a78bfa); }
+  .rs-fill.f-inov { background:linear-gradient(90deg,#d97706,#fbbf24); }
+  .result-bncc { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-bottom:1.5rem; }
+  .result-msg  { font-size:0.85rem; color:#a7f3d0; line-height:1.6; margin-bottom:1.5rem; background:rgba(5,150,105,0.08); border-radius:10px; padding:0.9rem; }
+  .btn-restart { background:rgba(5,150,105,0.2); border:1px solid rgba(5,150,105,0.4); color:#a7f3d0; border-radius:10px; padding:10px 28px; font-size:0.9rem; font-weight:700; cursor:pointer; transition:all .2s; margin-right:0.5rem; }
+  .btn-restart:hover { background:rgba(5,150,105,0.35); }
+  .btn-home { background:rgba(8,145,178,0.15); border:1px solid rgba(8,145,178,0.3); color:#67e8f9; border-radius:10px; padding:10px 28px; font-size:0.9rem; font-weight:700; cursor:pointer; transition:all .2s; text-decoration:none; display:inline-block; }
+  .btn-home:hover { background:rgba(8,145,178,0.25); }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div id="navbar">
+  <div style="display:flex;align-items:center;gap:0.5rem">
+    <a href="../index.html" class="nav-back">← Voltar</a>
+    <span id="nav-badge" class="nav-badge">Fase 1 · Decisão 1/12</span>
+  </div>
+  <span class="nav-logo">🌿 EcoNegócio</span>
+</div>
+<div id="progress-bar"><div id="progress-fill"></div></div>
+
+<!-- STAT BARS -->
+<div id="statbar">
+  <div class="stat-item" id="stat-planeta">
+    <div class="stat-label"><span>🌍 <span>Planeta</span></span><span class="stat-val" id="val-planeta">40</span></div>
+    <div class="stat-track"><div class="stat-fill" id="fill-planeta" style="width:40%"></div></div>
+  </div>
+  <div class="stat-item" id="stat-receita">
+    <div class="stat-label"><span>💰 <span>Receita</span></span><span class="stat-val" id="val-receita">50</span></div>
+    <div class="stat-track"><div class="stat-fill" id="fill-receita" style="width:50%"></div></div>
+  </div>
+  <div class="stat-item" id="stat-comunid">
+    <div class="stat-label"><span>🤝 <span>Comunidade</span></span><span class="stat-val" id="val-comunid">45</span></div>
+    <div class="stat-track"><div class="stat-fill" id="fill-comunid" style="width:45%"></div></div>
+  </div>
+  <div class="stat-item" id="stat-inov">
+    <div class="stat-label"><span>💡 <span>Inovação</span></span><span class="stat-val" id="val-inov">35</span></div>
+    <div class="stat-track"><div class="stat-fill" id="fill-inov" style="width:35%"></div></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <!-- INTRO -->
+  <div id="screen-intro" class="screen" style="display:none">
+    <div class="intro-icon">🌿</div>
+    <h1 class="intro-title">EcoNegócio</h1>
+    <p class="intro-sub">Você vai criar um negócio verde do zero! De um diagnóstico ambiental à construção de um legado sustentável — equilibrando lucro, planeta e comunidade.</p>
+    <div class="intro-tags">
+      <span class="intro-tag">🌍 Sustentabilidade</span>
+      <span class="intro-tag">🤝 Responsabilidade Social</span>
+      <span class="intro-tag">12 Decisões</span>
+      <span class="intro-tag">4 Fases</span>
+    </div>
+    <div class="intro-stats">
+      <div class="intro-stat"><div class="is-emoji">🌍</div><div class="is-name">Planeta</div></div>
+      <div class="intro-stat"><div class="is-emoji">💰</div><div class="is-name">Receita</div></div>
+      <div class="intro-stat"><div class="is-emoji">🤝</div><div class="is-name">Comunidade</div></div>
+      <div class="intro-stat"><div class="is-emoji">💡</div><div class="is-name">Inovação</div></div>
+    </div>
+    <button class="btn-primary" onclick="startGame()">🌱 Iniciar EcoNegócio</button>
+  </div>
+
+  <!-- CHAPTER -->
+  <div id="screen-chapter" class="screen" style="display:none">
+    <div class="ch-number" id="ch-number"></div>
+    <div class="ch-emoji"  id="ch-emoji"></div>
+    <div class="ch-tag"    id="ch-tag"></div>
+    <h2 class="ch-title"  id="ch-title"></h2>
+    <div class="ch-time"  id="ch-time"></div>
+    <p class="ch-desc"    id="ch-desc"></p>
+    <button class="btn-chapter" onclick="nextScreen()">Continuar →</button>
+  </div>
+
+  <!-- QUESTION -->
+  <div id="screen-question" class="screen" style="display:none">
+    <div class="q-header">
+      <div class="q-char-emoji" id="q-char-emoji"></div>
+      <div>
+        <div class="q-char-name" id="q-char-name"></div>
+        <div class="q-char-role" id="q-char-role"></div>
+      </div>
+    </div>
+    <div class="q-speech"   id="q-speech"></div>
+    <div class="q-context"  id="q-context"></div>
+    <div class="q-question" id="q-question"></div>
+    <div class="options-grid" id="options-grid"></div>
+    <div id="feedback-box">
+      <div class="fb-quality" id="fb-quality"></div>
+      <div class="fb-text"    id="fb-text"></div>
+      <div class="fb-stats"   id="fb-stats"></div>
+      <div id="fb-bncc"></div>
+    </div>
+    <button class="btn-next" id="btn-next" onclick="nextScreen()" style="display:none">Próxima Decisão →</button>
+  </div>
+
+  <!-- RESULT -->
+  <div id="screen-result" class="screen" style="display:none">
+    <span class="result-badge-emoji" id="res-emoji"></span>
+    <div class="result-title" id="res-title"></div>
+    <div class="result-sub"   id="res-sub"></div>
+    <div class="result-pct"   id="res-pct"></div>
+    <div class="result-pct-label">pontuação final</div>
+    <div class="result-stats" id="res-stats"></div>
+    <div class="result-bncc"  id="res-bncc"></div>
+    <div class="result-msg"   id="res-msg"></div>
+    <div>
+      <button class="btn-restart" onclick="restartGame()">🔄 Jogar Novamente</button>
+      <a href="../index.html" class="btn-home">🏠 Início</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const CHAPTERS = [
+  { num:'Capítulo 1', emoji:'🔍', tag:'DIAGNÓSTICO', title:'O Problema Real',    time:'⏱ ~15 min', tagCss:'scene-diagnostico',
+    desc:'Todo negócio sustentável começa entendendo o impacto que causa. Você vai mapear os problemas ambientais da sua comunidade e escolher como seu negócio pode fazer a diferença.' },
+  { num:'Capítulo 2', emoji:'🏭', tag:'PRODUÇÃO',    title:'Como Fazemos',       time:'⏱ ~15 min', tagCss:'scene-producao',
+    desc:'Sustentabilidade começa na produção. As decisões sobre energia, resíduos, matéria-prima e cadeia de fornecimento definem se seu negócio é de fato verde ou apenas verde no marketing.' },
+  { num:'Capítulo 3', emoji:'🤝', tag:'COMUNIDADE',  title:'Juntos Somos Mais',  time:'⏱ ~15 min', tagCss:'scene-comunidade',
+    desc:'Um EcoNegócio não existe isolado. Ele faz parte de um ecossistema de pessoas, outras empresas e instituições. Como você se conecta com a comunidade define seu impacto real.' },
+  { num:'Capítulo 4', emoji:'🌱', tag:'LEGADO',      title:'O que Você Deixa',   time:'⏱ ~15 min', tagCss:'scene-legado',
+    desc:'A fase final trata do legado. Não apenas o que seu negócio ganha hoje, mas o que ele deixa para as próximas gerações — de pessoas, de planeta e de inspiração.' }
+];
+
+const STEPS = [
+  // ── CAPÍTULO 1: DIAGNÓSTICO ──
+  { chapter:0, scene:'O Problema Real', sceneClass:'scene-diagnostico',
+    char:{ emoji:'👩‍🌾', name:'Dona Helena', role:'Agricultora Local' },
+    speech:'"Nossa comunidade tem problemas sérios com resíduos e desperdício de recursos. Mas ninguém sabe por onde começar a resolver."',
+    context:'Você quer criar um EcoNegócio — um negócio com impacto ambiental positivo. Mas antes precisa entender qual problema vai atacar primeiro na sua comunidade.',
+    question:'Qual problema ambiental local seu negócio vai focar?',
+    options:[
+      { l:'Resíduos sólidos: lixo e reciclagem', d:'Você cria soluções para coleta, triagem e reaproveitamento de resíduos.', fx:{planeta:15,receita:5,comunid:15,inov:10}, q:'good',
+        fb:'Impacto direto e visível! O Brasil gera 216 mil toneladas de lixo por dia, com apenas 3% reciclado. Oportunidade enorme com impacto mensurável e imediato.', bncc:'BNCC 7' },
+      { l:'Desperdício de alimentos na cadeia produtiva', d:'Você trabalha para reduzir o desperdício entre produtor e consumidor.', fx:{planeta:15,receita:10,comunid:10,inov:10}, q:'good',
+        fb:'Problema crítico! O Brasil desperdiça 26 milhões de toneladas de alimento por ano enquanto milhões passam fome. Solução com impacto social e ambiental ao mesmo tempo.', bncc:'BNCC 7' },
+      { l:'Energia: solar e eficiência energética', d:'Você ajuda famílias e negócios a reduzirem consumo de energia convencional.', fx:{planeta:20,receita:5,comunid:5,inov:15}, q:'good',
+        fb:'Setor em expansão explosiva! Energia solar cresceu 780% no Brasil em 5 anos. Negócio com alta inovação tecnológica e impacto ambiental de longo prazo.', bncc:'BNCC 7' },
+      { l:'Poluição sonora e visual urbana', d:'Você trabalha para reduzir o excesso de ruído e anúncios poluentes.', fx:{planeta:5,receita:-5,comunid:10,inov:5}, q:'ok',
+        fb:'Causa legítima mas nicho difícil. Poluição sonora e visual são problemas reais mas com baixa visibilidade como negócio. Monetização é complexa.', bncc:'BNCC 7' }
+    ]
+  },
+  { chapter:0, scene:'O Problema Real', sceneClass:'scene-diagnostico',
+    char:{ emoji:'🧑‍🏫', name:'Professor Tiago', role:'Educador Ambiental' },
+    speech:'"Antes de criar qualquer solução, precisamos entender como a comunidade enxerga esse problema. Você já pesquisou?"',
+    context:'Professor Tiago insiste: soluções sem diagnóstico real são remendos. Para criar um EcoNegócio sólido, você precisa conhecer profundamente o problema que vai resolver.',
+    question:'Como você vai diagnosticar o problema ambiental na sua comunidade?',
+    options:[
+      { l:'Pesquisa de campo: entrevistas com moradores', d:'Você visita famílias, coleta depoimentos e mapeia o impacto real.', fx:{planeta:5,receita:0,comunid:20,inov:10}, q:'good',
+        fb:'Diagnóstico humano! Entrevistas revelam dimensões do problema que dados frios não mostram. Constrói empatia e cria laços com a comunidade desde o início.', bncc:'BNCC 10' },
+      { l:'Análise de dados públicos (IBGE, prefeitura)', d:'Você usa dados governamentais para entender o problema em escala.', fx:{planeta:10,receita:5,comunid:5,inov:15}, q:'good',
+        fb:'Abordagem científica! Dados públicos dão escala e credibilidade. Ótimo para identificar os bairros mais afetados e quantificar o impacto potencial.', bncc:'BNCC 2' },
+      { l:'Workshop participativo com a comunidade', d:'Você reúne moradores para mapear coletivamente os problemas.', fx:{planeta:5,receita:0,comunid:25,inov:10}, q:'good',
+        fb:'Co-criação comunitária! Quando a comunidade participa do diagnóstico, ela já começa a ser parte da solução. Gera engajamento e legitimidade únicas.', bncc:'BNCC 10' },
+      { l:'Pula o diagnóstico e já cria a solução', d:'Você acredita que já conhece o problema suficientemente.', fx:{planeta:-5,receita:5,comunid:-10,inov:10}, q:'bad',
+        fb:'Solução sem problema! Sem diagnóstico, você pode estar resolvendo o problema errado. A comunidade pode não se engajar com uma solução que não reconhece como dela.', bncc:'BNCC 2' }
+    ]
+  },
+  { chapter:0, scene:'O Problema Real', sceneClass:'scene-diagnostico',
+    char:{ emoji:'📊', name:'Isabela', role:'Analista de Impacto' },
+    speech:'"Para medir se seu negócio realmente funciona, precisamos definir indicadores antes de começar. Quais métricas vamos usar?"',
+    context:'Isabela é especialista em métricas de impacto. Ela argumenta que sem indicadores claros, você nunca vai saber se seu EcoNegócio está realmente fazendo diferença.',
+    question:'Como você vai medir o impacto ambiental do seu EcoNegócio?',
+    options:[
+      { l:'Toneladas de resíduos desviados do aterro', d:'Você mede o volume real de material que não vai para o lixo.', fx:{planeta:15,receita:5,comunid:5,inov:10}, q:'good',
+        fb:'Métrica concreta e auditável! Toneladas desviadas é fácil de medir, comunicar e aumentar ao longo do tempo. Investidores e parceiros adoram métricas tangíveis.', bncc:'BNCC 2' },
+      { l:'Número de famílias beneficiadas', d:'Você conta quantas pessoas tiveram sua qualidade de vida melhorada.', fx:{planeta:5,receita:5,comunid:20,inov:5}, q:'good',
+        fb:'Impacto social mensurável! Pessoas alcançadas é uma métrica poderosa para comunicar impacto para o público geral. Humaniza o negócio e atrai parcerias.', bncc:'BNCC 10' },
+      { l:'Redução de emissão de CO₂ equivalente', d:'Você quantifica a pegada de carbono evitada pelas suas ações.', fx:{planeta:20,receita:5,comunid:5,inov:15}, q:'good',
+        fb:'Métrica universal do clima! CO₂ equivalente é a linguagem do planeta. Permite comparar seu impacto com outras iniciativas e é reconhecida internacionalmente.', bncc:'BNCC 7' },
+      { l:'Nenhuma métrica — foca em fazer', d:'Você prefere agir direto sem perder tempo com métricas e relatórios.', fx:{planeta:-5,receita:0,comunid:-5,inov:0}, q:'bad',
+        fb:'O que não se mede, não se gerencia! Sem métricas você não sabe o que está funcionando, não consegue atrair parceiros e não pode provar o impacto do seu negócio.', bncc:'BNCC 2' }
+    ]
+  },
+
+  // ── CAPÍTULO 2: PRODUÇÃO ──
+  { chapter:1, scene:'Como Fazemos', sceneClass:'scene-producao',
+    char:{ emoji:'⚡', name:'Engenheira Sofia', role:'Especialista em Energia' },
+    speech:'"Você vai produzir coisas — e toda produção gasta energia. Qual fonte de energia vai usar no seu EcoNegócio?"',
+    context:'Sofia explica que a fonte de energia é uma das principais diferenças entre um negócio convencional e um EcoNegócio. A escolha agora vai moldar o impacto de longo prazo.',
+    question:'Qual fonte de energia vai alimentar seu EcoNegócio?',
+    options:[
+      { l:'Energia solar própria (painéis fotovoltaicos)', d:'Você instala painéis e gera sua própria energia limpa.', fx:{planeta:25,receita:-10,comunid:5,inov:20}, q:'good',
+        fb:'Autonomia energética! Investimento inicial alto, mas retorno em 5-7 anos. Demonstração viva de que seu negócio pratica o que prega. Poder de comunicação enorme.', bncc:'BNCC 7' },
+      { l:'Tarifa verde: energia elétrica 100% renovável', d:'Você assina um plano que garante energia de fontes renováveis.', fx:{planeta:20,receita:-5,comunid:5,inov:5}, q:'good',
+        fb:'Transição acessível! Tarifas verdes têm custo extra pequeno mas garantem que sua energia vem de fontes limpas. Solução para quem não pode instalar painéis.', bncc:'BNCC 7' },
+      { l:'Energia convencional da rede (mais barato)', d:'Você usa energia comum para manter custos baixos.', fx:{planeta:-10,receita:10,comunid:0,inov:0}, q:'bad',
+        fb:'Contradição estratégica! Um EcoNegócio que usa energia convencional perde credibilidade. Clientes conscientes vão perceber essa inconsistência.', bncc:'BNCC 7' },
+      { l:'Eficiência máxima com redução de consumo', d:'Você investe em equipamentos eficientes antes de pensar na fonte.', fx:{planeta:15,receita:5,comunid:0,inov:15}, q:'good',
+        fb:'Primeiro reduza, depois renove! Eficiência energética é o princípio mais sustentável. Gastar menos energia é melhor que gerar mais energia limpa.', bncc:'BNCC 7' }
+    ]
+  },
+  { chapter:1, scene:'Como Fazemos', sceneClass:'scene-producao',
+    char:{ emoji:'🌊', name:'Hidrólogo Pedro', role:'Especialista em Recursos Hídricos' },
+    speech:'"A água é cada vez mais escassa. Como seu negócio vai usar e gerenciar a água?"',
+    context:'Pedro explica que a crise hídrica é um dos maiores desafios do século. A gestão de água não é só uma questão ambiental — é um risco de negócio real.',
+    question:'Como seu EcoNegócio vai gerenciar o uso de água?',
+    options:[
+      { l:'Sistema de captação e reuso de água da chuva', d:'Você instala cisternas para captar chuva e reutilizar na produção.', fx:{planeta:20,receita:5,comunid:10,inov:20}, q:'good',
+        fb:'Solução circular! Captação de chuva pode suprir até 40% da necessidade hídrica em regiões com boa pluviosidade. Custo baixo e impacto alto.', bncc:'BNCC 7' },
+      { l:'Processos secos: eliminar água do processo', d:'Você redesenha a produção para não usar água onde não é necessário.', fx:{planeta:25,receita:0,comunid:0,inov:25}, q:'good',
+        fb:'Inovação radical! Eliminar a água do processo é mais poderoso que otimizá-lo. Exige criatividade e inovação, mas cria vantagem competitiva real.', bncc:'BNCC 2' },
+      { l:'Tratamento e reuso de 100% da água utilizada', d:'Você trata toda a água usada para reutilizá-la no ciclo produtivo.', fx:{planeta:20,receita:-5,comunid:5,inov:15}, q:'good',
+        fb:'Economia circular aplicada! Sistemas de reuso fecham o ciclo da água. Custo maior mas mensagem poderosa: zero descarte hídrico.', bncc:'BNCC 7' },
+      { l:'Usa água normalmente — o problema é maior que eu', d:'Você acha que sua empresa é pequena demais para fazer diferença.', fx:{planeta:-15,receita:5,comunid:-10,inov:0}, q:'bad',
+        fb:'Falácia do impacto individual! Se cada pequeno negócio pensasse assim, a crise hídrica seria impossível de resolver. Pequenas ações em escala criam grandes mudanças.', bncc:'BNCC 10' }
+    ]
+  },
+  { chapter:1, scene:'Como Fazemos', sceneClass:'scene-producao',
+    char:{ emoji:'🚛', name:'Gerente de Logística', role:'Cadeia de Suprimentos' },
+    speech:'"Seus materiais precisam chegar até você. O transporte pode ser o maior vilão da sua pegada de carbono. Como vamos resolver isso?"',
+    context:'A cadeia de suprimentos é responsável por até 70% da pegada de carbono de muitas empresas. Escolher como e de onde vêm os insumos é uma decisão crítica.',
+    question:'Como será a cadeia de suprimentos do seu EcoNegócio?',
+    options:[
+      { l:'100% local: todos os insumos da própria região', d:'Você compra apenas de fornecedores a menos de 100km.', fx:{planeta:20,receita:-10,comunid:20,inov:5}, q:'good',
+        fb:'Zero milha! Insumos locais eliminam emissões de transporte de longa distância e fortalecem a economia da sua região. Preço maior, impacto muito maior.', bncc:'BNCC 7' },
+      { l:'Materiais reciclados ou de segunda vida', d:'Você usa como matéria-prima o que outros descartariam.', fx:{planeta:25,receita:5,comunid:10,inov:20}, q:'good',
+        fb:'Economia circular em ação! Transformar resíduo em recurso é o princípio mais poderoso da sustentabilidade. Custo baixo e impacto alto — "lixo de alguém, ouro de outro".', bncc:'BNCC 7' },
+      { l:'Fornecedores com certificação ambiental', d:'Você exige que parceiros tenham certificações como ISO 14001 ou similares.', fx:{planeta:15,receita:-5,comunid:5,inov:5}, q:'good',
+        fb:'Padrões que se multiplicam! Ao exigir certificação dos fornecedores, você propaga padrões sustentáveis pela cadeia inteira. O impacto vai muito além do seu negócio.', bncc:'BNCC 7' },
+      { l:'Mais barato possível, independente da origem', d:'Você prioriza custo acima de qualquer critério ambiental.', fx:{planeta:-20,receita:15,comunid:-5,inov:0}, q:'bad',
+        fb:'Contradição fatal! EcoNegócio com cadeia de suprimentos suja é greenwashing — marketing verde sem substância. Consumidores cada vez mais exigem coerência.', bncc:'BNCC 10' }
+    ]
+  },
+
+  // ── CAPÍTULO 3: COMUNIDADE ──
+  { chapter:2, scene:'Juntos Somos Mais', sceneClass:'scene-comunidade',
+    char:{ emoji:'👨‍🏫', name:'Professor Tiago', role:'Educador Ambiental' },
+    speech:'"Seu negócio pode ser uma escola viva! Como você vai educar e envolver a comunidade nas suas práticas sustentáveis?"',
+    context:'Professor Tiago acredita que o maior impacto de um EcoNegócio não é o que ele faz, mas o que inspira outros a fazer. Educação e engajamento comunitário multiplicam o impacto.',
+    question:'Como seu EcoNegócio vai educar e engajar a comunidade?',
+    options:[
+      { l:'Visitas guiadas ao negócio para escolas', d:'Você abre as portas para que estudantes vejam a sustentabilidade na prática.', fx:{planeta:5,receita:0,comunid:20,inov:5}, q:'good',
+        fb:'Aprendizado vivencial! Ver um negócio sustentável funcionando é mais poderoso que qualquer aula. Cada estudante leva o aprendizado para casa e multiplica.', bncc:'BNCC 10' },
+      { l:'Canal de conteúdo digital sobre sustentabilidade', d:'Você cria vídeos, posts e tutoriais gratuitos sobre práticas verdes.', fx:{planeta:5,receita:5,comunid:15,inov:10}, q:'good',
+        fb:'Impacto em escala! Conteúdo digital alcança pessoas que nunca vão à sua loja. Posiciona sua marca como referência em sustentabilidade.', bncc:'BNCC 4' },
+      { l:'Programa de educação ambiental nas escolas', d:'Você vai às escolas ministrar oficinas sobre sustentabilidade.', fx:{planeta:5,receita:-5,comunid:25,inov:5}, q:'good',
+        fb:'Impacto de longo prazo! Crianças que aprendem sustentabilidade na escola levam os valores para suas famílias e carregam por toda a vida.', bncc:'BNCC 10' },
+      { l:'Foca no negócio, não em educação', d:'Você entende que educar não é papel de uma empresa.', fx:{planeta:0,receita:10,comunid:-10,inov:0}, q:'bad',
+        fb:'Oportunidade perdida! EcoNegócios têm responsabilidade educacional. Educação ambiental é marketing genuíno, constrói legado e diferencia sua marca.', bncc:'BNCC 10' }
+    ]
+  },
+  { chapter:2, scene:'Juntos Somos Mais', sceneClass:'scene-comunidade',
+    char:{ emoji:'🏛️', name:'Vereadora Maria', role:'Poder Público Local' },
+    speech:'"Queremos parceiros para o programa municipal de sustentabilidade. Seu negócio se encaixa perfeitamente. Topa?"',
+    context:'A prefeitura convida seu EcoNegócio para uma parceria em política pública local. É uma oportunidade de escalar seu impacto mas com obrigações institucionais.',
+    question:'Como você vai se relacionar com o poder público local?',
+    options:[
+      { l:'Aceita a parceria e se torna referência municipal', d:'Você integra o programa oficial e ganha visibilidade institucional.', fx:{planeta:10,receita:10,comunid:20,inov:5}, q:'good',
+        fb:'Impacto sistêmico! Parcerias com poder público escalam o impacto para toda a cidade. Credibilidade institucional abre portas que o setor privado não consegue sozinho.', bncc:'BNCC 10' },
+      { l:'Propõe coprodução de política pública', d:'Você não só aceita a parceria como sugere contribuir na formulação da política.', fx:{planeta:15,receita:5,comunid:25,inov:10}, q:'good',
+        fb:'Protagonismo cívico! Ajudar a criar políticas públicas é o nível mais alto de impacto sistêmico. Você não segue as regras — você ajuda a escrever as melhores regras.', bncc:'BNCC 10' },
+      { l:'Declina para manter independência', d:'Você prefere não se vincular ao poder público para ter mais liberdade.', fx:{planeta:0,receita:5,comunid:-5,inov:5}, q:'ok',
+        fb:'Independência tem valor! Mas recusar parceria pública pode significar abrir mão de escala e legitimidade. Vale avaliar cada oportunidade individualmente.', bncc:'BNCC 10' },
+      { l:'Ignora a abordagem institucional', d:'Você não responde ao convite da vereadora.', fx:{planeta:0,receita:0,comunid:-15,inov:0}, q:'bad',
+        fb:'Oportunidade perdida! Ignorar o poder público quando ele toma iniciativa de parceria fecha portas importantes para o futuro do negócio e seu impacto na cidade.', bncc:'BNCC 10' }
+    ]
+  },
+  { chapter:2, scene:'Juntos Somos Mais', sceneClass:'scene-comunidade',
+    char:{ emoji:'🧑‍🤝‍🧑', name:'Rede de EcoNegócios', role:'Coletivo Empresarial' },
+    speech:'"Outros empreendedores como você querem se unir. Juntos poderíamos ter muito mais impacto. Você topa fazer parte dessa rede?"',
+    context:'Outros EcoNegócios locais propõem criar uma rede colaborativa para compartilhar recursos, clientes e soluções. Mas colaborar tem custos de tempo e compartilhamento.',
+    question:'Você vai colaborar com outros EcoNegócios concorrentes?',
+    options:[
+      { l:'Sim — a colaboração supera a competição aqui', d:'Você entende que compartilhar aumenta o impacto coletivo.', fx:{planeta:10,receita:5,comunid:20,inov:10}, q:'good',
+        fb:'Coopetição inteligente! Empresas que colaboram em sustentabilidade criam padrões de mercado que beneficiam todos. O "inimigo" comum é o impacto ambiental, não o concorrente.', bncc:'BNCC 9' },
+      { l:'Sim, mas com acordos claros sobre o que é compartilhado', d:'Você colabora mas protege os diferenciais competitivos do seu negócio.', fx:{planeta:10,receita:10,comunid:15,inov:5}, q:'good',
+        fb:'Colaboração equilibrada! Acordos claros sobre o que se compartilha permitem colaborar sem perder vantagem competitiva. Prática madura e estratégica.', bncc:'BNCC 9' },
+      { l:'Não — prefiro crescer independente', d:'Você vê os outros EcoNegócios como concorrentes, não parceiros.', fx:{planeta:0,receita:10,comunid:-10,inov:0}, q:'bad',
+        fb:'Individualismo limitante! EcoNegócios isolados raramente escalam o impacto necessário para mudança sistêmica. A soma das partes é maior que cada um sozinho.', bncc:'BNCC 9' },
+      { l:'Proponho liderar a rede e coordenar todos', d:'Você assume a liderança do coletivo desde o início.', fx:{planeta:10,receita:5,comunid:15,inov:15}, q:'ok',
+        fb:'Liderança com responsabilidade! Liderar uma rede de impacto é poderoso, mas exige tempo e energia. Certifique-se de que o negócio próprio não vai sofrer com isso.', bncc:'BNCC 9' }
+    ]
+  },
+
+  // ── CAPÍTULO 4: LEGADO ──
+  { chapter:3, scene:'O que Você Deixa', sceneClass:'scene-legado',
+    char:{ emoji:'🌳', name:'Ambiental Futura', role:'ONG de Conservação' },
+    speech:'"Seu negócio está crescendo! Chegou a hora de pensar no impacto de longo prazo. Que parte do seu lucro vai para a natureza?"',
+    context:'Sua empresa está gerando lucro consistente. Uma ONG de conservação te desafia a ir além do "não prejudicar" para o "restaurar ativamente".',
+    question:'Como seu EcoNegócio vai contribuir ativamente para restaurar o meio ambiente?',
+    options:[
+      { l:'1% da receita para plantio de árvores nativas', d:'Você destina parte da receita para reflorestamento local.', fx:{planeta:25,receita:-5,comunid:10,inov:5}, q:'good',
+        fb:'Compromisso com o planeta! Cada real destinado ao reflorestamento gera retorno de longo prazo em biodiversidade, clima e até no próprio negócio. Tangível e comunicável.', bncc:'BNCC 7' },
+      { l:'Programa de compensação de carbono próprio', d:'Você cria seu próprio programa para ser carbono neutro ou positivo.', fx:{planeta:25,receita:-5,comunid:5,inov:20}, q:'good',
+        fb:'Carbono neutro é o futuro exigido! Empresas que chegarem lá primeiro terão vantagem competitiva quando legislações de carbono chegarem ao Brasil.', bncc:'BNCC 7' },
+      { l:'Parceria com reserva ambiental local', d:'Você apoia financeiramente a manutenção de uma área de preservação.', fx:{planeta:20,receita:-5,comunid:15,inov:5}, q:'good',
+        fb:'Preservar o que existe! Às vezes manter florestas em pé é mais eficaz que plantar novas. Parcerias com reservas têm impacto imediato e visível.', bncc:'BNCC 7' },
+      { l:'Foco total em crescer — impacto depois', d:'Você decide que primeiro vai ficar grande, depois vai se preocupar com o meio ambiente.', fx:{planeta:-10,receita:20,comunid:-5,inov:0}, q:'bad',
+        fb:'A armadilha do "depois"! "Depois" raramente chega. Empresas que integram sustentabilidade desde o início têm vantagem competitiva enorme versus as que tentam ajustar depois.', bncc:'BNCC 7' }
+    ]
+  },
+  { chapter:3, scene:'O que Você Deixa', sceneClass:'scene-legado',
+    char:{ emoji:'👧', name:'Sofia', role:'Próxima Geração' },
+    speech:'"Quando eu crescer, quero ter um negócio como o seu. Você vai me ensinar como construir algo que cuide do planeta?"',
+    context:'Sofia é uma estudante de 12 anos que foi visitar seu EcoNegócio. A pergunta dela coloca você diante de uma decisão sobre o legado que quer deixar para as novas gerações.',
+    question:'Como seu EcoNegócio vai trabalhar com as próximas gerações?',
+    options:[
+      { l:'Programa de estágio com mentorias para jovens', d:'Você cria oportunidades de aprendizado para estudantes.', fx:{planeta:0,receita:-5,comunid:20,inov:10}, q:'good',
+        fb:'Legado humano! Jovens que passam pelo seu negócio levam o modelo para onde forem. Multiplicação exponencial de impacto.', bncc:'BNCC 10' },
+      { l:'Currículo aberto: você publica todos os seus processos', d:'Você abre o manual do seu EcoNegócio para que outros repliquem.', fx:{planeta:10,receita:-5,comunid:20,inov:15}, q:'good',
+        fb:'Open source para o bem! Compartilhar processos parece perder vantagem competitiva, mas na prática constrói autoridade, rede e legado maiores que qualquer segredo.', bncc:'BNCC 4' },
+      { l:'Vende o negócio quando estiver grande o suficiente', d:'Você planeja valorizar e vender para uma empresa maior que escale o modelo.', fx:{planeta:5,receita:20,comunid:0,inov:0}, q:'ok',
+        fb:'Saída com impacto! Vender para empresa comprometida pode escalar o modelo. Mas garanta que o comprador vai manter os valores — não só o lucro.', bncc:'BNCC 8' },
+      { l:'Transforma o negócio em cooperativa dos funcionários', d:'Você passa a propriedade para quem trabalha junto com você.', fx:{planeta:5,receita:-10,comunid:25,inov:10}, q:'good',
+        fb:'Legado de propriedade! Cooperativas têm os funcionários como donos, alinhando interesses de longo prazo com o negócio. Modelo mais resistente a crises e mais justo.', bncc:'BNCC 9' }
+    ]
+  },
+  { chapter:3, scene:'O que Você Deixa', sceneClass:'scene-legado',
+    char:{ emoji:'🌍', name:'Planeta Terra', role:'O Que Mais Importa' },
+    speech:'"Você chegou até aqui. Seu EcoNegócio sobreviveu, cresceu e criou impacto real. Agora: qual é o seu compromisso com o futuro?"',
+    context:'Decisão final. Seu EcoNegócio está consolidado. Esta é a escolha que define qual tipo de empresa você vai ser daqui para frente — e qual legado vai deixar.',
+    question:'Qual compromisso público você assume para o futuro do seu EcoNegócio?',
+    options:[
+      { l:'Metas climáticas: carbono zero até 2030', d:'Você assume publicamente a meta de zerar as emissões do negócio.', fx:{planeta:25,receita:-5,comunid:10,inov:15}, q:'good',
+        fb:'Metas públicas geram accountability! Ao anunciar publicamente, você cria pressão para cumprir. Empresas com metas climáticas atraem investidores, talentos e clientes comprometidos.', bncc:'BNCC 7' },
+      { l:'Ser a empresa mais regenerativa da região', d:'Você se compromete não só a não poluir, mas a restaurar o ambiente.', fx:{planeta:25,receita:0,comunid:15,inov:20}, q:'good',
+        fb:'Do "menos dano" para o "mais bem"! Empresas regenerativas vão além da sustentabilidade: elas melhoram o ecossistema. O padrão mais elevado e o mais necessário.', bncc:'BNCC 7' },
+      { l:'Relatório de impacto anual publicado abertamente', d:'Você publica anualmente todos os dados de impacto ambiental e social.', fx:{planeta:10,receita:5,comunid:20,inov:10}, q:'good',
+        fb:'Transparência como valor! Publicar resultados — incluindo os ruins — constrói credibilidade que dinheiro não compra. Clientes, parceiros e investidores valorizam a honestidade.', bncc:'BNCC 10' },
+      { l:'Nenhum compromisso formal — prefere flexibilidade', d:'Você quer liberdade para mudar de direção sem se comprometer publicamente.', fx:{planeta:-5,receita:5,comunid:-10,inov:0}, q:'bad',
+        fb:'Sustentabilidade exige compromisso! Sem comprometimento público, é impossível ser cobrado e difícil manter a consistência. Flexibilidade aqui é outra palavra para falta de convicção.', bncc:'BNCC 10' }
+    ]
+  }
+];
+
+const STATS_INIT = { planeta:40, receita:50, comunid:45, inov:35 };
+let stats = {}, step = 0, chShown = -1, answered = false;
+
+function clamp(v) { return Math.max(0, Math.min(100, v)); }
+
+function updateStatBars(animate) {
+  ['planeta','receita','comunid','inov'].forEach(k => {
+    const v = stats[k];
+    document.getElementById('val-'+k).textContent = v;
+    const fill = document.getElementById('fill-'+k);
+    fill.style.width = v + '%';
+    if (animate) { fill.style.animation='none'; void fill.offsetWidth; fill.style.animation='statPop 0.5s ease both'; }
+  });
+}
+
+function updateProgress() {
+  const pct = (step / STEPS.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  const s = STEPS[Math.min(step, STEPS.length-1)];
+  const d = step + 1 <= STEPS.length ? step + 1 : STEPS.length;
+  document.getElementById('nav-badge').textContent = `Fase ${s ? s.chapter+1 : 4} · Decisão ${d}/12`;
+}
+
+function show(id) {
+  ['screen-intro','screen-chapter','screen-question','screen-result'].forEach(s => { document.getElementById(s).style.display='none'; });
+  const el = document.getElementById(id);
+  el.style.display = (id==='screen-intro'||id==='screen-result') ? 'flex' : 'block';
+  void el.offsetWidth; el.classList.remove('screen'); void el.offsetWidth; el.classList.add('screen');
+}
+
+function startGame() { stats={...STATS_INIT}; step=0; chShown=-1; updateStatBars(false); updateProgress(); nextScreen(); }
+
+function nextScreen() {
+  if (step >= STEPS.length) { showResult(); return; }
+  const s = STEPS[step];
+  if (s.chapter > chShown) { chShown = s.chapter; showChapter(s.chapter); } else { showQuestion(s); }
+}
+
+function showChapter(idx) {
+  const c = CHAPTERS[idx];
+  document.getElementById('ch-number').textContent = c.num;
+  document.getElementById('ch-emoji').textContent  = c.emoji;
+  document.getElementById('ch-tag').textContent    = c.tag;
+  document.getElementById('ch-title').textContent  = c.title;
+  document.getElementById('ch-time').textContent   = c.time;
+  document.getElementById('ch-desc').textContent   = c.desc;
+  const el = document.getElementById('screen-chapter');
+  el.className = 'screen card ' + c.tagCss;
+  show('screen-chapter');
+}
+
+function showQuestion(s) {
+  answered = false;
+  document.getElementById('q-char-emoji').textContent = s.char.emoji;
+  document.getElementById('q-char-name').textContent  = s.char.name;
+  document.getElementById('q-char-role').textContent  = s.char.role;
+  document.getElementById('q-speech').textContent     = s.speech;
+  document.getElementById('q-context').textContent    = s.context;
+  document.getElementById('q-question').textContent   = s.question;
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  s.options.forEach((opt, i) => {
+    const fxHtml = Object.entries(opt.fx).filter(([,v]) => v!==0).map(([k,v]) => {
+      const icons = {planeta:'🌍',receita:'💰',comunid:'🤝',inov:'💡'};
+      const cls = v > 0 ? 'fx-pos' : 'fx-neg';
+      return `<span class="fx-chip ${cls}">${icons[k]} ${v>0?'+':''}${v}</span>`;
+    }).join('');
+    const card = document.createElement('div');
+    card.className = 'opt-card'; card.dataset.idx = i;
+    card.innerHTML = `<div class="opt-top"><span class="opt-letter">${letters[i]}</span><span class="opt-label">${opt.l}</span></div><div class="opt-desc">${opt.d}</div><div class="opt-fx">${fxHtml}</div>`;
+    card.addEventListener('click', () => pick(i));
+    grid.appendChild(card);
+  });
+
+  document.getElementById('feedback-box').style.display = 'none';
+  document.getElementById('btn-next').style.display = 'none';
+  const el = document.getElementById('screen-question');
+  el.className = 'screen card ' + s.sceneClass;
+  show('screen-question');
+}
+
+function pick(idx) {
+  if (answered) return;
+  answered = true;
+  const s = STEPS[step];
+  const opt = s.options[idx];
+  Object.entries(opt.fx).forEach(([k,v]) => { stats[k] = clamp(stats[k] + v); });
+  updateStatBars(true);
+
+  const cards = document.querySelectorAll('.opt-card');
+  cards.forEach((c, i) => {
+    if (i === idx) { const qMap={good:'picked-good',ok:'picked-ok',bad:'picked-bad'}; c.classList.add(qMap[opt.q]||'picked-ok'); }
+    else c.classList.add('disabled');
+  });
+
+  const qLabels = {good:'🌟 Excelente escolha!',ok:'👍 Boa tentativa!',bad:'💡 Momento de aprendizado'};
+  const statNames = {planeta:'Planeta',receita:'Receita',comunid:'Comunidade',inov:'Inovação'};
+  const statIcons = {planeta:'🌍',receita:'💰',comunid:'🤝',inov:'💡'};
+
+  document.getElementById('fb-quality').textContent = qLabels[opt.q]||'👍';
+  document.getElementById('fb-text').textContent    = opt.fb;
+  document.getElementById('fb-stats').innerHTML = Object.entries(opt.fx).filter(([,v]) => v!==0).map(([k,v]) => {
+    const cls = v > 0 ? 'fb-stat-pos' : 'fb-stat-neg';
+    return `<span class="fb-stat ${cls}">${statIcons[k]} ${statNames[k]} ${v>0?'+':''}${v}</span>`;
+  }).join('');
+  document.getElementById('fb-bncc').innerHTML = `<span class="bncc-badge">📚 ${opt.bncc}</span>`;
+  document.getElementById('feedback-box').style.display = 'block';
+
+  const btn = document.getElementById('btn-next');
+  btn.textContent = (step + 1 >= STEPS.length) ? 'Ver Resultado →' : 'Próxima Decisão →';
+  btn.style.display = 'block';
+  step++;
+  updateProgress();
+}
+
+function showResult() {
+  const total = stats.planeta + stats.receita + stats.comunid + stats.inov;
+  const pct   = Math.round((total / 400) * 100);
+  let emoji, title, sub, msg;
+
+  if (pct >= 75) {
+    emoji='🌍'; title='Guardião do Planeta'; sub='Você provou que negócio e natureza podem prosperar juntos!';
+    msg='Jornada extraordinária! Você construiu um EcoNegócio que equilibra planeta, receita, comunidade e inovação. Este é o modelo que o mundo precisa urgentemente.';
+  } else if (pct >= 60) {
+    emoji='🌿'; title='Empreendedor Verde'; sub='Boas escolhas! Seu negócio faz diferença real.';
+    msg='Você tomou muitas decisões corajosas em favor do planeta. Alguns desafios foram mais difíceis, mas sua trajetória mostra comprometimento genuíno com a sustentabilidade.';
+  } else if (pct >= 45) {
+    emoji='♻️'; title='Empreendedor em Transição'; sub='No caminho certo — algumas escolhas ainda precisam evoluir.';
+    msg='Você tem intenção sustentável, mas algumas decisões priorizaram resultado imediato. O EcoNegócio exige paciência: impacto real leva tempo para se construir.';
+  } else {
+    emoji='🌱'; title='Aprendiz Ambiental'; sub='Toda mudança começa com consciência — e você ganhou muita hoje!';
+    msg='Sustentabilidade é complexa e cheia de dilemas difíceis. Você enfrentou decisões que empresas reais lutam todo dia. Com esse aprendizado, você está mais preparado para fazer diferença!';
+  }
+
+  document.getElementById('res-emoji').textContent = emoji;
+  document.getElementById('res-title').textContent = title;
+  document.getElementById('res-sub').textContent   = sub;
+  document.getElementById('res-pct').textContent   = pct + '%';
+  document.getElementById('res-msg').textContent   = msg;
+
+  const rStats = document.getElementById('res-stats');
+  const fills  = {planeta:'f-plan',receita:'f-rece',comunid:'f-comu',inov:'f-inov'};
+  const labels = {planeta:'🌍 Planeta',receita:'💰 Receita',comunid:'🤝 Comunidade',inov:'💡 Inovação'};
+  rStats.innerHTML = Object.keys(stats).map(k => `
+    <div class="rs-item">
+      <div class="rs-label"><span>${labels[k]}</span><span>${stats[k]}/100</span></div>
+      <div class="rs-bar"><div class="rs-fill ${fills[k]}" style="width:${stats[k]}%" id="rf-${k}"></div></div>
+    </div>
+  `).join('');
+
+  document.getElementById('res-bncc').innerHTML = `
+    <span class="bncc-badge">📚 BNCC 7 – Sustentabilidade</span>
+    <span class="bncc-badge">📚 BNCC 10 – Responsabilidade</span>
+    <span class="bncc-badge">📚 BNCC 9 – Cooperação</span>
+  `;
+
+  const el = document.getElementById('screen-result');
+  el.className = 'screen card scene-legado';
+  show('screen-result');
+
+  setTimeout(() => {
+    Object.keys(stats).forEach((k,i) => {
+      setTimeout(() => {
+        const fill = document.getElementById('rf-'+k);
+        if (fill) { fill.style.animation='none'; void fill.offsetWidth; fill.style.animation='statPop 0.6s ease both'; }
+      }, i * 150);
+    });
+  }, 400);
+}
+
+function restartGame() {
+  stats={...STATS_INIT}; step=0; chShown=-1;
+  updateStatBars(false); updateProgress(); show('screen-intro');
+}
+
+window.addEventListener('DOMContentLoaded', () => { updateStatBars(false); show('screen-intro'); });
+</script>
+</body>
+</html>
