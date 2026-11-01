@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guia Pedagógico — EmpreendeJovem</title>
+<script src="https://cdn.tailwindcss.com/3.4.1"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{font-family:'Inter',sans-serif}
+@media print{
+  .np{display:none!important}
+  .pb{page-break-before:always}
+  body{background:white!important}
+  .pcard{break-inside:avoid}
+}
+</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+<div class="np sticky top-0 z-10 bg-blue-700 text-white px-4 py-2.5 flex items-center justify-between text-sm shadow-md">
+  <a href="../index.html" class="flex items-center gap-1.5 hover:underline">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    Voltar à plataforma
+  </a>
+  <div class="flex items-center gap-2">
+    <a href="ficha-observacao.html" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-xs font-semibold transition-colors">📋 Ficha de Observação</a>
+    <button onclick="window.print()" class="bg-white text-blue-700 font-bold px-3 py-1 rounded text-xs hover:bg-blue-50">🖨️ Imprimir / PDF</button>
+  </div>
+</div>
+
+<div class="max-w-4xl mx-auto px-4 py-8">
+
+  <div class="bg-gradient-to-br from-blue-700 to-indigo-900 text-white rounded-2xl p-8 mb-8 shadow-xl">
+    <div class="text-5xl mb-4">📚</div>
+    <h1 class="text-3xl font-extrabold mb-1">Guia Pedagógico</h1>
+    <p class="text-xl text-blue-200 font-semibold mb-0.5">EmpreendeJovem — Jogos de Empreendedorismo BNCC</p>
+    <p class="text-blue-300 text-sm mb-5">Ensino Fundamental II · 6° ao 9° ano</p>
+    <div class="flex flex-wrap gap-2">
+      <span class="bg-white/15 border border-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">10 jogos disponíveis</span>
+      <span class="bg-white/15 border border-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">Alinhado à BNCC 2024</span>
+      <span class="bg-white/15 border border-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">Acesso gratuito</span>
+      <span class="bg-white/15 border border-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">Sem cadastro</span>
+    </div>
+  </div>
+
+  <section class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-5">
+    <h2 class="text-xl font-extrabold mb-3">Sobre a plataforma</h2>
+    <p class="text-gray-600 leading-relaxed mb-3">O <strong>EmpreendeJovem</strong> é uma plataforma gratuita de jogos educativos para desenvolver competências empreendedoras alinhadas à BNCC. Os jogos simulam situações reais — desde pescaria no Cânion do Xingó até montar uma empresa — incentivando pensamento crítico, tomada de decisão e cooperação.</p>
+    <p class="text-gray-600 leading-relaxed">Jogue diretamente no navegador, sem instalação ou cadastro, em tablets, computadores ou celulares. Recomendamos aplicar em laboratório, em duplas ou individualmente.</p>
+  </section>
+
+  <section id="bncc" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-5">
+    <h2 class="text-xl font-extrabold mb-4">🎯 Mapa de competências BNCC</h2>
+    <div class="overflow-x-auto rounded-xl border border-gray-200">
+      <table class="w-full text-sm">
+        <thead><tr class="bg-blue-600 text-white text-left">
+          <th class="p-3">Jogo</th><th class="p-3 text-center">BNCC</th><th class="p-3 text-center">Categoria</th><th class="p-3 text-center">Ano</th>
+        </tr></thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr class="hover:bg-gray-50"><td class="p-3 font-medium">🚀 Missão Empresarial</td><td class="p-3 text-center"><span class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-xs font-bold">2, 9</span></td><td class="p-3 text-center text-gray-500 text-xs">Negócios</td><td class="p-3 text-center text-gray-500 text-xs">6°–9°</td></tr>
+          <tr class="bg-gray-50/50"><td class="p-3 font-medium">💰 Banco do Futuro</td><td class="p-3 text-center"><span class="bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded text-xs font-bold">1, 5</span></td><td class="p-3 text-center text-gray-500 text-xs">Finanças</td><td class="p-3 text-center text-gray-500 text-xs">7°–9°</td></tr>
+          <tr class="hover:bg-gray-50"><td class="p-3 font-medium">💡 IdeaLab</td><td class="p-3 text-center"><span class="bg-green-100 text-green-700 px-1.5 py-0.5 rounded text-xs font-bold">2, 4</span></td><td class="p-3 text-center text-gray-500 text-xs">Inovação</td><td class="p-3 text-center text-gray-500 text-xs">6°–8°</td></tr>
+          <tr class="bg-gray-50/50"><td class="p-3 font-medium">👑 CEO por um Dia</td><td class="p-3 text-center"><span class="bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded text-xs font-bold">8, 9</span></td><td class="p-3 text-center text-gray-500 text-xs">Liderança</td><td class="p-3 text-center text-gray-500 text-xs">8°–9°</td></tr>
+          <tr class="hover:bg-gray-50"><td class="p-3 font-medium">🛒 Mercado Virtual</td><td class="p-3 text-center"><span class="bg-cyan-100 text-cyan-700 px-1.5 py-0.5 rounded text-xs font-bold">1, 7</span></td><td class="p-3 text-center text-gray-500 text-xs">Negócios</td><td class="p-3 text-center text-gray-500 text-xs">6°–9°</td></tr>
+          <tr class="bg-gray-50/50"><td class="p-3 font-medium">🌍 EcoNegócio</td><td class="p-3 text-center"><span class="bg-pink-100 text-pink-700 px-1.5 py-0.5 rounded text-xs font-bold">7, 10</span></td><td class="p-3 text-center text-gray-500 text-xs">Inovação</td><td class="p-3 text-center text-gray-500 text-xs">6°–9°</td></tr>
+          <tr class="hover:bg-gray-50"><td class="p-3 font-medium">🎣 Pesca no São Francisco <span class="text-teal-600 text-xs">🌵SE</span></td><td class="p-3 text-center"><span class="bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded text-xs font-bold">1, 5, 7</span></td><td class="p-3 text-center text-gray-500 text-xs">Negócios</td><td class="p-3 text-center text-gray-500 text-xs">6°–7°</td></tr>
+          <tr class="bg-gray-50/50"><td class="p-3 font-medium">🎉 Barraca do São João <span class="text-violet-600 text-xs">🌵SE</span></td><td class="p-3 text-center"><span class="bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded text-xs font-bold">2, 5, 8</span></td><td class="p-3 text-center text-gray-500 text-xs">Negócios</td><td class="p-3 text-center text-gray-500 text-xs">6°–8°</td></tr>
+          <tr class="hover:bg-gray-50"><td class="p-3 font-medium">🦏 Tropeiro do Sertão <span class="text-amber-600 text-xs">🌵SE</span></td><td class="p-3 text-center"><span class="bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-xs font-bold">1, 5, 7</span></td><td class="p-3 text-center text-gray-500 text-xs">Negócios</td><td class="p-3 text-center text-gray-500 text-xs">6°–7°</td></tr>
+          <tr class="bg-gray-50/50"><td class="p-3 font-medium">🎦 Ateliê de Laranjeiras <span class="text-orange-600 text-xs">🌵SE</span></td><td class="p-3 text-center"><span class="bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded text-xs font-bold">2, 4, 9</span></td><td class="p-3 text-center text-gray-500 text-xs">Inovação</td><td class="p-3 text-center text-gray-500 text-xs">6°–8°</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="text-xs text-gray-500 mt-2">🌵SE = contexto cultural sergipano</p>
+    <div class="mt-4 p-4 bg-gray-50 rounded-xl text-xs text-gray-600">
+      <p class="font-bold text-gray-700 mb-2">Competências gerais da BNCC abordadas:</p>
+      <div class="grid grid-cols-2 gap-1">
+        <p><strong>1</strong> — Conhecimento</p>
+        <p><strong>2</strong> — Pensamento científico, crítico e criativo</p>
+        <p><strong>4</strong> — Comunicação e argumentação</p>
+        <p><strong>5</strong> — Cultura digital e tecnologia</p>
+        <p><strong>7</strong> — Sustentabilidade e responsabilidade</p>
+        <p><strong>8</strong> — Autoconhecimento e autocuidado</p>
+        <p><strong>9</strong> — Empatia e cooperação</p>
+        <p><strong>10</strong> — Responsabilidade e cidadania</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
+    <h2 class="text-xl font-extrabold mb-4">⏱️ Os 3 momentos pedagógicos</h2>
+    <div class="grid md:grid-cols-3 gap-4">
+      <div class="bg-blue-50 border-l-4 border-blue-500 rounded-r-xl p-4 pcard">
+        <h3 class="font-bold text-blue-800 mb-2 text-sm">ANTES DO JOGO · 10–15 min</h3>
+        <ul class="text-sm text-blue-900 space-y-1.5">
+          <li>• Apresente o contexto real do jogo</li>
+          <li>• Ative conhecimentos prévios com pergunta aberta</li>
+          <li>• Explique o objetivo de aprendizagem</li>
+          <li>• Demonstre brevemente as mecânicas na projeção</li>
+        </ul>
+      </div>
+      <div class="bg-green-50 border-l-4 border-green-500 rounded-r-xl p-4 pcard">
+        <h3 class="font-bold text-green-800 mb-2 text-sm">DURANTE O JOGO · 20–30 min</h3>
+        <ul class="text-sm text-green-900 space-y-1.5">
+          <li>• Permita jogo individual ou em duplas/trios</li>
+          <li>• Circule e observe as estratégias adotadas</li>
+          <li>• Anote observações na ficha de avaliação</li>
+          <li>• Incentive sem dar respostas diretas</li>
+        </ul>
+      </div>
+      <div class="bg-orange-50 border-l-4 border-orange-500 rounded-r-xl p-4 pcard">
+        <h3 class="font-bold text-orange-800 mb-2 text-sm">DEPOIS DO JOGO · 15–20 min</h3>
+        <ul class="text-sm text-orange-900 space-y-1.5">
+          <li>• Conduza o debate com as perguntas sugeridas</li>
+          <li>• Relacione à vida real e ao entorno dos alunos</li>
+          <li>• Peça registro escrito (caderno, portfólio)</li>
+          <li>• Proponha atividade complementar como tarefa</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <h2 class="text-2xl font-extrabold mb-5" id="jogos">🎮 Guia por jogo</h2>
+
+  <!-- Jogo 1 -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden pcard">
+    <div class="bg-gradient-to-r from-blue-600 to-blue-800 px-5 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🚀</span>
+        <div><h3 class="text-lg font-extrabold text-white">Missão Empresarial</h3><p class="text-white/70 text-xs">Negócios · 6° ao 9° ano</p></div>
+      </div>
+      <div class="flex gap-1"><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 2</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 9</span></div>
+    </div>
+    <div class="p-5 grid md:grid-cols-3 gap-4 text-sm">
+      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">📌 Objetivos</h4><ul class="text-gray-600 space-y-1"><li>• Simular criação de empresa e decisões iniciais</li><li>• Desenvolver pensamento estratégico</li><li>• Compreender planejamento antes de empreender</li></ul></div>
+      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">🏫 Em sala</h4><ul class="text-gray-600 space-y-1"><li>• <em>Antes:</em> “Que negócio você abriria e por quê?”</li><li>• <em>Durante:</em> Observe as escolhas de ramo/produto</li><li>• <em>Depois:</em> Relacionar com empresas locais conhecidas</li></ul></div>
+      <div><h4 class="font-bold text-orange-600 text-xs uppercase tracking-wide mb-2">💬 Debate</h4><ol class="text-gray-600 space-y-1 list-decimal ml-4"><li>Que desafios encontrou ao montar a empresa?</li><li>O que levou em conta ao escolher o ramo?</li><li>Como uma empresa beneficia a comunidade?</li></ol></div>
+    </div>
+  </div>
+
+  <!-- Jogo 2 -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden pcard">
+    <div class="bg-gradient-to-r from-purple-600 to-purple-800 px-5 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">💰</span>
+        <div><h3 class="text-lg font-extrabold text-white">Banco do Futuro</h3><p class="text-white/70 text-xs">Finanças · 7° ao 9° ano</p></div>
+      </div>
+      <div class="flex gap-1"><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 1</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 5</span></div>
+    </div>
+    <div class="p-5 grid md:grid-cols-3 gap-4 text-sm">
+      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">📌 Objetivos</h4><ul class="text-gray-600 space-y-1"><li>• Compreender juros, investimento e poupança</li><li>• Simular decisões financeiras básicas</li><li>• Desenvolver educação financeira na prática</li></ul></div>
+      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">🏫 Em sala</h4><ul class="text-gray-600 space-y-1"><li>• <em>Antes:</em> Fale sobre planejamento financeiro familiar</li><li>• <em>Durante:</em> Observe: impulsivo ou calculado?</li><li>• <em>Depois:</em> Discutir metas financeiras pessoais</li></ul></div>
+      <div><h4 class="font-bold text-orange-600 text-xs uppercase tracking-wide mb-2">💬 Debate</h4><ol class="text-gray-600 space-y-1 list-decimal ml-4"><li>Qual a diferença entre poupar e investir?</li><li>Por que os juros podem ser prejudiciais?</li><li>Como você planeja suas compras no dia a dia?</li></ol></div>
+    </div>
+  </div>
+
+  <!-- Jogo 3 -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden pcard">
+    <div class="bg-gradient-to-r from-green-600 to-green-800 px-5 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">💡</span>
+        <div><h3 class="text-lg font-extrabold text-white">IdeaLab</h3><p class="text-white/70 text-xs">Inovação · 6° ao 8° ano</p></div>
+      </div>
+      <div class="flex gap-1"><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 2</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 4</span></div>
+    </div>
+    <div class="p-5 grid md:grid-cols-3 gap-4 text-sm">
+      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">📌 Objetivos</h4><ul class="text-gray-600 space-y-1"><li>• Aplicar Design Thinking a problemas reais</li><li>• Desenvolver criatividade e comunicação</li><li>• Praticar trabalho colaborativo</li></ul></div>
+      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">🏫 Em sala</h4><ul class="text-gray-600 space-y-1"><li>• <em>Antes:</em> “Que problema você resolveria na escola?”</li><li>• <em>Durante:</em> Observe a colaboração entre colegas</li><li>• <em>Depois:</em> Apresentações breves das soluções</li></ul></div>
+      <div><h4 class="font-bold text-orange-600 text-xs uppercase tracking-wide mb-2">💬 Debate</h4><ol class="text-gray-600 space-y-1 list-decimal ml-4"><li>Que problema identificou no jogo?</li><li>Como chegou à solução escolhida?</li><li>Qual ideia você aplicaria na sua escola?</li></ol></div>
+    </div>
+  </div>
+
+  <!-- Jogo 4 -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden pcard">
+    <div class="bg-gradient-to-r from-orange-500 to-orange-700 px-5 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">👑</span>
+        <div><h3 class="text-lg font-extrabold text-white">CEO por um Dia</h3><p class="text-white/70 text-xs">Liderança · 8° ao 9° ano</p></div>
+      </div>
+      <div class="flex gap-1"><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 8</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 9</span></div>
+    </div>
+    <div class="p-5 grid md:grid-cols-3 gap-4 text-sm">
+      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">📌 Objetivos</h4><ul class="text-gray-600 space-y-1"><li>• Simular tomada de decisão como líder</li><li>• Compreender consequências das escolhas</li><li>• Desenvolver empatia e resiliência</li></ul></div>
+      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">🏫 Em sala</h4><ul class="text-gray-600 space-y-1"><li>• <em>Antes:</em> Qualidades de um bom líder</li><li>• <em>Durante:</em> Observe resiliência após erros</li><li>• <em>Depois:</em> Discutir dilemas éticos empresariais</li></ul></div>
+      <div><h4 class="font-bold text-orange-600 text-xs uppercase tracking-wide mb-2">💬 Debate</h4><ol class="text-gray-600 space-y-1 list-decimal ml-4"><li>Qual foi a decisão mais difícil?</li><li>Como a liderança afeta uma equipe?</li><li>Como você reagiu quando algo deu errado?</li></ol></div>
+    </div>
+  </div>
+
+  <!-- Jogo 5 -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden pcard">
+    <div class="bg-gradient-to-r from-cyan-600 to-cyan-800 px-5 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🛒</span>
+        <div><h3 class="text-lg font-extrabold text-white">Mercado Virtual</h3><p class="text-white/70 text-xs">Negócios · 6° ao 9° ano</p></div>
+      </div>
+      <div class="flex gap-1"><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 1</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 7</span></div>
+    </div>
+    <div class="p-5 grid md:grid-cols-3 gap-4 text-sm">
+      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">📌 Objetivos</h4><ul class="text-gray-600 space-y-1"><li>• Simular oferta, demanda e formação de preço</li><li>• Compreender dinâmica de compra e venda</li><li>• Refletir sobre consumo consciente</li></ul></div>
+      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">🏫 Em sala</h4><ul class="text-gray-600 space-y-1"><li>• <em>Antes:</em> Preços na feira ou mercado local</li><li>• <em>Durante:</em> Estratégias de precificação adotadas</li><li>• <em>Depois:</em> Análise de mercado real da cidade</li></ul></div>
+      <div><h4 class="font-bold text-orange-600 text-xs uppercase tracking-wide mb-2">💬 Debate</h4><ol class="text-gray-600 space-y-1 list-decimal ml-4"><li>O que faz o preço de algo aumentar ou cair?</li><li>Quando vale comprar mais barato?</li><li>Como o consumo afeta o meio ambiente?</li></ol></div>
+    </div>
+  </div>
+
+  <!-- Jogo 6 -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden pcard">
+    <div class="bg-gradient-to-r from-emerald-600 to-green-900 px-5 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🌍</span>
+        <div><h3 class="text-lg font-extrabold text-white">EcoNegócio</h3><p class="text-white/70 text-xs">Inovação · 6° ao 9° ano</p></div>
+      </div>
+      <div class="flex gap-1"><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 7</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 10</span></div>
+    </div>
+    <div class="p-5 grid md:grid-cols-3 gap-4 text-sm">
+      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">📌 Objetivos</h4><ul class="text-gray-600 space-y-1"><li>• Criar negócio sustentável com lucro</li><li>• Relacionar negócios e meio ambiente</li><li>• Desenvolver responsabilidade social</li></ul></div>
+      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">🏫 Em sala</h4><ul class="text-gray-600 space-y-1"><li>• <em>Antes:</em> Empresas sustentáveis da região</li><li>• <em>Durante:</em> Escolhas de matéria-prima e impacto</li><li>• <em>Depois:</em> Projetos ambientais locais</li></ul></div>
+      <div><h4 class="font-bold text-orange-600 text-xs uppercase tracking-wide mb-2">💬 Debate</h4><ol class="text-gray-600 space-y-1 list-decimal ml-4"><li>É possível lucrar e cuidar do ambiente?</li><li>Que impacto seu negócio teve na natureza?</li><li>Que empresa sustentável você criaria em Sergipe?</li></ol></div>
+    </div>
+  </div>
+
+  <!-- Sergipe games label -->
+  <p class="text-xs font-bold text-teal-700 uppercase tracking-widest mb-3 mt-6">🌵 Jogos com contexto cultural sergipano</p>
+
+  <!-- Jogo 7 -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden pcard">
+    <div class="bg-gradient-to-r from-teal-600 to-teal-800 px-5 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🎣</span>
+        <div><h3 class="text-lg font-extrabold text-white">Pesca no São Francisco</h3><p class="text-white/70 text-xs">Negócios · 6° ao 7° ano · Cânion do Xingó, SE</p></div>
+      </div>
+      <div class="flex gap-1"><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 1</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 5</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 7</span></div>
+    </div>
+    <div class="p-5 grid md:grid-cols-3 gap-4 text-sm">
+      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">📌 Objetivos</h4><ul class="text-gray-600 space-y-1"><li>• Compreender valor comercial de recursos naturais</li><li>• Relacionar pesca artesanal e renda familiar</li><li>• Valorizar a cultura do São Francisco</li></ul></div>
+      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">🏫 Em sala</h4><ul class="text-gray-600 space-y-1"><li>• <em>Antes:</em> Cânion do Xingó e pesca artesanal</li><li>• <em>Durante:</em> Estratégia de quais peixes priorizar</li><li>• <em>Depois:</em> Pesca x preservação ambiental</li></ul></div>
+      <div><h4 class="font-bold text-orange-600 text-xs uppercase tracking-wide mb-2">💬 Debate</h4><ol class="text-gray-600 space-y-1 list-decimal ml-4"><li>Por que o Dourado vale mais que a Tilápia?</li><li>O que aconteceria se os peixes acabassem?</li><li>Como pescar de forma sustentável?</li></ol></div>
+    </div>
+  </div>
+
+  <!-- Jogo 8 -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden pcard">
+    <div class="bg-gradient-to-r from-violet-600 to-violet-800 px-5 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🎉</span>
+        <div><h3 class="text-lg font-extrabold text-white">Barraca do São João</h3><p class="text-white/70 text-xs">Negócios · 6° ao 8° ano · Laranjeiras, SE</p></div>
+      </div>
+      <div class="flex gap-1"><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 2</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 5</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 8</span></div>
+    </div>
+    <div class="p-5 grid md:grid-cols-3 gap-4 text-sm">
+      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">📌 Objetivos</h4><ul class="text-gray-600 space-y-1"><li>• Simular atendimento ao cliente em evento cultural</li><li>• Desenvolver agilidade e tomada de decisão</li><li>• Valorizar tradição do São João sergipano</li></ul></div>
+      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">🏫 Em sala</h4><ul class="text-gray-600 space-y-1"><li>• <em>Antes:</em> São João em Laranjeiras (patrimônio)</li><li>• <em>Durante:</em> Como lidar com erros e corrigi-los</li><li>• <em>Depois:</em> Custo dos ingredientes vs. preço cobrado</li></ul></div>
+      <div><h4 class="font-bold text-orange-600 text-xs uppercase tracking-wide mb-2">💬 Debate</h4><ol class="text-gray-600 space-y-1 list-decimal ml-4"><li>O que foi mais difícil de gerenciar?</li><li>Como se organizar com muitos pedidos?</li><li>Como eventos culturais geram renda?</li></ol></div>
+    </div>
+  </div>
+
+  <!-- Jogo 9 -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden pcard">
+    <div class="bg-gradient-to-r from-amber-600 to-amber-800 px-5 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🦏</span>
+        <div><h3 class="text-lg font-extrabold text-white">Tropeiro do Sertão</h3><p class="text-white/70 text-xs">Negócios · 6° ao 7° ano · Caatinga Sergipana</p></div>
+      </div>
+      <div class="flex gap-1"><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 1</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 5</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 7</span></div>
+    </div>
+    <div class="p-5 grid md:grid-cols-3 gap-4 text-sm">
+      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">📌 Objetivos</h4><ul class="text-gray-600 space-y-1"><li>• Contextualizar comércio itinerante no Sertão</li><li>• Compreender custo-benefício na coleta</li><li>• Valorizar cultura e identidade sergipana</li></ul></div>
+      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">🏫 Em sala</h4><ul class="text-gray-600 space-y-1"><li>• <em>Antes:</em> Tropeiros e comércio histórico no Sertão</li><li>• <em>Durante:</em> Estratégia de coleta vs. risco de obstáculo</li><li>• <em>Depois:</em> Canindé e Itabaiana como polos de comércio</li></ul></div>
+      <div><h4 class="font-bold text-orange-600 text-xs uppercase tracking-wide mb-2">💬 Debate</h4><ol class="text-gray-600 space-y-1 list-decimal ml-4"><li>Que estratégia usou para coletar mais?</li><li>O que o jogo ensina sobre tomar riscos?</li><li>Que produtos regionais você conhece?</li></ol></div>
+    </div>
+  </div>
+
+  <!-- Jogo 10 -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden pcard">
+    <div class="bg-gradient-to-r from-orange-500 to-orange-700 px-5 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🎦</span>
+        <div><h3 class="text-lg font-extrabold text-white">Ateliê de Laranjeiras</h3><p class="text-white/70 text-xs">Inovação · 6° ao 8° ano · Laranjeiras, SE</p></div>
+      </div>
+      <div class="flex gap-1"><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 2</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 4</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 9</span></div>
+    </div>
+    <div class="p-5 grid md:grid-cols-3 gap-4 text-sm">
+      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">📌 Objetivos</h4><ul class="text-gray-600 space-y-1"><li>• Simular produção artesanal e atendimento</li><li>• Compreender receita e combinação de materiais</li><li>• Valorizar patrimônio cultural de Laranjeiras</li></ul></div>
+      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">🏫 Em sala</h4><ul class="text-gray-600 space-y-1"><li>• <em>Antes:</em> Artesanato sergipano e Laranjeiras</li><li>• <em>Durante:</em> Descoberta das receitas por experimentação</li><li>• <em>Depois:</em> Custo de produção vs. preço de venda</li></ul></div>
+      <div><h4 class="font-bold text-orange-600 text-xs uppercase tracking-wide mb-2" id="debates">💬 Debate</h4><ol class="text-gray-600 space-y-1 list-decimal ml-4"><li>Como descobriu as combinações certas?</li><li>Por que o artesanato tem valor cultural?</li><li>Como o artesão deve precificar seu produto?</li></ol></div>
+    </div>
+  </div>
+
+  <!-- Footer links -->
+  <div class="np mt-8 bg-gray-100 rounded-2xl p-5 flex flex-wrap gap-3 justify-center">
+    <a href="ficha-observacao.html" class="inline-flex items-center gap-2 bg-blue-600 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-colors">📋 Ficha de Observação</a>
+    <a href="../index.html#jogos" class="inline-flex items-center gap-2 bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-gray-800 transition-colors">🎮 Ver os Jogos</a>
+    <button onclick="window.print()" class="inline-flex items-center gap-2 bg-green-600 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-green-700 transition-colors">🖨️ Imprimir Guia</button>
+  </div>
+
+</div>
+</body>
+</html>
