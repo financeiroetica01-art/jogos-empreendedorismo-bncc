@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trilha do Empreendedor — Para Imprimir</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f8fafc;color:#1e293b}
+.screen-header{background:linear-gradient(135deg,#15803d,#166534);color:#fff;padding:2rem;text-align:center}
+.screen-header h1{font-size:2rem;font-weight:800;margin-bottom:.4rem}
+.controls{display:flex;gap:1rem;justify-content:center;padding:1.5rem;flex-wrap:wrap}
+.btn{padding:.7rem 1.8rem;border-radius:10px;border:none;font-size:1rem;font-weight:700;cursor:pointer}
+.btn-print{background:#15803d;color:#fff}
+
+/* BOARD */
+.board-page{max-width:860px;margin:0 auto;padding:1.5rem 2rem}
+.board-title{text-align:center;font-size:1.4rem;font-weight:800;color:#166534;margin-bottom:.3rem}
+.board-sub{text-align:center;font-size:.85rem;color:#374151;margin-bottom:1.2rem}
+.board{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
+.sq{border-radius:6px;border:1.5px solid;min-height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3px 2px;font-size:9px;line-height:1.3;position:relative}
+.sq-num{font-size:9px;font-weight:800;position:absolute;top:2px;left:4px;opacity:.7}
+.sq-icon{font-size:1.3rem;margin-bottom:1px}
+.sq-text{font-size:8px;line-height:1.2;font-weight:600}
+.sq.start{background:#fef9c3;border-color:#fbbf24;color:#78350f}
+.sq.finish{background:#fef9c3;border-color:#fbbf24;color:#78350f}
+.sq.advance{background:#dcfce7;border-color:#86efac;color:#166534}
+.sq.goback{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+.sq.challenge{background:#ede9fe;border-color:#c4b5fd;color:#4c1d95}
+.sq.earn{background:#fef3c7;border-color:#fde68a;color:#92400e}
+.sq.empty{background:#f1f5f9;border-color:#cbd5e1;color:#64748b}
+
+/* CARDS */
+.cards-page{max-width:860px;margin:0 auto;padding:1rem 2rem 2rem}
+.cards-title{font-size:1.1rem;font-weight:700;margin-bottom:.8rem;color:#4c1d95;border-bottom:2px solid #c4b5fd;padding-bottom:.4rem}
+.challenge-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem}
+.ccard{background:#ede9fe;border:1.5px solid #a78bfa;border-radius:6px;padding:.5rem .4rem;min-height:70px;display:flex;flex-direction:column;justify-content:center;text-align:center}
+.ccard .cnum{font-size:9px;font-weight:800;color:#6d28d9;margin-bottom:3px}
+.ccard .ctext{font-size:9px;color:#1e293b;line-height:1.35;font-weight:500}
+.rules{background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;padding:1rem;margin:1rem 0}
+.rules h3{font-size:1rem;font-weight:700;color:#166534;margin-bottom:.5rem}
+.rules ul{list-style:disc;padding-left:1.3rem;font-size:.85rem;line-height:1.8;color:#1e293b}
+.legend{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0}
+.leg{display:flex;align-items:center;gap:.35rem;font-size:.8rem}
+.leg-dot{width:14px;height:14px;border-radius:3px;flex-shrink:0}
+
+@media print{
+  .no-print{display:none!important}
+  .controls{display:none}
+  body{background:#fff}
+  .screen-header{padding:.4cm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .screen-header h1{font-size:1.1rem}
+  .board-page{padding:.3cm;max-width:100%;page-break-after:always}
+  .board{gap:3px}
+  .sq{min-height:1.8cm;border:1px solid}
+  .cards-page{padding:.3cm;max-width:100%}
+  .sq.advance,.sq.goback,.sq.challenge,.sq.earn,.sq.start,.sq.finish,.sq.empty{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .ccard{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rules{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="screen-header no-print">
+  <h1>🎲 Trilha do Empreendedor</h1>
+  <p>Jogo de tabuleiro imprimível para sala de aula — 2 a 6 jogadores</p>
+</div>
+<div class="controls no-print">
+  <button class="btn btn-print" onclick="window.print()">🖨️ Imprimir (tabuleiro + cartas)</button>
+</div>
+
+<!-- PAGE 1: BOARD -->
+<div class="board-page">
+  <div class="board-title">🎲 Trilha do Empreendedor — Sergipe</div>
+  <div class="board-sub">Precisam: dado, 2 a 6 jogadores com peças (moedas, borrachas etc.)</div>
+  <div class="rules no-print">
+    <h3>Como jogar</h3>
+    <ul>
+      <li>Cada jogador lança o dado e avança o número de casas</li>
+      <li><b style="color:#15803d">🟢 Verde</b> — avance casas extras!</li>
+      <li><b style="color:#dc2626">🔴 Vermelho</b> — volte casas!</li>
+      <li><b style="color:#6d28d9">🟣 Roxo</b> — pegue uma carta desafio e responda</li>
+      <li><b style="color:#b45309">🟡 Amarelo</b> — ganhe moedas de papel (fichas)</li>
+      <li>Vence quem chegar primeiro à casa 36!</li>
+    </ul>
+  </div>
+  <div class="legend no-print">
+    <div class="leg"><div class="leg-dot" style="background:#dcfce7;border:1px solid #86efac"></div>Avance casas</div>
+    <div class="leg"><div class="leg-dot" style="background:#fee2e2;border:1px solid #fca5a5"></div>Volte casas</div>
+    <div class="leg"><div class="leg-dot" style="background:#ede9fe;border:1px solid #c4b5fd"></div>Carta desafio</div>
+    <div class="leg"><div class="leg-dot" style="background:#fef3c7;border:1px solid #fde68a"></div>Ganhe moedas</div>
+  </div>
+  <div class="board" id="board"></div>
+</div>
+
+<!-- PAGE 2: CHALLENGE CARDS -->
+<div class="cards-page">
+  <div class="cards-title">🃏 Cartas Desafio — Recorte e use com as casas roxas</div>
+  <div class="challenge-cards" id="challengeCards"></div>
+  <div class="rules" style="margin-top:1rem">
+    <h3>Materiais necessários para jogar</h3>
+    <ul>
+      <li>1 dado (ou aplicativo de dado no celular)</li>
+      <li>Peças para cada jogador (moedas, tampinhas, borrachas…)</li>
+      <li>Fichas de "dinheiro" — recorte quadradinhos de papel ou use palitos</li>
+      <li>As cartas desafio — embaralhadas viradas para baixo</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+const SQUARES=[
+  {t:'start', icon:'🚀', text:'INÍCIO\nSua jornada\ncomeça aqui!'},
+  {t:'advance', icon:'💡', text:'Tive uma\nótima ideia!\n+2 casas'},
+  {t:'empty', icon:'🗓️', text:'Pesquisei\no mercado'},
+  {t:'earn', icon:'💰', text:'Primeira\nvenda!\n+2 fichas'},
+  {t:'challenge', icon:'🃏', text:'Carta\nDesafio!'},
+  {t:'advance', icon:'🤝', text:'Fiz uma\nparceria!\n+2 casas'},
+  {t:'empty', icon:'📋', text:'Montei\nmeu plano'},
+  {t:'goback', icon:'😰', text:'Errei o\npreço!\n-2 casas'},
+
+  {t:'empty', icon:'🏪', text:'Abri\na loja'},
+  {t:'earn', icon:'💰', text:'Vendi\nproduto!\n+1 ficha'},
+  {t:'challenge', icon:'🃏', text:'Carta\nDesafio!'},
+  {t:'advance', icon:'⭐', text:'Cliente\nfiel!\n+2 casas'},
+  {t:'goback', icon:'🌧️', text:'Estoque\nacabou!\n-2 casas'},
+  {t:'empty', icon:'📦', text:'Repus\nestoque'},
+  {t:'earn', icon:'💰', text:'Lucro do\nmês!\n+2 fichas'},
+  {t:'challenge', icon:'🃏', text:'Carta\nDesafio!'},
+
+  {t:'advance', icon:'📱', text:'Fiz\nmarketing!\n+3 casas'},
+  {t:'goback', icon:'😤', text:'Reclamação\nde cliente\n-2 casas'},
+  {t:'empty', icon:'🔧', text:'Melhorei\no produto'},
+  {t:'earn', icon:'💰', text:'Concurso\nde negócios!\n+2 fichas'},
+  {t:'challenge', icon:'🃏', text:'Carta\nDesafio!'},
+  {t:'advance', icon:'🌵', text:'Produto\nregional!\n+2 casas'},
+  {t:'goback', icon:'💸', text:'Paguei\nimposto\natrasado\n-3 casas'},
+  {t:'empty', icon:'📊', text:'Analisei\nresultados'},
+
+  {t:'earn', icon:'💰', text:'Expandiu\no negócio!\n+3 fichas'},
+  {t:'challenge', icon:'🃏', text:'Carta\nDesafio!'},
+  {t:'empty', icon:'🤔', text:'Estratégia\nde cresci-\nmento'},
+  {t:'advance', icon:'🏆', text:'Prêmio\nempreen-\ndedor!\n+3 casas'},
+  {t:'goback', icon:'🔴', text:'Concorrente\nentrou!\n-2 casas'},
+  {t:'earn', icon:'💰', text:'Venda\ngrande!\n+2 fichas'},
+  {t:'empty', icon:'🌟', text:'Produto\nficou\nfamoso!'},
+  {t:'challenge', icon:'🃏', text:'Carta\nDesafio!'},
+
+  {t:'advance', icon:'📣', text:'Imprensa\nfez matéria!\n+2 casas'},
+  {t:'empty', icon:'🤝', text:'Firmei\nnovo\ncontrato'},
+  {t:'earn', icon:'💰', text:'Maior\nlucro do\nano!\n+3 fichas'},
+  {t:'finish', icon:'🏅', text:'CHEGOU!\nParabéns\nEmpreendedor!'},
+];
+
+const CHALLENGES=[
+  {n:1, t:'Cite 2 produtos típicos de Sergipe que podem virar um negócio.'},
+  {n:2, t:'O que é lucro? Dê um exemplo com um produto da sua cidade.'},
+  {n:3, t:'Por que conhecer os concorrentes é importante? Dê 1 exemplo.'},
+  {n:4, t:'Qual a diferença entre custo e preço de venda?'},
+  {n:5, t:'Pense num problema da sua escola. Como um negócio poderia resolver?'},
+  {n:6, t:'O que é público-alvo? Qual seria o público de uma barraca de tapioca?'},
+  {n:7, t:'Dê um exemplo de parceria entre dois negócios diferentes.'},
+  {n:8, t:'Por que é importante ter estoque? O que acontece se acabar?'},
+  {n:9, t:'Como o marketing ajudou o artesanato de Laranjeiras, SE?'},
+  {n:10,t:'Cite uma inovação que um feirante do Mercado de Aracaju poderia fazer.'},
+  {n:11,t:'O que é sustentabilidade em um negócio? Dê 1 exemplo sergipano.'},
+  {n:12,t:'Como você definiria o preço de um bolo de goma? Liste os custos.'},
+  {n:13,t:'O que é risco em um negócio? Como o pescador do São Francisco lida?'},
+  {n:14,t:'Qual a importância do planejamento antes de abrir um negócio?'},
+  {n:15,t:'Cite uma oportunidade de negócio na festa junina de Sergipe.'},
+  {n:16,t:'O que faz um bom líder empreendedor? Cite 2 características.'},
+];
+
+const board=document.getElementById('board');
+SQUARES.forEach((sq,i)=>{
+  const div=document.createElement('div');
+  div.className=`sq ${sq.t}`;
+  div.innerHTML=`<span class="sq-num">${i+1}</span><span class="sq-icon">${sq.icon}</span><span class="sq-text">${sq.text}</span>`;
+  board.appendChild(div);
+});
+
+const cc=document.getElementById('challengeCards');
+CHALLENGES.forEach(c=>{
+  cc.innerHTML+=`<div class="ccard"><div class="cnum">🃏 Desafio #${c.n}</div><div class="ctext">${c.t}</div></div>`;
+});
+</script>
+</body>
+</html>

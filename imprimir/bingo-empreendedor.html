@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bingo do Empreendedor — Para Imprimir</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f8fafc;color:#1e293b}
+.screen-header{background:linear-gradient(135deg,#1d4ed8,#1e40af);color:#fff;padding:2rem;text-align:center}
+.screen-header h1{font-size:2rem;font-weight:800;margin-bottom:.4rem}
+.screen-header p{opacity:.85;font-size:1rem}
+.controls{display:flex;gap:1rem;justify-content:center;padding:1.5rem;flex-wrap:wrap}
+.btn{padding:.7rem 1.8rem;border-radius:10px;border:none;font-size:1rem;font-weight:700;cursor:pointer;transition:transform .1s}
+.btn:active{transform:scale(.96)}
+.btn-primary{background:#1d4ed8;color:#fff}
+.btn-print{background:#15803d;color:#fff}
+.btn-secondary{background:#e2e8f0;color:#1e293b}
+.cards-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;padding:0 2rem 2rem;max-width:960px;margin:0 auto}
+.bingo-card{border:2.5px solid #1e293b;border-radius:4px;overflow:hidden;break-inside:avoid}
+.bingo-top{background:#1d4ed8;color:#fff;display:grid;grid-template-columns:repeat(5,1fr);text-align:center;font-weight:900;font-size:1.3rem;letter-spacing:3px}
+.bingo-top span{padding:.45rem 0;border-right:2px solid rgba(255,255,255,.25)}
+.bingo-top span:last-child{border-right:none}
+.bingo-grid{display:grid;grid-template-columns:repeat(5,1fr)}
+.cell{border:1px solid #94a3b8;min-height:52px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:9.5px;font-weight:600;padding:3px 2px;line-height:1.2;color:#1e293b}
+.cell.free{background:#fef9c3;font-size:11px;font-weight:800;color:#78350f}
+.card-num{text-align:right;font-size:10px;color:#64748b;padding:4px 6px 2px;background:#f8fafc}
+.call-list{max-width:960px;margin:0 auto 2rem;padding:0 2rem}
+.call-list h2{font-size:1.1rem;font-weight:700;margin-bottom:.8rem;color:#1e293b}
+.terms-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.term-pill{background:#e0e7ff;border:1px solid #a5b4fc;border-radius:4px;padding:4px 6px;font-size:11px;font-weight:600;text-align:center;color:#1e40af}
+
+@media print{
+  body{background:#fff;font-size:10px}
+  .no-print{display:none!important}
+  .controls{display:none}
+  .screen-header{padding:1cm .5cm .6cm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .screen-header h1{font-size:1.3rem}
+  .cards-wrap{grid-template-columns:1fr 1fr;gap:.6cm;padding:0 .4cm .4cm;max-width:100%}
+  .bingo-card{border:2px solid #000;page-break-inside:avoid}
+  .bingo-top{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .cell{min-height:1cm;font-size:8px;border:0.5px solid #666}
+  .call-list{padding:0 .4cm;page-break-before:always}
+  .term-pill{background:#e0e7ff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="screen-header no-print">
+  <h1>🎯 Bingo do Empreendedor</h1>
+  <p>Gere cartelas únicas para sua turma — imprima e jogue!</p>
+</div>
+<div class="controls no-print">
+  <button class="btn btn-secondary" onclick="genCards()">🔀 Novas cartelas</button>
+  <button class="btn btn-print" onclick="window.print()">🖨️ Imprimir (4 cartelas + lista)</button>
+</div>
+<div class="cards-wrap" id="cards"></div>
+<div class="call-list" id="callList"></div>
+
+<script>
+const TERMS=[
+  'Lucro','Cliente','Produto','Serviço','Mercado','Concorrente','Investimento',
+  'Custo','Receita','Despesa','Funcionário','Fornecedor','Vendas','Estoque',
+  'Inovação','Planejamento','Meta','Orçamento','Risco','Oportunidade',
+  'Parceria','Capital','Marketing','Missão','Visão','Branding','Imposto',
+  'Contrato','Empresa','Empreender','Valor','Estratégia','Líder','Projeto',
+  'Negócio','Economia','Produção','Oferta','Demanda','Lucro líquido'
+];
+const LETTERS=['B','I','N','G','O'];
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+
+function makeCard(num){
+  const terms=shuffle(TERMS).slice(0,24);
+  terms.splice(12,0,'LIVRE');
+  let html=`<div class="bingo-card"><div class="bingo-top">`;
+  LETTERS.forEach(l=>html+=`<span>${l}</span>`);
+  html+=`</div><div class="bingo-grid">`;
+  terms.forEach((t,i)=>{
+    html+=`<div class="cell${t==='LIVRE'?' free':''}">${t==='LIVRE'?'⭐<br>LIVRE':t}</div>`;
+  });
+  html+=`</div><div class="card-num">Cartela #${num}</div></div>`;
+  return html;
+}
+
+function genCards(){
+  const wrap=document.getElementById('cards');
+  wrap.innerHTML='';
+  for(let i=1;i<=4;i++)wrap.innerHTML+=makeCard(i);
+
+  const cl=document.getElementById('callList');
+  const shuf=shuffle(TERMS);
+  cl.innerHTML=`<h2>📋 Lista para o(a) Professor(a) — Sorteie as palavras:</h2><div class="terms-grid">`;
+  shuf.forEach((t,i)=>cl.innerHTML+=`<div class="term-pill">${i+1}. ${t}</div>`);
+  cl.innerHTML+=`</div>`;
+}
+genCards();
+</script>
+</body>
+</html>
