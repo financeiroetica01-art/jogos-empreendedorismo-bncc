@@ -209,18 +209,19 @@ class MenuScene extends Phaser.Scene{
 
   buildStartBtn(W,H){
     const bw=226,bh=58,bx=(W-bw)/2,by=H*.883;
-    const g=this.add.graphics().setDepth(10);
+    const g=this.add.graphics().setDepth(10).setInteractive(new Phaser.Geom.Rectangle(bx,by,bw,bh),Phaser.Geom.Rectangle.Contains);
     g.fillStyle(0x000000,.5);g.fillRoundedRect(bx+4,by+4,bw,bh,29);
     g.fillGradientStyle(0xF5A623,0xF5A623,0x92400E,0x92400E,1);g.fillRoundedRect(bx,by,bw,bh,29);
     g.lineStyle(2,0xFDE68A,.8);g.strokeRoundedRect(bx,by,bw,bh,29);
     const txt=this.add.text(W/2,by+bh/2,'Abrir Banca! 🏪',{fontFamily:'Nunito',fontSize:'20px',fontStyle:'bold',color:'#FFF',stroke:'#92400E',strokeThickness:3}).setOrigin(.5).setDepth(11);
     this.tweens.add({targets:txt,scaleX:1.04,scaleY:1.04,yoyo:true,repeat:-1,duration:720,ease:'Sine.easeInOut'});
-    const zone=this.add.zone(W/2,by+bh/2,bw,bh).setInteractive({useHandCursor:true}).setDepth(12);
-    zone.on('pointerdown',()=>{
+    const startGame=()=>{
       this.tweens.add({targets:[g,txt],scaleX:.97,scaleY:.97,duration:80,yoyo:true,onComplete:()=>{
         this.cameras.main.fade(350,0,0,0,false,(c,t)=>{if(t===1)this.scene.start('Game');});
       }});
-    });
+    };
+    g.on('pointerdown',startGame);
+    txt.setInteractive().on('pointerdown',startGame);
   }
 
   update(){
@@ -331,7 +332,8 @@ class Customer{
     // Shopping bag
     g.fillStyle(0xFBBF24,1);g.fillRoundedRect(13*sc,-30*sc,15*sc,20*sc,4*sc);
     g.lineStyle(2*sc,0x92400E,1);
-    g.beginPath();g.moveTo(16*sc,-30*sc);g.bezierCurveTo(16*sc,-38*sc,25*sc,-38*sc,25*sc,-30*sc);g.strokePath();
+    // Bag handle drawn as arc (bezierCurveTo not available in this build)
+    g.beginPath();g.arc(20.5*sc,-30*sc,4.5*sc,Math.PI,0,false);g.strokePath();
     // Arms (swing via offset, no rotation)
     const aSwing=Math.sin(this.frame)*.3;
     g.lineStyle(9*sc,this.skin,1);
@@ -652,14 +654,15 @@ class ResultScene extends Phaser.Scene{
 
     // Play again button
     const bw=240,bh=58,bx=(W-bw)/2,by=H*.79;
-    const bg2=this.add.graphics();
+    const bg2=this.add.graphics().setInteractive(new Phaser.Geom.Rectangle(bx,by,bw,bh),Phaser.Geom.Rectangle.Contains);
     bg2.fillStyle(0x000000,.4);bg2.fillRoundedRect(bx+4,by+4,bw,bh,29);
     bg2.fillGradientStyle(0xF5A623,0xF5A623,0x92400E,0x92400E,1);bg2.fillRoundedRect(bx,by,bw,bh,29);
     bg2.lineStyle(2,0xFDE68A,.7);bg2.strokeRoundedRect(bx,by,bw,bh,29);
     const bt=this.add.text(W/2,by+bh/2,'Vender de Novo! 🛍️',{fontFamily:'Nunito',fontSize:'19px',fontStyle:'bold',color:'#FFF',stroke:'#92400E',strokeThickness:3}).setOrigin(.5);
     this.tweens.add({targets:bt,scaleX:1.04,scaleY:1.04,yoyo:true,repeat:-1,duration:720,ease:'Sine.easeInOut'});
-    const zone=this.add.zone(W/2,by+bh/2,bw,bh).setInteractive({useHandCursor:true});
-    zone.on('pointerdown',()=>this.cameras.main.fade(350,0,0,0,false,(c,t)=>{if(t===1)this.scene.start('Menu');}));
+    const goMenu=()=>this.cameras.main.fade(350,0,0,0,false,(c,t)=>{if(t===1)this.scene.start('Menu');});
+    bg2.on('pointerdown',goMenu);
+    bt.setInteractive().on('pointerdown',goMenu);
 
     // Confetti burst after fade in
     this.time.delayedCall(300,()=>{
