@@ -163,52 +163,53 @@ class MenuScene extends Phaser.Scene{
   }
 
   buildTitleCard(W,H){
-    const pw=Math.min(340,W-24),ph=108,px=(W-pw)/2,py=H*.03;
+    const pw=Math.min(340,W-24),ph=70,px=(W-pw)/2,py=6;
     const g=this.add.graphics().setDepth(5);
     g.fillStyle(0x000000,.4);g.fillRoundedRect(px+4,py+4,pw,ph,18);
     g.fillGradientStyle(0x2D1200,0x2D1200,0x1A0800,0x1A0800,1);g.fillRoundedRect(px,py,pw,ph,18);
     g.lineStyle(2,0xF5A623,.9);g.strokeRoundedRect(px,py,pw,ph,18);
     g.fillStyle(0xF5A623,1);g.fillRect(px+16,py+ph-5,pw-32,3);
-    this.add.text(W/2,py+26,'🏪  Mercado de Aracaju',{fontFamily:'Nunito',fontSize:'21px',fontStyle:'bold',color:'#FEF3C7',stroke:'#2D1200',strokeThickness:4}).setOrigin(.5).setDepth(6);
-    this.add.text(W/2,py+58,'Mercado Antônio Franco · Sergipe',{fontFamily:'Nunito',fontSize:'13px',color:'#D4A574'}).setOrigin(.5).setDepth(6);
-    this.add.text(W/2,py+82,'⏱ 90 segundos para vender o máximo!',{fontFamily:'Nunito',fontSize:'12px',fontStyle:'bold',color:'#FBB724'}).setOrigin(.5).setDepth(6);
+    this.add.text(W/2,py+20,'🏪  Mercado de Aracaju',{fontFamily:'Nunito',fontSize:'21px',fontStyle:'bold',color:'#FEF3C7',stroke:'#2D1200',strokeThickness:4}).setOrigin(.5).setDepth(6);
+    this.add.text(W/2,py+44,'Mercado Antônio Franco · Sergipe',{fontFamily:'Nunito',fontSize:'12px',color:'#D4A574'}).setOrigin(.5).setDepth(6);
+    this.add.text(W/2,py+62,'⏱ 90 segundos para vender o máximo!',{fontFamily:'Nunito',fontSize:'11px',fontStyle:'bold',color:'#FBB724'}).setOrigin(.5).setDepth(6);
   }
 
   buildProductGrid(W,H){
     const cols=3,mg=12,gap=8;
     const cw=Math.floor((W-mg*2-gap*(cols-1))/cols);
-    const startX=mg,startY=Math.round(H*.17);
-    const panW=W-mg*2+4,panH=cw+gap+cw+40,panX=mg-2,panY=startY-24;
+    const ch=160;
+    const startX=mg,startY=88;
+    const panW=W-mg*2+4,panH=ch+gap+ch+40,panX=mg-2,panY=78;
     const g=this.add.graphics().setDepth(5);
     g.fillStyle(0x000000,.4);g.fillRoundedRect(panX+3,panY+3,panW,panH,16);
     g.fillStyle(0x1A0800,.92);g.fillRoundedRect(panX,panY,panW,panH,16);
     g.lineStyle(1.5,0xF5A623,.3);g.strokeRoundedRect(panX,panY,panW,panH,16);
-    this.add.text(W/2,startY-10,'🛍️  PRODUTOS DA BANCA',{fontFamily:'Nunito',fontSize:'11px',fontStyle:'bold',color:'#FBB724'}).setOrigin(.5).setDepth(6);
+    this.add.text(W/2,startY-8,'🛍️  PRODUTOS DA BANCA',{fontFamily:'Nunito',fontSize:'11px',fontStyle:'bold',color:'#FBB724'}).setOrigin(.5).setDepth(6);
     PRODUCTS.forEach((p,i)=>{
       const col=i%cols,row=Math.floor(i/cols);
-      const sx=startX+col*(cw+gap),sy=startY+8+row*(cw+gap),ch=cw-4;
+      const sx=startX+col*(cw+gap),sy=startY+8+row*(ch+gap);
       const gc=this.add.graphics().setDepth(6);
       gc.fillStyle(0x000000,.35);gc.fillRoundedRect(sx+3,sy+3,cw,ch,12);
       gc.fillGradientStyle(p.tint,p.tint,0x150800,0x150800,.8);gc.fillRoundedRect(sx,sy,cw,ch,12);
       gc.lineStyle(2,p.tint,.8);gc.strokeRoundedRect(sx,sy,cw,ch,12);
-      const efs=Math.min(36,cw*.38);
-      this.add.text(sx+cw/2,sy+ch*.38,p.emoji,{fontSize:`${efs}px`}).setOrigin(.5).setDepth(7);
+      const efs=Math.min(32,cw*.35);
+      this.add.text(sx+cw/2,sy+ch*.35,p.emoji,{fontSize:`${efs}px`}).setOrigin(.5).setDepth(7);
       const nfs=Math.max(9,Math.min(13,cw*.145));
-      this.add.text(sx+cw/2,sy+ch*.68,p.name,{fontFamily:'Nunito',fontSize:`${nfs}px`,fontStyle:'bold',color:'#F1F5F9',wordWrap:{width:cw-4},align:'center'}).setOrigin(.5,0).setDepth(7);
+      this.add.text(sx+cw/2,sy+ch*.62,p.name,{fontFamily:'Nunito',fontSize:`${nfs}px`,fontStyle:'bold',color:'#F1F5F9',wordWrap:{width:cw-4},align:'center'}).setOrigin(.5,0).setDepth(7);
       this.add.text(sx+cw/2,sy+ch-10,`R$ ${p.sell}`,{fontFamily:'Nunito',fontSize:`${nfs+1}px`,fontStyle:'bold',color:'#4ADE80'}).setOrigin(.5,1).setDepth(7);
     });
   }
 
   buildInstructions(W,H){
     const lines=['🕹️  Toque na banca certa para vender','⚡  Clientes Rush pagam o dobro!','🔥  3+ seguidas = Bônus Combo','📦  Estoque zerou? Toque para repor'];
-    const pw=Math.min(W-24,360),px=(W-pw)/2,py=H*.595,ph=lines.length*20+16;
+    const pw=Math.min(W-24,360),px=(W-pw)/2,py=452,ph=lines.length*18+14;
     const g=this.add.graphics().setDepth(5);
     g.fillStyle(0xFFFFFF,.06);g.fillRoundedRect(px,py,pw,ph,10);
-    lines.forEach((l,i)=>this.add.text(W/2,py+10+i*20,l,{fontFamily:'Nunito',fontSize:'12px',color:'#CBD5E1'}).setOrigin(.5,0).setDepth(6));
+    lines.forEach((l,i)=>this.add.text(W/2,py+8+i*18,l,{fontFamily:'Nunito',fontSize:'11px',color:'#CBD5E1'}).setOrigin(.5,0).setDepth(6));
   }
 
   buildStartBtn(W,H){
-    const bw=226,bh=58,bx=(W-bw)/2,by=H*.883;
+    const bw=226,bh=56,bx=(W-bw)/2,by=544;
     const g=this.add.graphics().setDepth(10).setInteractive(new Phaser.Geom.Rectangle(bx,by,bw,bh),Phaser.Geom.Rectangle.Contains);
     g.fillStyle(0x000000,.5);g.fillRoundedRect(bx+4,by+4,bw,bh,29);
     g.fillGradientStyle(0xF5A623,0xF5A623,0x92400E,0x92400E,1);g.fillRoundedRect(bx,by,bw,bh,29);
