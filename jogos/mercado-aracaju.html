@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Mercado de Aracaju</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0300;overflow:hidden;font-family:system-ui,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none}
+canvas{display:block;touch-action:none}
+#hud{position:fixed;top:0;left:0;right:0;height:50px;background:linear-gradient(90deg,#1a0800,#2d1200,#1a0800);border-bottom:2px solid #d97706;display:flex;align-items:center;padding:0 8px;gap:5px;color:#fef3c7;font-size:clamp(11px,2.9vw,14px);z-index:10;box-shadow:0 2px 20px rgba(0,0,0,.8)}
+.stat{display:flex;align-items:center;gap:3px;background:rgba(0,0,0,.35);padding:3px 7px;border-radius:6px;border:1px solid rgba(217,119,6,.35);white-space:nowrap}
+#hud b{font-weight:800;color:#fbbf24}
+.ml{margin-left:auto}
+#ov{position:fixed;inset:0;background:rgba(10,2,0,.96);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:.55rem;z-index:20;overflow-y:auto;padding:12px 12px 20px}
+#ov h1{color:#fef3c7;font-size:clamp(1.3rem,5vw,1.9rem);font-weight:800;text-align:center}
+#ov p{color:#d4a574;text-align:center;max-width:400px;line-height:1.5;font-size:clamp(.8rem,2.8vw,.9rem)}
+.btn{padding:.65rem 2.2rem;border-radius:12px;border:none;background:linear-gradient(135deg,#d97706,#92400e);color:#fff;font-size:clamp(.9rem,3.5vw,1rem);font-weight:800;cursor:pointer;margin-top:.3rem;box-shadow:0 4px 18px rgba(217,119,6,.6);transition:transform .1s}
+.btn:active{transform:scale(.95)}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;width:100%;max-width:380px;padding:8px;background:rgba(0,0,0,.45);border-radius:10px;border:1px solid rgba(251,191,36,.2)}
+.pc{background:rgba(255,160,30,.08);border:1px solid rgba(251,191,36,.18);border-radius:7px;padding:5px 3px;text-align:center;font-size:clamp(.7rem,2.4vw,.8rem);color:#e2e8f0;line-height:1.6;display:flex;flex-direction:column;align-items:center;gap:2px}
+.pv{color:#22c55e;font-size:clamp(.62rem,2vw,.72rem)}
+</style>
+</head>
+<body>
+<div id="hud">
+  <span class="stat">🏪 Mercado SE</span>
+  <span class="stat">💰 R$<b id="hm">0</b></span>
+  <span class="stat">🛍️ <b id="hv">0</b> vendas</span>
+  <span class="stat" id="hcw" style="display:none">🔥 Combo <b id="hc">0</b>x</span>
+  <span class="stat ml">⏱ <b id="ht">90</b>s</span>
+</div>
+<canvas id="c"></canvas>
+<div id="ov">
+  <div style="font-size:2.8rem;margin-top:4px">🏪</div>
+  <h1>Mercado de Aracaju</h1>
+  <p>Você é feirante no <b>Mercado Antônio Franco</b>, em Aracaju, Sergipe! Atenda os clientes vendendo produtos típicos sergipanos e maximize seu lucro!</p>
+  <p style="color:#fbbf24;font-weight:700;font-size:clamp(.8rem,3vw,.9rem)">🛍️ PRODUTOS DA BANCA:</p>
+  <div class="pgrid">
+    <div class="pc"><span>🦀</span><span>Caranguejo</span><span class="pv">R$12</span></div>
+    <div class="pc"><span>🐚</span><span>Sururu</span><span class="pv">R$8</span></div>
+    <div class="pc"><span>🫓</span><span>Tapioca</span><span class="pv">R$5</span></div>
+    <div class="pc"><span>🧁</span><span>Bolo de Goma</span><span class="pv">R$9</span></div>
+    <div class="pc"><span>🍰</span><span>Pão de Ló</span><span class="pv">R$11</span></div>
+    <div class="pc"><span>🍮</span><span>Doce de Leite</span><span class="pv">R$7</span></div>
+  </div>
+  <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:9px 13px;text-align:left;font-size:clamp(.75rem,2.6vw,.84rem);color:#e2e8f0;max-width:380px;width:100%;border:1px solid rgba(255,255,255,.1)">
+    <b>🕹️ Como Jogar:</b><br>
+    1. Um cliente chega com balão mostrando o produto que quer<br>
+    2. Toque na banca certa para vender e ganhar dinheiro<br>
+    3. Estoque <b style="color:#ef4444">zerou</b>? Toque na banca para repor (paga custo)<br>
+    4. Cliente <b style="color:#f97316">⚡ Rush</b> paga o <b>dobro</b> — atenda rápido!<br>
+    5. 3+ vendas seguidas = <b style="color:#fbbf24">🔥 Bônus Combo</b>
+  </div>
+  <button class="btn" onclick="startGame()">Abrir Banca! 🏪</button>
+</div>
+<script>
+const PRODS=[
+  {id:'caranguejo',nm:'Caranguejo',  em:'🦀',sell:12,restockCost:5, restockT:9000,clr:'#dc2626'},
+  {id:'sururu',    nm:'Sururu',      em:'🐚',sell:8, restockCost:3, restockT:6000,clr:'#0891b2'},
+  {id:'tapioca',   nm:'Tapioca',     em:'🫓',sell:5, restockCost:2, restockT:4000,clr:'#d97706'},
+  {id:'goma',      nm:'Bolo de Goma',em:'🧁',sell:9, restockCost:4, restockT:7000,clr:'#7c3aed'},
+  {id:'paolo',     nm:'Pão de Ló',   em:'🍰',sell:11,restockCost:5, restockT:8000,clr:'#db2777'},
+  {id:'doce',      nm:'Doce de Leite',em:'🍮',sell:7,restockCost:3, restockT:5500,clr:'#92400e'},
+];
+const MAX_STK=5,INIT_STK=5;
+const NAMES=['Dona Maria','Seu João','Professora Ana','Turista Carlos','Vovó Rosa','Estudante Pedro','Dona Graça','Seu Zé','Visitante Mariana','Seu Antônio'];
+
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+let W,H,running=false,money=0,sales=0,combo=0,maxCombo=0,timer=90000,lt=0;
+let stock,rstProg,orders,particles,floats,spawnT;
+
+function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
+window.addEventListener('resize',resize);resize();
+const GY=()=>Math.round(H*.50);
+const panelH=()=>Math.min(185,Math.max(140,H*.27));
+
+if(!CanvasRenderingContext2D.prototype.roundRect){
+  CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){
+    this.beginPath();this.moveTo(x+r,y);this.lineTo(x+w-r,y);
+    this.arcTo(x+w,y,x+w,y+r,r);this.lineTo(x+w,y+h-r);
+    this.arcTo(x+w,y+h,x+w-r,y+h,r);this.lineTo(x+r,y+h);
+    this.arcTo(x,y+h,x,y+h-r,r);this.lineTo(x,y+r);
+    this.arcTo(x,y,x+r,y,r);this.closePath();
+  };
+}
+
+class Particle{
+  constructor(x,y,c){this.x=x;this.y=y;this.c=c;this.vx=(Math.random()-.5)*5;this.vy=-Math.random()*6-2;this.life=600+Math.random()*400;this.r=4+Math.random()*4;}
+  upd(dt){this.x+=this.vx*(dt/16);this.vy+=.18*(dt/16);this.y+=this.vy*(dt/16);this.life-=dt;return this.life>0;}
+  draw(){ctx.globalAlpha=Math.max(0,this.life/800);ctx.fillStyle=this.c;ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}
+}
+class FloatTxt{
+  constructor(t,x,y,c,s){this.t=t;this.x=x;this.y=y;this.c=c;this.s=s;this.p=0;}
+  upd(dt){this.p+=dt/900;this.y-=.5*(dt/16);return this.p<1;}
+  draw(){ctx.globalAlpha=1-this.p;ctx.fillStyle=this.c;ctx.font=`700 ${this.s}px system-ui`;ctx.textAlign='center';ctx.fillText(this.t,this.x,this.y);ctx.globalAlpha=1;}
+}
+
+// ——— BACKGROUND ———
+function drawBG(now){
+  const gy=GY(),pH=panelH(),py=H-pH;
+
+  // Sky
+  ctx.fillStyle='#1a0a00';ctx.fillRect(0,50,W,gy*.5-50);
+
+  // Market building back wall (creme colonial)
+  ctx.fillStyle='#f0e0b8';ctx.fillRect(0,gy*.28,W,py-gy*.28);
+
+  // Arch windows across top
+  const nArch=Math.max(3,Math.ceil(W/130));
+  for(let i=0;i<nArch;i++){
+    const ax=i*(W/nArch)+10,aw=W/nArch-20,ah=100,ar=aw/2;
+    const ay=gy*.28+8;
+    ctx.fillStyle='#5bafd6';
+    ctx.beginPath();ctx.rect(ax,ay+ar,aw,ah-ar);ctx.fill();
+    ctx.beginPath();ctx.arc(ax+aw/2,ay+ar,aw/2,Math.PI,0);ctx.fill();
+    // Frame
+    ctx.strokeStyle='#c8a450';ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(ax,ay+ar);ctx.lineTo(ax,ay+ah);ctx.lineTo(ax+aw,ay+ah);ctx.lineTo(ax+aw,ay+ar);ctx.stroke();
+    ctx.beginPath();ctx.arc(ax+aw/2,ay+ar,aw/2,Math.PI,0);ctx.stroke();
+    // Sill
+    ctx.fillStyle='#c8a450';ctx.fillRect(ax-3,ay+ah-2,aw+6,6);
+  }
+
+  // Colorful banner flags
+  const fcolors=['#ef4444','#3b82f6','#22c55e','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#f97316'];
+  const ropeY=gy*.52;
+  ctx.strokeStyle='rgba(0,0,0,.35)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(0,ropeY);ctx.lineTo(W,ropeY);ctx.stroke();
+  for(let i=0;i*32<W+32;i++){
+    const fx=i*32,sw=Math.sin(now*.0012+i*.8)*3;
+    ctx.fillStyle=fcolors[i%fcolors.length];
+    ctx.beginPath();ctx.moveTo(fx,ropeY+sw);ctx.lineTo(fx+14,ropeY+sw);ctx.lineTo(fx+7,ropeY+18+sw);ctx.closePath();ctx.fill();
+  }
+
+  // Market counter ledge
+  ctx.fillStyle='#7c4a1e';ctx.fillRect(0,gy*.73,W,10);
+  ctx.fillStyle='#b8865a';ctx.fillRect(0,gy*.73,W,4);
+
+  // Floor tiles (warm terracotta)
+  ctx.fillStyle='#d4aa7d';ctx.fillRect(0,gy*.73+10,W,py-gy*.73-10);
+  for(let tx=0;tx<W;tx+=64){
+    ctx.strokeStyle='#c09060';ctx.lineWidth=.6;
+    ctx.beginPath();ctx.moveTo(tx,gy*.73+10);ctx.lineTo(tx,py);ctx.stroke();
+  }
+  for(let ty=gy*.73+10;ty<py;ty+=48){
+    ctx.strokeStyle='#c09060';ctx.lineWidth=.6;
+    ctx.beginPath();ctx.moveTo(0,ty);ctx.lineTo(W,ty);ctx.stroke();
+  }
+
+  // Panel bg
+  ctx.fillStyle='#1a0800';ctx.fillRect(0,py,W,pH);
+  ctx.fillStyle='#d97706';ctx.fillRect(0,py,W,2.5);
+}
+
+// ——— VENDOR ———
+function drawVendor(now){
+  const gy=GY();
+  const vx=Math.min(W*.13,100),vy=gy-10;
+  ctx.save();ctx.translate(vx,vy);
+
+  // Shadow
+  ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.ellipse(0,4,24,6,0,0,Math.PI*2);ctx.fill();
+
+  // Legs
+  ctx.strokeStyle='#78350f';ctx.lineWidth=10;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(-5,0);ctx.lineTo(-8,32);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(5,0);ctx.lineTo(8,32);ctx.stroke();
+  ctx.fillStyle='#1a0a00';
+  ctx.beginPath();ctx.ellipse(-8,32,8,4,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(8,32,8,4,0,0,Math.PI*2);ctx.fill();
+
+  // Body (white blouse + blue apron)
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(0,-14,14,20,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#1d4ed8';ctx.beginPath();ctx.moveTo(-10,-5);ctx.lineTo(10,-5);ctx.lineTo(10,2);ctx.lineTo(-10,2);ctx.closePath();ctx.fill();
+  // Apron straps
+  ctx.strokeStyle='#1d4ed8';ctx.lineWidth=5;
+  ctx.beginPath();ctx.moveTo(-6,-5);ctx.lineTo(-3,-24);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(6,-5);ctx.lineTo(3,-24);ctx.stroke();
+
+  // Arms (animated working)
+  const arm=Math.sin(now*.003)*.28;
+  ctx.strokeStyle='#d4a574';ctx.lineWidth=9;
+  ctx.save();ctx.rotate(-arm-.1);ctx.beginPath();ctx.moveTo(-12,-10);ctx.lineTo(-22,-34);ctx.stroke();ctx.restore();
+  ctx.save();ctx.rotate(arm+.1);ctx.beginPath();ctx.moveTo(12,-10);ctx.lineTo(22,-34);ctx.stroke();ctx.restore();
+
+  // Head
+  ctx.fillStyle='#d4a574';ctx.beginPath();ctx.arc(0,-55,16,0,Math.PI*2);ctx.fill();
+
+  // Hair bun
+  ctx.fillStyle='#2d1b00';ctx.beginPath();ctx.arc(0,-70,10,Math.PI,0);ctx.fill();
+  ctx.beginPath();ctx.arc(0,-72,8,0,Math.PI*2);ctx.fill();
+
+  // Face
+  ctx.fillStyle='#2d1b00';ctx.beginPath();ctx.arc(-5,-57,2.5,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(5,-57,2.5,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#333';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(0,-55,6,.1,Math.PI-.1);ctx.stroke();
+
+  // Headband
+  ctx.fillStyle='#1d4ed8';ctx.fillRect(-17,-72,34,5);
+
+  // Counter
+  ctx.fillStyle='#8b5e3c';ctx.beginPath();ctx.rect(-45,0,90,16);ctx.fill();
+  ctx.fillStyle='#c8a96a';ctx.fillRect(-45,0,90,4);
+  ctx.font='20px system-ui';ctx.textAlign='center';ctx.fillText('🦀',0,15);
+
+  ctx.restore();
+}
+
+// ——— STALL PANEL ———
+function drawStalls(now){
+  const pH=panelH(),py=H-pH;
+  const margin=5,gap=4,cols=PRODS.length;
+  const sw=Math.floor((W-margin*2-gap*(cols-1))/cols);
+  const sh=pH-10;
+
+  PRODS.forEach((p,i)=>{
+    const sx=margin+i*(sw+gap),sy=py+5;
+    const s=stock[i],full=s>0;
+    const rp=rstProg[i]/p.restockT;
+
+    // Background
+    ctx.fillStyle=full?'#fffbf0':'#f1f5f9';
+    ctx.beginPath();ctx.roundRect(sx,sy,sw,sh,8);ctx.fill();
+    ctx.strokeStyle=full?p.clr:'#94a3b8';ctx.lineWidth=full?2.5:1;
+    ctx.beginPath();ctx.roundRect(sx,sy,sw,sh,8);ctx.stroke();
+
+    // Emoji
+    const efs=Math.min(38,sw*.62);
+    ctx.font=`${efs}px system-ui`;ctx.textAlign='center';
+    ctx.globalAlpha=full?1:.35;
+    ctx.fillText(p.em,sx+sw/2,sy+efs+2);
+    ctx.globalAlpha=1;
+
+    // Name
+    const nfs=Math.max(11,Math.min(14,sw*.17));
+    ctx.fillStyle=full?'#1a0a00':'#94a3b8';
+    ctx.font=`bold ${nfs}px system-ui`;ctx.textAlign='center';
+    // Wrap long names
+    const nm=p.nm;
+    if(nm.length>9&&sw<80){
+      const mid=Math.ceil(nm.length/2);
+      ctx.fillText(nm.slice(0,mid)+'-',sx+sw/2,sy+efs+14);
+      ctx.fillText(nm.slice(mid),sx+sw/2,sy+efs+26);
+    } else {
+      ctx.fillText(nm,sx+sw/2,sy+efs+18);
+    }
+
+    // Price / VAZIO
+    const pfs=Math.max(10,Math.min(13,sw*.16));
+    if(full){
+      ctx.fillStyle='#15803d';ctx.font=`bold ${pfs}px system-ui`;ctx.textAlign='center';
+      ctx.fillText(`R$${p.sell}`,sx+sw/2,sy+efs+34);
+    } else {
+      ctx.fillStyle='#ef4444';ctx.font=`bold ${pfs}px system-ui`;ctx.textAlign='center';
+      ctx.fillText('VAZIO',sx+sw/2,sy+efs+28);
+      ctx.fillStyle='#64748b';ctx.font=`${pfs-1}px system-ui`;
+      ctx.fillText('toque→repor',sx+sw/2,sy+efs+40);
+    }
+
+    // Stock dots
+    const dotY=sy+sh-18;
+    const dotR=Math.min(5,sw*.07);
+    const totalW=(MAX_STK*(dotR*2)+(MAX_STK-1)*3);
+    const dotX0=sx+sw/2-totalW/2+dotR;
+    for(let d=0;d<MAX_STK;d++){
+      ctx.fillStyle=d<s?p.clr:'#e2e8f0';
+      ctx.beginPath();ctx.arc(dotX0+d*(dotR*2+3),dotY,dotR,0,Math.PI*2);ctx.fill();
+    }
+
+    // Restock progress bar (when empty)
+    if(!full){
+      const bx=sx+5,by=sy+sh-8,bw=sw-10,bh=4;
+      ctx.fillStyle='#e2e8f0';ctx.beginPath();ctx.roundRect(bx,by,bw,bh,2);ctx.fill();
+      ctx.fillStyle='#22c55e';ctx.beginPath();ctx.roundRect(bx,by,bw*rp,bh,2);ctx.fill();
+    }
+  });
+}
+
+// ——— ORDER ———
+class Order{
+  constructor(){
+    const pi=Math.floor(Math.random()*PRODS.length);
+    this.prodIdx=pi;this.product=PRODS[pi];
+    this.name=NAMES[Math.floor(Math.random()*NAMES.length)];
+    const gy=GY();
+    this.x=W+80;this.y=gy-20+Math.random()*(H*.04);
+    this.spd=1.4+Math.random()*.8;
+    this.stopX=W*.3+Math.random()*(W*.18);
+    this.state='walk';this.wt=11000;this.wtMax=11000;
+    this.isRush=Math.random()<.22;
+    this.sc=0.9+Math.random()*.18;
+    this.fr=0;this.msg='';this.msgT=0;
+    this.skin=['#f5cba7','#d4a574','#c68642','#a0522d'][Math.floor(Math.random()*4)];
+    this.shirt=['#3b82f6','#22c55e','#ef4444','#8b5cf6','#f97316','#0891b2'][Math.floor(Math.random()*6)];
+    this.hatCol=['#f59e0b','#dc2626','#1d4ed8','#065f46',null,null][Math.floor(Math.random()*6)];
+  }
+  upd(dt){
+    this.fr+=dt*.05;
+    if(this.state==='walk'){
+      this.x-=this.spd*(dt/16);
+      if(this.x<this.stopX)this.state='wait';
+    } else if(this.state==='wait'){
+      this.wt-=dt;
+      if(this.wt<=0){
+        this.state='sad';this.spd=2.2;
+        this.msg='😔 Sem produto!';this.msgT=1800;
+        combo=0;updateComboHUD();
+      }
+    } else if(this.state==='ok'||this.state==='sad'){
+      this.x-=this.spd*(dt/16)*1.2;
+    }
+    if(this.msgT>0)this.msgT-=dt;
+    return this.x>-200;
+  }
+  draw(){
+    ctx.save();ctx.translate(this.x,this.y);ctx.scale(this.sc,this.sc);
+
+    // Shadow
+    ctx.fillStyle='rgba(0,0,0,.18)';ctx.beginPath();ctx.ellipse(0,4,20,5,0,0,Math.PI*2);ctx.fill();
+    const s=Math.sin(this.fr),la=this.state==='walk'?s*.35:0;
+
+    // Legs
+    ctx.strokeStyle=this.skin;ctx.lineWidth=9;ctx.lineCap='round';
+    ctx.save();ctx.rotate(la);ctx.beginPath();ctx.moveTo(-4,0);ctx.lineTo(-8,34);ctx.stroke();ctx.restore();
+    ctx.save();ctx.rotate(-la);ctx.beginPath();ctx.moveTo(4,0);ctx.lineTo(8,34);ctx.stroke();ctx.restore();
+    ctx.fillStyle='#1a0a00';
+    ctx.beginPath();ctx.ellipse(-8+la*5,34,8,4,la*.3,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(8-la*5,34,8,4,-la*.3,0,Math.PI*2);ctx.fill();
+
+    // Body
+    ctx.fillStyle=this.shirt;ctx.beginPath();ctx.ellipse(0,-14,14,20,0,0,Math.PI*2);ctx.fill();
+
+    // Shopping bag
+    ctx.fillStyle='#f59e0b';ctx.beginPath();ctx.roundRect(13,-30,16,22,4);ctx.fill();
+    ctx.strokeStyle='#92400e';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(16,-30);ctx.bezierCurveTo(16,-38,25,-38,25,-30);ctx.stroke();
+
+    // Arms
+    ctx.strokeStyle=this.skin;ctx.lineWidth=8;
+    ctx.save();ctx.rotate(-la*.5);ctx.beginPath();ctx.moveTo(-10,-10);ctx.lineTo(-18,-28);ctx.stroke();ctx.restore();
+    ctx.save();ctx.rotate(la*.5);ctx.beginPath();ctx.moveTo(10,-10);ctx.lineTo(18,-28);ctx.stroke();ctx.restore();
+
+    // Head
+    ctx.fillStyle=this.skin;ctx.beginPath();ctx.arc(0,-55,16,0,Math.PI*2);ctx.fill();
+
+    // Hat (optional)
+    if(this.hatCol){
+      ctx.fillStyle=this.hatCol;
+      ctx.beginPath();ctx.ellipse(0,-68,18,5,0,0,Math.PI*2);ctx.fill();
+      ctx.fillRect(-10,-80,20,14);
+    } else {
+      ctx.fillStyle='#2d1b00';ctx.beginPath();ctx.arc(0,-68,10,Math.PI,0);ctx.fill();
+    }
+
+    // Eyes
+    ctx.fillStyle='#2d1b00';ctx.beginPath();ctx.arc(-5,-57,2,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(5,-57,2,0,Math.PI*2);ctx.fill();
+
+    // Expression
+    ctx.strokeStyle='#333';ctx.lineWidth=2.2;
+    if(this.state==='ok'){
+      ctx.beginPath();ctx.arc(0,-55,6,.1,Math.PI-.1);ctx.stroke();
+    } else if(this.state==='sad'){
+      ctx.beginPath();ctx.arc(0,-51,5,Math.PI+.2,-.2);ctx.stroke();
+    } else {
+      ctx.beginPath();ctx.arc(0,-55,5,.2,Math.PI-.2);ctx.stroke();
+    }
+
+    // Rush indicator
+    if(this.isRush&&this.state==='wait'){
+      const pulse=.5+.5*Math.sin(this.fr*4);
+      ctx.globalAlpha=.7+pulse*.3;
+      ctx.fillStyle='#f97316';ctx.font='bold 15px system-ui';ctx.textAlign='center';
+      ctx.fillText('⚡ 2x',0,-82);
+      ctx.globalAlpha=1;
+    }
+
+    // Speech bubble — bright, legible
+    if(this.state==='wait'){
+      const u=this.wt/this.wtMax;
+      const bw=200,bh=148,bx=-100,by=-240;
+
+      ctx.shadowColor='rgba(0,0,0,.7)';ctx.shadowBlur=16;ctx.shadowOffsetY=5;
+      // Tail
+      ctx.fillStyle='#fff9ed';
+      ctx.beginPath();ctx.moveTo(-12,by+bh);ctx.lineTo(-4,by+bh+18);ctx.lineTo(10,by+bh);ctx.closePath();ctx.fill();
+      // Bubble body
+      ctx.beginPath();ctx.roundRect(bx,by,bw,bh,14);ctx.fill();
+      ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+      // Border
+      ctx.strokeStyle=this.isRush?'#f97316':'#92400e';ctx.lineWidth=3;
+      ctx.beginPath();ctx.roundRect(bx,by,bw,bh,14);ctx.stroke();
+
+      // Emoji
+      ctx.textAlign='center';
+      ctx.font='38px system-ui';ctx.fillStyle='#1a0a00';ctx.fillText(this.product.em,0,by+46);
+      // Name
+      ctx.fillStyle='#1a0a00';ctx.font='bold 20px system-ui';ctx.fillText(this.product.nm,0,by+74);
+      // Price
+      const valTxt=this.isRush?`R$${this.product.sell*2} ⚡`:`R$${this.product.sell}`;
+      ctx.fillStyle=this.isRush?'#dc2626':'#15803d';ctx.font='bold 17px system-ui';
+      ctx.fillText(valTxt,0,by+98);
+
+      // Timer bar
+      ctx.fillStyle='#e5e7eb';ctx.beginPath();ctx.roundRect(bx+8,by+bh-16,bw-16,8,4);ctx.fill();
+      ctx.fillStyle=u>.5?'#22c55e':u>.25?'#f59e0b':'#ef4444';
+      ctx.beginPath();ctx.roundRect(bx+8,by+bh-16,(bw-16)*u,8,4);ctx.fill();
+    }
+
+    // Floating message
+    if(this.msgT>0){
+      ctx.globalAlpha=Math.min(1,this.msgT/400);
+      ctx.fillStyle='rgba(0,0,0,.85)';ctx.beginPath();ctx.roundRect(-60,-162,120,32,8);ctx.fill();
+      ctx.fillStyle='#fff';ctx.font='bold 13px system-ui';ctx.textAlign='center';
+      ctx.fillText(this.msg,0,-141);ctx.globalAlpha=1;
+    }
+    ctx.restore();
+  }
+}
+
+// ——— COMBO HUD ———
+function updateComboHUD(){
+  const el=document.getElementById('hcw');
+  if(combo>=3){el.style.display='flex';document.getElementById('hc').textContent=combo;}
+  else el.style.display='none';
+}
+
+// ——— GAME ———
+function startGame(){
+  document.getElementById('ov').style.display='none';
+  money=0;sales=0;combo=0;maxCombo=0;timer=90000;lt=0;running=true;
+  stock=PRODS.map(()=>INIT_STK);
+  rstProg=PRODS.map(()=>0);
+  orders=[];particles=[];floats=[];spawnT=2000;
+  document.getElementById('hm').textContent='0';
+  document.getElementById('hv').textContent='0';
+  document.getElementById('hcw').style.display='none';
+  requestAnimationFrame(loop);
+}
+
+function loop(now){
+  if(!running)return;
+  const dt=Math.min(now-(lt||now),80);lt=now;
+  update(dt);
+  ctx.clearRect(0,50,W,H-50);
+  drawBG(now);drawVendor(now);
+  orders.forEach(o=>o.draw());
+  particles.forEach(p=>p.draw());
+  floats.forEach(f=>f.draw());
+  drawStalls(now);
+  requestAnimationFrame(loop);
+}
+
+function update(dt){
+  timer-=dt;
+  const hasWaiting=orders.some(o=>o.state==='wait');
+  if(!hasWaiting){spawnT-=dt;if(spawnT<=0){orders.push(new Order());spawnT=1800+Math.random()*1200;}}
+  orders=orders.filter(o=>o.upd(dt));
+  particles=particles.filter(p=>p.upd(dt));
+  floats=floats.filter(f=>f.upd(dt));
+
+  // Auto-restock over time
+  PRODS.forEach((p,i)=>{
+    if(stock[i]<MAX_STK){
+      rstProg[i]+=dt;
+      if(rstProg[i]>=p.restockT){stock[i]++;rstProg[i]=0;}
+    }
+  });
+
+  document.getElementById('hm').textContent=money.toFixed(0);
+  document.getElementById('hv').textContent=sales;
+  document.getElementById('ht').textContent=Math.max(0,Math.ceil(timer/1000));
+  if(timer<=0){running=false;showResult();}
+}
+
+// ——— INPUT ———
+function handleTap(mx,my){
+  if(!running)return;
+  const pH=panelH(),py=H-pH;
+  const margin=5,gap=4,cols=PRODS.length;
+  const sw=Math.floor((W-margin*2-gap*(cols-1))/cols);
+  const sh=pH-10;
+
+  for(let i=0;i<PRODS.length;i++){
+    const sx=margin+i*(sw+gap),sy=py+5;
+    if(mx>=sx&&mx<=sx+sw&&my>=sy&&my<=sy+sh){
+      const p=PRODS[i];
+
+      if(stock[i]===0){
+        // Manual restock: cost = restockCost × 3, adds 3 stock
+        const cost=p.restockCost*3;
+        if(money>=cost){
+          money-=cost;stock[i]=3;rstProg[i]=0;
+          floats.push(new FloatTxt(`📦 Reposto! -R$${cost}`,sx+sw/2,sy-10,'#f97316',14));
+        } else {
+          floats.push(new FloatTxt('💸 Dinheiro insuficiente',sx+sw/2,sy-10,'#ef4444',13));
+        }
+        return;
+      }
+
+      const wo=orders.find(o=>o.state==='wait'&&o.prodIdx===i);
+      if(wo){
+        stock[i]--;
+        combo++;if(combo>maxCombo)maxCombo=combo;
+        updateComboHUD();
+        const mult=wo.isRush?2:1;
+        const cbm=combo>=3?1.5:1;
+        const earned=Math.round(p.sell*mult*cbm);
+        money+=earned;sales++;
+        wo.state='ok';wo.spd=2;wo.msg='😄 Obrigado!';wo.msgT=1800;
+        const cols2=['#fbbf24','#f97316','#22c55e','#3b82f6','#8b5cf6','#ec4899'];
+        for(let j=0;j<16;j++)particles.push(new Particle(wo.x,wo.y-40,cols2[j%cols2.length]));
+        let ftxt=`+R$${earned}`;
+        if(wo.isRush)ftxt+=' ⚡';
+        if(combo>=3)ftxt+=` 🔥`;
+        floats.push(new FloatTxt(ftxt,wo.x,wo.y-80,'#22c55e',20));
+      } else {
+        combo=0;updateComboHUD();
+        floats.push(new FloatTxt('❌ Ninguém quer isso',mx,my-20,'#ef4444',14));
+      }
+      break;
+    }
+  }
+}
+
+cv.addEventListener('click',e=>{const r=cv.getBoundingClientRect();handleTap(e.clientX-r.left,e.clientY-r.top);});
+cv.addEventListener('touchend',e=>{e.preventDefault();const t=e.changedTouches[0],r=cv.getBoundingClientRect();handleTap(t.clientX-r.left,t.clientY-r.top);},{passive:false});
+
+// ——— RESULT ———
+function showResult(){
+  let badge,title,msg;
+  if(money>=320){badge='🏆';title='Feirante Mestre de Aracaju!';msg='Suas vendas fizeram o Mercado Antônio Franco brilhar! Você domina o comércio sergipano!';}
+  else if(money>=180){badge='⭐';title='Comerciante Talentoso!';msg='Ótimas vendas! Você sabe escolher os produtos certos na hora certa.';}
+  else if(money>=90){badge='🛍️';title='Feirante em Crescimento!';msg='Bom começo! Continue praticando — cada produto tem sua hora certa.';}
+  else{badge='🌱';title='Aprendiz de Feirante!';msg='Continue vendendo! O Mercado de Aracaju tem muito a te ensinar sobre comércio e cultura sergipana.';}
+  const ov=document.getElementById('ov');
+  ov.innerHTML=`<div style="font-size:3rem">${badge}</div><h1>${title}</h1>
+  <p>Você fez <b style="color:#fbbf24">${sales} vendas</b> e faturou <b style="color:#22c55e">R$${money.toFixed(2)}</b>!<br>Combo máximo: <b style="color:#f97316">${maxCombo}x</b></p>
+  <p>${msg}</p>
+  <p style="color:#78350f;font-size:.82rem">🏛️ Mercado Antônio Franco — Aracaju, Sergipe<br>Um dos mercados históricos mais famosos do Nordeste brasileiro</p>
+  <button class="btn" onclick="startGame()">Vender de Novo! 🛍️</button>`;
+  ov.style.display='flex';
+}
+
+// Idle loop
+(function idleLoop(n){
+  if(!running){const dt=Math.min(n-(lt||n),50);lt=n;ctx.clearRect(0,50,W,H-50);drawBG(n);drawVendor(n);drawStalls(n);}
+  requestAnimationFrame(idleLoop);
+})(0);
+</script>
+</body>
+</html>
