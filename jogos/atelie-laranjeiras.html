@@ -678,20 +678,20 @@ class Order{
     // Speech bubble (waiting)
     if(this.state==='wait'){
       const u=this.wt/this.wtMax;
-      const bw2=160,bh2=112,bx2=-80,by2=-212;
+      const bw2=132,bh2=92,bx2=-66,by2=-192;
       ctx.fillStyle='rgba(5,2,0,.9)';
       ctx.beginPath();ctx.moveTo(-10,by2+bh2);ctx.lineTo(-3,by2+bh2+10);ctx.lineTo(5,by2+bh2);ctx.fill();
       const bbg=ctx.createLinearGradient(bx2,by2,bx2,by2+bh2);
-      bbg.addColorStop(0,'rgba(28,10,0,.96)');bbg.addColorStop(1,'rgba(14,4,0,.96)');
+      bbg.addColorStop(0,'rgba(10,4,0,.94)');bbg.addColorStop(1,'rgba(5,2,0,.94)');
       ctx.fillStyle=bbg;ctx.beginPath();ctx.roundRect(bx2,by2,bw2,bh2,12);ctx.fill();
-      ctx.strokeStyle='rgba(251,191,36,.6)';ctx.lineWidth=2;ctx.stroke();
-      ctx.font='28px system-ui';ctx.textAlign='center';ctx.fillText(this.product.em,0,by2+32);
-      ctx.fillStyle='#fff';ctx.font='bold 16px system-ui';ctx.fillText(this.product.nm,0,by2+54);
+      ctx.strokeStyle='rgba(251,191,36,.4)';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.font='24px system-ui';ctx.textAlign='center';ctx.fillText(this.product.em,0,by2+28);
+      ctx.fillStyle='#fff';ctx.font='bold 11px system-ui';ctx.fillText(this.product.nm,0,by2+42);
       const ns2=this.progress.length,sw2=(bw2-20)/this.product.recipe.length;
       this.product.recipe.forEach((rid,ri)=>{
         const m=MATS.find(m=>m.id===rid);
         const done=ri<this.progress.length,isN=ri===ns2;
-        const rx=bx2+10+ri*sw2+sw2/2,ry=by2+80;
+        const rx=bx2+10+ri*sw2+sw2/2,ry=by2+66;
         ctx.fillStyle=done?'#22c55e':isN?m.clr:'rgba(255,255,255,.18)';
         ctx.beginPath();ctx.arc(rx,ry,isN?12:9,0,Math.PI*2);ctx.fill();
         if(isN){ctx.strokeStyle='#fde68a';ctx.lineWidth=2;ctx.beginPath();ctx.arc(rx,ry,14,0,Math.PI*2);ctx.stroke();}
@@ -707,9 +707,9 @@ class Order{
     }
     if(this.msgT>0){
       ctx.globalAlpha=Math.min(1,this.msgT/400);
-      ctx.fillStyle='rgba(0,0,0,.88)';ctx.beginPath();ctx.roundRect(-72,-162,144,36,8);ctx.fill();
-      ctx.fillStyle='#fff';ctx.font='bold 15px system-ui';ctx.textAlign='center';
-      ctx.fillText(this.msg,0,-139);ctx.globalAlpha=1;
+      ctx.fillStyle='rgba(0,0,0,.85)';ctx.beginPath();ctx.roundRect(-60,-158,120,32,8);ctx.fill();
+      ctx.fillStyle='#fff';ctx.font='bold 13px system-ui';ctx.textAlign='center';
+      ctx.fillText(this.msg,0,-137);ctx.globalAlpha=1;
     }
     ctx.restore();
   }
