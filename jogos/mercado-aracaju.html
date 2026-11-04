@@ -390,7 +390,7 @@ class GameScene extends Phaser.Scene{
 
   create(){
     const W=this.scale.width,H=this.scale.height;
-    this.cameras.main.fadeIn(400,0,0,0,false,()=>{this.running=true;});
+    this.cameras.main.fadeIn(400,0,0,0,()=>{this.running=true;});
     // Static BG
     this.bgGfx=this.add.graphics().setDepth(0);
     drawMarketBG(this.bgGfx,W,H);
