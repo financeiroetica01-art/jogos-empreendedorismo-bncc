@@ -3,42 +3,318 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Tropeiro do Sertão</title>
+<title>Tropeiro do Sertão — EmpreendeJovem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#6b3d0e;overflow:hidden;font-family:system-ui,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none}
+body{background:#1a0802;overflow:hidden;font-family:'Inter',system-ui,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none}
 canvas{display:block;touch-action:none}
-#hud{position:fixed;top:0;left:0;right:0;height:44px;background:linear-gradient(90deg,#3d1505,#6b2a00);border-bottom:2px solid #d97706;display:flex;align-items:center;padding:0 10px;gap:10px;color:#fef3c7;font-size:clamp(11px,3.2vw,15px);z-index:10}
-#hud b{font-weight:700}
-#hud .ml{margin-left:auto;color:#fbbf24;font-size:clamp(9px,2.4vw,12px)}
-#ov{position:fixed;inset:0;background:rgba(20,5,0,.84);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.85rem;z-index:20;overflow-y:auto;padding:16px}
-#ov h1{color:#fef3c7;font-size:clamp(1.3rem,5vw,2rem);font-weight:700;text-align:center}
-#ov p{color:#d4a574;text-align:center;max-width:400px;line-height:1.5;font-size:clamp(.82rem,2.8vw,.95rem)}
-.btn{padding:.65rem 2.2rem;border-radius:10px;border:none;background:linear-gradient(135deg,#d97706,#b45309);color:#fff;font-size:clamp(.9rem,3.5vw,1rem);font-weight:700;cursor:pointer;margin-top:.3rem;box-shadow:0 4px 14px rgba(217,119,6,.5)}
+
+#hud{
+  position:fixed;top:0;left:0;right:0;height:44px;
+  background:linear-gradient(90deg,#180501 0%,#2d1004 20%,#3d1505 50%,#2d1004 80%,#180501 100%);
+  border-bottom:2px solid #d97706;
+  box-shadow:0 2px 14px rgba(217,119,6,.35),0 1px 4px rgba(0,0,0,.5);
+  display:flex;align-items:center;
+  padding:0 max(8px,env(safe-area-inset-left,0px));
+  padding-right:max(8px,env(safe-area-inset-right,0px));
+  gap:5px;z-index:10;
+  font-family:'Nunito',system-ui,sans-serif;
+}
+
+.back-btn{
+  display:flex;align-items:center;justify-content:center;
+  width:28px;height:28px;flex-shrink:0;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:7px;
+  color:#fbbf24;font-size:13px;font-weight:800;
+  cursor:pointer;padding:0;line-height:1;
+  font-family:'Nunito',system-ui,sans-serif;
+  transition:background .12s;
+}
+.back-btn:hover{background:rgba(255,255,255,.14);}
+.back-btn:active{background:rgba(255,255,255,.22);}
+
+.hud-brand{font-size:17px;flex-shrink:0;line-height:1;}
+
+.hud-sep{width:1px;height:22px;background:rgba(255,255,255,.1);flex-shrink:0;margin:0 1px;}
+
+.hud-pills{display:flex;align-items:center;gap:4px;flex:1;min-width:0;overflow:hidden;}
+
+.hud-pill{
+  display:inline-flex;align-items:center;gap:2px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:999px;
+  padding:2px 8px;
+  color:#fef3c7;
+  font-family:'Nunito',system-ui,sans-serif;
+  font-size:clamp(10px,2.9vw,13px);
+  font-weight:700;
+  white-space:nowrap;flex-shrink:0;
+}
+.hud-pill b{color:#f59e0b;font-weight:900;}
+
+.hud-sep2{flex:1;min-width:0;}
+
+.hud-lives{display:flex;align-items:center;gap:1px;flex-shrink:0;}
+.heart{
+  font-size:clamp(12px,3.3vw,15px);
+  display:inline-block;
+  transition:opacity .18s,transform .18s;
+  line-height:1;
+}
+.heart.empty{opacity:.2;transform:scale(.8);}
+.heart.full{opacity:1;transform:scale(1);}
+
+#hv{display:none;}
+
+.hud-bncc{
+  font-size:8px;font-weight:700;letter-spacing:.09em;
+  color:rgba(251,191,36,.4);text-transform:uppercase;
+  flex-shrink:0;margin-left:3px;
+  font-family:'Nunito',system-ui,sans-serif;
+}
+
+@media(max-width:420px){
+  .hud-brand,.hud-sep,.hud-bncc{display:none;}
+  .hud-pill{padding:2px 6px;}
+}
+@media(max-width:340px){
+  .pill-items{display:none;}
+}
+
+#ov{
+  position:fixed;inset:0;
+  background:linear-gradient(165deg,
+    #1a0501 0%,
+    #3d1505 18%,
+    #7c2a08 42%,
+    #b45309 68%,
+    #d97706 85%,
+    #f59e0b 100%);
+  display:flex;flex-direction:column;align-items:center;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  z-index:20;
+  padding:0 max(16px,env(safe-area-inset-left,0px))
+           max(20px,env(safe-area-inset-bottom,0px))
+           max(16px,env(safe-area-inset-right,0px));
+}
+
+.ov-deco{
+  order:999;
+  margin-top:auto;
+  display:flex;justify-content:space-between;align-items:flex-end;
+  width:100%;padding:0 4px;
+  pointer-events:none;
+  font-size:clamp(4rem,16vw,9rem);
+  opacity:.14;line-height:1;
+  flex-shrink:0;
+}
+
+.ov-inner{
+  display:flex;flex-direction:column;align-items:center;
+  gap:.7rem;width:100%;max-width:400px;
+  padding-top:max(24px,env(safe-area-inset-top,0px));
+  padding-bottom:12px;
+  position:relative;z-index:1;
+}
+
+.ov-mascot{
+  font-size:clamp(2.8rem,12vw,4.8rem);line-height:1;
+  filter:drop-shadow(0 4px 20px rgba(0,0,0,.55));
+  animation:mascot-float 2.6s ease-in-out infinite;
+}
+@keyframes mascot-float{
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-10px);}
+}
+
+.ov-title{
+  font-family:'Nunito',system-ui,sans-serif;
+  font-weight:900;
+  font-size:clamp(1.5rem,5.5vw,2.2rem);
+  color:#fef3c7;text-align:center;line-height:1.1;
+  text-shadow:0 2px 24px rgba(0,0,0,.8),0 0 50px rgba(217,119,6,.5);
+  margin:0;
+}
+
+.ov-route{
+  font-family:'Nunito',system-ui,sans-serif;
+  font-size:clamp(.74rem,2.6vw,.86rem);
+  color:#fbbf24;font-weight:700;letter-spacing:.02em;text-align:center;
+}
+
+.ov-desc{
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:clamp(.8rem,2.5vw,.9rem);
+  color:rgba(255,255,255,.65);
+  text-align:center;max-width:320px;line-height:1.5;
+}
+
+.ov-card{
+  background:rgba(0,0,0,.35);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:14px;padding:12px 16px;
+  width:100%;
+}
+.ov-card-title{
+  font-family:'Nunito',system-ui,sans-serif;
+  font-weight:800;font-size:clamp(.82rem,2.5vw,.9rem);
+  color:#fef3c7;margin-bottom:8px;
+}
+.ov-card ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:5px;}
+.ov-card li{
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:clamp(.78rem,2.4vw,.84rem);
+  color:rgba(255,255,255,.72);
+  display:flex;align-items:flex-start;gap:7px;line-height:1.4;
+}
+.ov-card li::before{content:'▸';color:#f59e0b;flex-shrink:0;font-size:.82em;margin-top:.18em;}
+
+.btn-primary{
+  display:block;width:100%;max-width:300px;
+  padding:.88rem 1.5rem;
+  background:linear-gradient(135deg,#f59e0b 0%,#d97706 55%,#b45309 100%);
+  color:#fff;
+  font-family:'Nunito',system-ui,sans-serif;
+  font-size:clamp(.95rem,3.3vw,1.05rem);font-weight:800;
+  border:none;border-radius:14px;cursor:pointer;
+  box-shadow:0 4px 22px rgba(217,119,6,.55),0 2px 6px rgba(0,0,0,.35);
+  transition:transform .12s,box-shadow .12s;
+  letter-spacing:.01em;text-align:center;text-decoration:none;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 7px 28px rgba(217,119,6,.65),0 2px 8px rgba(0,0,0,.35);}
+.btn-primary:active{transform:scale(.97);box-shadow:0 2px 12px rgba(217,119,6,.4);}
+
+.btn-secondary{
+  display:block;width:100%;max-width:300px;
+  padding:.65rem 1.5rem;
+  background:rgba(255,255,255,.07);
+  border:1.5px solid rgba(255,255,255,.18);
+  border-radius:12px;
+  color:rgba(255,255,255,.8);
+  font-family:'Nunito',system-ui,sans-serif;
+  font-size:clamp(.82rem,2.6vw,.9rem);font-weight:700;
+  cursor:pointer;text-align:center;text-decoration:none;
+  transition:background .15s,border-color .15s,color .15s;
+}
+.btn-secondary:hover{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.3);color:#fff;}
+.btn-secondary:active{background:rgba(255,255,255,.2);}
+
+.ov-bncc{
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:clamp(.66rem,1.8vw,.74rem);
+  color:rgba(251,191,36,.38);
+  text-align:center;letter-spacing:.03em;
+}
+
+.result-badge-wrap{animation:badge-pop .45s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes badge-pop{from{transform:scale(0) rotate(-20deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
+
+.result-badge{
+  font-size:clamp(3rem,13vw,5rem);line-height:1;
+  filter:drop-shadow(0 4px 20px rgba(0,0,0,.6));
+}
+
+.result-title{
+  font-family:'Nunito',system-ui,sans-serif;font-weight:900;
+  font-size:clamp(1.35rem,5vw,1.9rem);
+  color:#fef3c7;text-align:center;
+  text-shadow:0 2px 18px rgba(0,0,0,.8);
+  margin:0;
+  animation:slide-up .3s .1s ease both;
+}
+
+.result-stats{
+  display:flex;gap:8px;justify-content:center;
+  width:100%;
+  animation:slide-up .3s .2s ease both;
+}
+
+.stat-card{
+  flex:1;min-width:0;max-width:120px;
+  background:rgba(0,0,0,.35);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:12px;padding:10px 6px;text-align:center;
+}
+.stat-icon{font-size:1.3rem;margin-bottom:3px;line-height:1;}
+.stat-val{
+  font-family:'Nunito',system-ui,sans-serif;font-weight:900;
+  font-size:clamp(.9rem,3.5vw,1.15rem);color:#fef3c7;line-height:1.1;
+}
+.stat-lbl{
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:.7rem;color:rgba(255,255,255,.5);
+  margin-top:3px;text-transform:uppercase;letter-spacing:.05em;
+}
+
+.result-msg{
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:clamp(.82rem,2.6vw,.92rem);
+  color:rgba(255,255,255,.72);
+  text-align:center;max-width:310px;line-height:1.5;
+  animation:slide-up .3s .3s ease both;
+}
+
+.result-btns{
+  display:flex;flex-direction:column;align-items:center;gap:9px;
+  width:100%;
+  animation:slide-up .3s .4s ease both;
+}
+
+@keyframes slide-up{from{transform:translateY(14px);opacity:0;}to{transform:translateY(0);opacity:1;}}
 </style>
 </head>
 <body>
+
 <div id="hud">
-  <span>🦏 Tropeiro</span>
-  <span>💰 R$<b id="hm">0</b></span>
-  <span>🌵 <b id="hd">0</b>m</span>
-  <span>🎒 <b id="hi">0</b> itens</span>
-  <span class="ml">❤️ <b id="hv">3</b> | BNCC 1,5,7</span>
-</div>
-<canvas id="c"></canvas>
-<div id="ov">
-  <div style="font-size:3.5rem">🦏</div>
-  <h1>Tropeiro do Sertão</h1>
-  <p>Você é um tropeiro sergipano atravessando a Caatinga entre Canindé de São Francisco e Itabaiana!<br>Colete produtos regionais e desvie dos obstáculos!</p>
-  <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:9px 13px;text-align:left;font-size:clamp(.75rem,2.7vw,.84rem);color:#e2e8f0;max-width:380px;width:100%">
-    <b>🕹️ Como Jogar:</b><br>
-    • <b>Toque na tela</b> para pular<br>
-    • Desvie de cactos, pedras e buracos<br>
-    • Toque nos itens coloridos para coletar<br>
-    • 3 vidas — cada obstáculo remove uma!
+  <button class="back-btn" onclick="handleBack()" aria-label="Voltar ao Portal">←</button>
+  <span class="hud-brand">🫏</span>
+  <div class="hud-sep"></div>
+  <div class="hud-pills">
+    <span class="hud-pill">💰 R$<b id="hm">0</b></span>
+    <span class="hud-pill">🌵 <b id="hd">0</b>m</span>
+    <span class="hud-pill pill-items">🎒 <b id="hi">0</b></span>
   </div>
-  <button class="btn" onclick="startGame()">Arreiar o Jumento! 🦏</button>
+  <div class="hud-sep2"></div>
+  <div class="hud-sep"></div>
+  <div class="hud-lives">
+    <span id="h1" class="heart full">❤️</span>
+    <span id="h2" class="heart full">❤️</span>
+    <span id="h3" class="heart full">❤️</span>
+  </div>
+  <b id="hv" aria-hidden="true">3</b>
+  <span class="hud-bncc">BNCC</span>
 </div>
+
+<canvas id="c"></canvas>
+
+<div id="ov">
+  <div class="ov-inner">
+    <div class="ov-mascot">🫏</div>
+    <h1 class="ov-title">Tropeiro do Sertão</h1>
+    <p class="ov-route">📍 Canindé de São Francisco → Itabaiana</p>
+    <p class="ov-desc">Você é um tropeiro sergipano atravessando a Caatinga! Colete produtos regionais e desvie dos obstáculos.</p>
+    <div class="ov-card">
+      <p class="ov-card-title">🕹️ Como Jogar</p>
+      <ul>
+        <li>Toque na tela ou pressione Espaço para pular</li>
+        <li>Desvie de cactos, pedras e buracos</li>
+        <li>Toque nos itens coloridos para coletar</li>
+        <li>Você tem 3 vidas — cada obstáculo remove uma!</li>
+      </ul>
+    </div>
+    <button class="btn-primary" onclick="startGame()">Arreiar o Jumento! 🫏</button>
+    <button class="btn-secondary" onclick="window.location.href='../index.html'">← Voltar ao Portal</button>
+    <p class="ov-bncc">🎓 BNCC: EF05MA12 · EF06GE05 · EF07HI14</p>
+  </div>
+  <div class="ov-deco" aria-hidden="true"><span>🌵</span><span>🌵</span></div>
+</div>
+
 <script>
 const cv=document.getElementById('c'),ctx=cv.getContext('2d');
 let W,H,running=false,money=0,dist=0,items=0,lives=3,lt=0;
@@ -105,60 +381,49 @@ function update(dt){
 function hit(){if(player.hitFlash>0)return;lives--;player.hitFlash=1;player.squat=1;if(lives<=0){gameOver=true;showResult();}}
 function jump(){if(!player.grounded||gameOver||!running)return;player.vy=-20;player.grounded=false;}
 function render(now){
+  for(let i=1;i<=3;i++){const h=document.getElementById('h'+i);if(h)h.className='heart'+(i<=lives?' full':' empty');}
   ctx.clearRect(0,44,W,H-44);
-  // Sky gradient - vibrant caatinga sunset
   const sk=ctx.createLinearGradient(0,44,0,H*.52);
   sk.addColorStop(0,'#7c1c00');sk.addColorStop(.35,'#ea580c');sk.addColorStop(.7,'#f97316');sk.addColorStop(1,'#fbbf24');
   ctx.fillStyle=sk;ctx.fillRect(0,44,W,H*.52-44);
-  // Sun halo
   const sg=ctx.createRadialGradient(W*.82,H*.15,0,W*.82,H*.15,80);
   sg.addColorStop(0,'rgba(255,200,50,.9)');sg.addColorStop(.4,'rgba(251,191,36,.3)');sg.addColorStop(1,'transparent');
   ctx.fillStyle=sg;ctx.beginPath();ctx.arc(W*.82,H*.15,80,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='#fef9c3';ctx.beginPath();ctx.arc(W*.82,H*.15,36,0,Math.PI*2);ctx.fill();
-  // Heat shimmer lines
   ctx.strokeStyle='rgba(255,150,50,.1)';ctx.lineWidth=1.5;
   for(let i=0;i<5;i++){const hy=H*.42+i*H*.018;ctx.beginPath();ctx.moveTo(0,hy);ctx.bezierCurveTo(W*.3,hy-4,W*.7,hy+4,W,hy);ctx.stroke();}
-  // Clouds
   clouds.forEach(cl=>{
     ctx.fillStyle='rgba(255,180,80,.45)';
     [[0,0,24],[22,-6,18],[40,2,20],[-22,-4,16]].forEach(([dx,dy,r])=>{
       ctx.beginPath();ctx.arc(cl.x+dx*cl.w,44+(cl.y-44)*1+dy,r*cl.w,0,Math.PI*2);ctx.fill();
     });
   });
-  // Distant mountains
   ctx.fillStyle='rgba(185,60,10,.4)';
   [0,.15,.32,.5,.67,.82].forEach((px,i)=>{
     const hh=H*.095+i*H*.014;
     ctx.beginPath();ctx.moveTo(px*W,H*.5);ctx.bezierCurveTo(px*W+W*.04,H*.5-hh,px*W+W*.08,H*.5-hh*.8,px*W+W*.13,H*.5);ctx.fill();
   });
-  // Ground
   const gnd=ctx.createLinearGradient(0,groundY,0,H);
   gnd.addColorStop(0,'#b45309');gnd.addColorStop(.3,'#92400e');gnd.addColorStop(1,'#78350f');
   ctx.fillStyle=gnd;ctx.fillRect(0,groundY,W,H-groundY);
-  // Ground texture
   ctx.strokeStyle='rgba(120,53,15,.55)';ctx.lineWidth=1.5;
   for(let i=0;i<14;i++){const gx=(i*W*.075-scrollX*.07)%W;ctx.beginPath();ctx.moveTo(gx,groundY+6);ctx.lineTo(gx+22,groundY+14);ctx.lineTo(gx+12,groundY+24);ctx.stroke();}
-  // Background cacti
   ctx.fillStyle='rgba(21,128,61,.3)';
   for(let i=0;i<7;i++){const bx=((i*W*.16+scrollX*.12)%W)-20,by=groundY;ctx.beginPath();ctx.roundRect(bx,by-48,12,48,4);ctx.fill();ctx.beginPath();ctx.roundRect(bx-11,by-32,11,9,2);ctx.fill();ctx.beginPath();ctx.roundRect(bx+12,by-38,11,9,2);ctx.fill();}
-  // Collectibles — bigger and more visible
   collectibles.forEach(it=>{
     const by=Math.sin(it.bob)*10;
     const pr=28+Math.sin(it.pulse)*3;
-    // Glow
     ctx.shadowColor=it.clr;ctx.shadowBlur=16;
     ctx.fillStyle=it.bg;ctx.beginPath();ctx.arc(it.x,it.y+by,pr,0,Math.PI*2);ctx.fill();
     ctx.fillStyle=it.clr;ctx.lineWidth=2.5;ctx.strokeStyle=it.clr;ctx.stroke();
     ctx.shadowBlur=0;
-    // Emoji
     ctx.font=`${Math.max(22,Math.round(pr*.85))}px system-ui`;ctx.textAlign='center';
     ctx.fillText(it.em,it.x,it.y+by+8);
-    // Name badge
     ctx.fillStyle='rgba(0,0,0,.75)';ctx.beginPath();ctx.roundRect(it.x-24,it.y+by-pr-22,48,18,5);ctx.fill();
-    ctx.fillStyle='#fff';ctx.font=`bold ${Math.max(10,Math.round(pr*.38))}px system-ui`;
+    ctx.fillStyle='#fff';
+    ctx.font=`800 ${Math.max(10,Math.round(pr*.38))}px 'Nunito',system-ui`;
     ctx.fillText(`R$${it.val}`,it.x,it.y+by-pr-8);
   });
-  // Obstacles
   obstacles.forEach(ob=>{
     if(ob.type==='cactus'||ob.type==='cactus2'){
       ctx.fillStyle=ob.clr;
@@ -177,9 +442,10 @@ function render(now){
   });
   drawTropeiro(now);floats.forEach(f=>f.draw());
   if(player.hitFlash>0){ctx.fillStyle=`rgba(239,68,68,${player.hitFlash*.3})`;ctx.fillRect(0,44,W,H);}
-  // Distance label
   ctx.fillStyle='rgba(0,0,0,.55)';ctx.beginPath();ctx.roundRect(W*.25,H*.78,W*.5,28,8);ctx.fill();
-  ctx.fillStyle='#fef3c7';ctx.font=`bold ${Math.max(12,Math.round(W*.032))}px system-ui`;ctx.textAlign='center';
+  ctx.fillStyle='#fef3c7';
+  ctx.font=`700 ${Math.max(12,Math.round(W*.032))}px 'Nunito',system-ui`;
+  ctx.textAlign='center';
   ctx.fillText(`🗺️ Canindé → Itabaiana: ${Math.floor(dist)}m`,W*.5,H*.78+19);
 }
 function drawTropeiro(t){
@@ -191,7 +457,6 @@ function drawTropeiro(t){
   if(player.hitFlash>0){ctx.shadowColor='#ef4444';ctx.shadowBlur=22;}
   const stretch=jump?1.18:1-sq*.12;
   ctx.scale(1,stretch);
-  // Donkey body
   ctx.fillStyle='#a8a29e';ctx.beginPath();ctx.ellipse(0,12,38,20,0,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='#9ca3af';ctx.beginPath();ctx.ellipse(-34,0,17,13,-.3,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='#9ca3af';ctx.beginPath();ctx.ellipse(-42,-13,5.5,13,.2,0,Math.PI*2);ctx.fill();
@@ -208,7 +473,6 @@ function drawTropeiro(t){
   });
   ctx.strokeStyle='#78716c';ctx.lineWidth=4.5;ctx.lineCap='round';
   ctx.beginPath();ctx.moveTo(36,6);ctx.bezierCurveTo(52,-4,54,12,50,22);ctx.stroke();
-  // Saddle bags
   ctx.fillStyle='#92400e';ctx.beginPath();ctx.roundRect(-14,18,30,24,5);ctx.fill();
   ctx.fillStyle='#78350f';ctx.beginPath();ctx.roundRect(-12,20,13,11,2);ctx.fill();ctx.beginPath();ctx.roundRect(6,20,11,11,2);ctx.fill();
   ctx.save();ctx.translate(0,-22);
@@ -228,21 +492,60 @@ function drawTropeiro(t){
 class FloatTxt{
   constructor(t,x,y,c,s=17){this.t=t;this.x=x;this.y=y;this.c=c;this.s=s;this.p=0;}
   update(dt){this.p+=dt*.038;this.y-=1.2;return this.p<1;}
-  draw(){ctx.save();ctx.globalAlpha=1-this.p;ctx.fillStyle=this.c;ctx.font=`700 ${this.s}px system-ui`;ctx.textAlign='center';ctx.fillText(this.t,this.x,this.y);ctx.restore();}
+  draw(){
+    ctx.save();
+    ctx.globalAlpha=1-this.p;
+    ctx.fillStyle=this.c;
+    ctx.font=`800 ${this.s}px 'Nunito',system-ui`;
+    ctx.textAlign='center';
+    ctx.fillText(this.t,this.x,this.y);
+    ctx.restore();
+  }
 }
 function showResult(){
   const ov=document.getElementById('ov');
   let badge='🌵',title='',msg='';
   if(dist>=600&&money>=80){badge='🏆';title='Tropeiro Lendário!';msg='Oxente! Você atravessou o Sertão sergipano de ponta a ponta!';}
   else if(dist>=300){badge='⭐';title='Tropeiro Experiente!';msg='Boa viagem! O Sertão de Sergipe te recebeu bem.';}
-  else if(money>=40){badge='🦏';title='Tropeiro em Formação!';msg='Continue treinando — a Caatinga tem mais segredos!';}
+  else if(money>=40){badge='🫏';title='Tropeiro em Formação!';msg='Continue treinando — a Caatinga tem mais segredos!';}
   else{badge='🥜';title='Primeiro Passo!';msg='Todo tropeiro começa assim. Tente de novo!';}
-  ov.innerHTML=`<div style="font-size:3rem">${badge}</div><h1>${title}</h1>
-  <p>Você percorreu <b style="color:#fbbf24">${Math.floor(dist)}m</b>, coletou <b style="color:#22c55e">${items} produtos</b> e ganhou <b style="color:#22c55e">R$${money.toFixed(2)}</b>!</p>
-  <p>${msg}</p>
-  <p style="color:#78350f;font-size:.8rem">🌵 Caatinga Sergipana — Canindé de São Francisco</p>
-  <button class="btn" onclick="startGame()">Arreiar de Novo! 🦏</button>`;
+  ov.innerHTML=`
+    <div class="ov-inner">
+      <div class="result-badge-wrap"><div class="result-badge">${badge}</div></div>
+      <h1 class="result-title">${title}</h1>
+      <div class="result-stats">
+        <div class="stat-card">
+          <div class="stat-icon">🗺️</div>
+          <div class="stat-val">${Math.floor(dist)}m</div>
+          <div class="stat-lbl">distância</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">💰</div>
+          <div class="stat-val">R$${money.toFixed(0)}</div>
+          <div class="stat-lbl">arrecadado</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🎒</div>
+          <div class="stat-val">${items}</div>
+          <div class="stat-lbl">itens</div>
+        </div>
+      </div>
+      <p class="result-msg">${msg}</p>
+      <div class="result-btns">
+        <button class="btn-primary" onclick="startGame()">Arreiar de Novo! 🫏</button>
+        <button class="btn-secondary" onclick="window.location.href='../index.html'">← Voltar ao Portal</button>
+      </div>
+      <p class="ov-bncc">🌵 Caatinga Sergipana — Canindé de São Francisco</p>
+    </div>
+    <div class="ov-deco" aria-hidden="true"><span>🌵</span><span>🌵</span></div>`;
   ov.style.display='flex';
+}
+function handleBack(){
+  if(running&&!gameOver){
+    if(!confirm('Sair do jogo?\nSeu progresso será perdido.'))return;
+    running=false;
+  }
+  window.location.href='../index.html';
 }
 document.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();jump();}});
 cv.addEventListener('click',jump);
