@@ -380,36 +380,276 @@ function update(dt){
 }
 function hit(){if(player.hitFlash>0)return;lives--;player.hitFlash=1;player.squat=1;if(lives<=0){gameOver=true;showResult();}}
 function jump(){if(!player.grounded||gameOver||!running)return;player.vy=-20;player.grounded=false;}
+
+// ═══════════════════════════════════════════════════
+//  FASE B1 — render() com 6 camadas de parallax
+// ═══════════════════════════════════════════════════
 function render(now){
+  // — Corações DOM (inalterado) —
   for(let i=1;i<=3;i++){const h=document.getElementById('h'+i);if(h)h.className='heart'+(i<=lives?' full':' empty');}
   ctx.clearRect(0,44,W,H-44);
-  const sk=ctx.createLinearGradient(0,44,0,H*.52);
-  sk.addColorStop(0,'#7c1c00');sk.addColorStop(.35,'#ea580c');sk.addColorStop(.7,'#f97316');sk.addColorStop(1,'#fbbf24');
-  ctx.fillStyle=sk;ctx.fillRect(0,44,W,H*.52-44);
-  const sg=ctx.createRadialGradient(W*.82,H*.15,0,W*.82,H*.15,80);
-  sg.addColorStop(0,'rgba(255,200,50,.9)');sg.addColorStop(.4,'rgba(251,191,36,.3)');sg.addColorStop(1,'transparent');
-  ctx.fillStyle=sg;ctx.beginPath();ctx.arc(W*.82,H*.15,80,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#fef9c3';ctx.beginPath();ctx.arc(W*.82,H*.15,36,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='rgba(255,150,50,.1)';ctx.lineWidth=1.5;
-  for(let i=0;i<5;i++){const hy=H*.42+i*H*.018;ctx.beginPath();ctx.moveTo(0,hy);ctx.bezierCurveTo(W*.3,hy-4,W*.7,hy+4,W,hy);ctx.stroke();}
-  clouds.forEach(cl=>{
-    ctx.fillStyle='rgba(255,180,80,.45)';
-    [[0,0,24],[22,-6,18],[40,2,20],[-22,-4,16]].forEach(([dx,dy,r])=>{
-      ctx.beginPath();ctx.arc(cl.x+dx*cl.w,44+(cl.y-44)*1+dy,r*cl.w,0,Math.PI*2);ctx.fill();
+
+  // ——————————————————————————————————————————
+  // CAMADA 0: CÉU SUNSET (fixo)
+  // ——————————————————————————————————————————
+  const sk=ctx.createLinearGradient(0,44,0,groundY);
+  sk.addColorStop(0,'#1a0a3c');
+  sk.addColorStop(.12,'#4a1a8c');
+  sk.addColorStop(.32,'#8b2fc9');
+  sk.addColorStop(.55,'#c2410c');
+  sk.addColorStop(.76,'#ea580c');
+  sk.addColorStop(.9,'#f97316');
+  sk.addColorStop(1,'#fbbf24');
+  ctx.fillStyle=sk;ctx.fillRect(0,44,W,groundY-44);
+
+  // ——————————————————————————————————————————
+  // SOL (posição central-esquerda, como na referência)
+  // ——————————————————————————————————————————
+  const sx=W*.52,sy=groundY-H*.44;
+  const sg=ctx.createRadialGradient(sx,sy,0,sx,sy,H*.3);
+  sg.addColorStop(0,'rgba(255,245,150,1)');
+  sg.addColorStop(.1,'rgba(255,220,50,.95)');
+  sg.addColorStop(.22,'rgba(255,165,15,.72)');
+  sg.addColorStop(.42,'rgba(251,130,40,.42)');
+  sg.addColorStop(.65,'rgba(234,88,12,.18)');
+  sg.addColorStop(1,'transparent');
+  ctx.fillStyle=sg;ctx.beginPath();ctx.arc(sx,sy,H*.3,0,Math.PI*2);ctx.fill();
+  // Disco solar
+  ctx.fillStyle='rgba(255,255,210,.62)';ctx.beginPath();ctx.arc(sx,sy,54,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#fef9c3';ctx.beginPath();ctx.arc(sx,sy,38,0,Math.PI*2);ctx.fill();
+
+  // ——————————————————————————————————————————
+  // NUVENS DRAMÁTICAS DE PÔR-DO-SOL
+  // (posições gerenciadas pelo update() — apenas redesenho)
+  // ——————————————————————————————————————————
+  clouds.forEach((cl,idx)=>{
+    const a=.36+idx*.05;
+    // Núcleo roxo-arroxeado
+    ctx.fillStyle=`rgba(78,28,155,${a*.85})`;
+    [[0,0,28*cl.w],[26,-7,20*cl.w],[50,5,24*cl.w],[-24,-5,18*cl.w],[68,10,16*cl.w]].forEach(([dx,dy,r])=>{
+      if(r>1){ctx.beginPath();ctx.arc(cl.x+dx,cl.y+dy,r,0,Math.PI*2);ctx.fill();}
+    });
+    // Barriga laranja (iluminação do pôr-do-sol)
+    ctx.fillStyle=`rgba(234,88,12,${a*.3})`;
+    [[12,10,18*cl.w],[38,8,14*cl.w],[-10,9,12*cl.w]].forEach(([dx,dy,r])=>{
+      if(r>1){ctx.beginPath();ctx.arc(cl.x+dx,cl.y+dy,r,0,Math.PI*2);ctx.fill();}
+    });
+    // Contorno luminoso (efeito sol atrás)
+    ctx.fillStyle=`rgba(251,191,36,${a*.12})`;
+    [[0,-4,32*cl.w]].forEach(([dx,dy,r])=>{
+      if(r>1){ctx.beginPath();ctx.arc(cl.x+dx,cl.y+dy,r,0,Math.PI*2);ctx.fill();}
     });
   });
-  ctx.fillStyle='rgba(185,60,10,.4)';
-  [0,.15,.32,.5,.67,.82].forEach((px,i)=>{
-    const hh=H*.095+i*H*.014;
-    ctx.beginPath();ctx.moveTo(px*W,H*.5);ctx.bezierCurveTo(px*W+W*.04,H*.5-hh,px*W+W*.08,H*.5-hh*.8,px*W+W*.13,H*.5);ctx.fill();
-  });
+
+  // Shimmer de calor
+  ctx.strokeStyle='rgba(255,140,40,.06)';ctx.lineWidth=1.2;
+  for(let i=0;i<4;i++){
+    const hy=groundY-H*.09+i*H*.02;
+    ctx.beginPath();ctx.moveTo(0,hy);ctx.bezierCurveTo(W*.3,hy-3,W*.7,hy+3,W,hy);ctx.stroke();
+  }
+
+  // ——————————————————————————————————————————
+  // CAMADA 1: PENHASCOS/CHAPADAS DISTANTES (0.04×)
+  // Cor púrpura-azulada, silhueta rochosa irregular
+  // ——————————————————————————————————————————
+  {
+    const period=W+300;
+    const off=(scrollX*.04)%period;
+    for(let r=0;r<3;r++){
+      const ox=r*period-off;
+      if(ox>W+310)continue;
+      ctx.fillStyle='rgba(72,38,180,.44)';
+      ctx.beginPath();
+      ctx.moveTo(ox,groundY);
+      ctx.lineTo(ox,groundY-H*.3);
+      ctx.bezierCurveTo(ox+W*.08,groundY-H*.4,ox+W*.16,groundY-H*.37,ox+W*.26,groundY-H*.32);
+      ctx.bezierCurveTo(ox+W*.35,groundY-H*.27,ox+W*.42,groundY-H*.46,ox+W*.52,groundY-H*.51);
+      ctx.bezierCurveTo(ox+W*.62,groundY-H*.56,ox+W*.72,groundY-H*.46,ox+W*.8,groundY-H*.38);
+      ctx.bezierCurveTo(ox+W*.88,groundY-H*.3,ox+W*.96,groundY-H*.33,ox+period,groundY-H*.25);
+      ctx.lineTo(ox+period,groundY);
+      ctx.closePath();ctx.fill();
+      // Face iluminada (lado voltado ao sol)
+      ctx.fillStyle='rgba(110,65,220,.2)';
+      ctx.beginPath();
+      ctx.moveTo(ox+W*.5,groundY-H*.5);
+      ctx.bezierCurveTo(ox+W*.54,groundY-H*.53,ox+W*.58,groundY-H*.51,ox+W*.52,groundY-H*.51);
+      ctx.bezierCurveTo(ox+W*.46,groundY-H*.48,ox+W*.48,groundY-H*.47,ox+W*.5,groundY-H*.5);
+      ctx.fill();
+    }
+  }
+
+  // ——————————————————————————————————————————
+  // CAMADA 2: SILHUETA DE VILA/IGREJA (0.08×)
+  // Referência: Canindé de São Francisco
+  // ——————————————————————————————————————————
+  {
+    const period=W*1.5;
+    const off=(scrollX*.08)%period;
+    for(let r=0;r<3;r++){
+      const ox=r*period-off;
+      if(ox>W+100)continue;
+      const vy=groundY-H*.17;
+      // Casas
+      ctx.fillStyle='rgba(195,110,25,.28)';
+      for(let hh=0;hh<6;hh++){
+        const hx=ox+W*.04+hh*W*.07;
+        const ht=H*.068+hh*H*.009;
+        ctx.fillRect(hx,vy-ht,W*.044,ht);
+        ctx.beginPath();ctx.moveTo(hx-3,vy-ht);ctx.lineTo(hx+W*.022,vy-ht-H*.036);ctx.lineTo(hx+W*.044+3,vy-ht);ctx.closePath();ctx.fill();
+      }
+      // Igreja (cúpula + torre)
+      const chx=ox+W*.58;
+      ctx.fillStyle='rgba(220,170,70,.32)';
+      ctx.fillRect(chx,vy-H*.19,W*.065,H*.19);
+      ctx.fillRect(chx+W*.02,vy-H*.27,W*.025,H*.08);
+      ctx.beginPath();ctx.arc(chx+W*.0325,vy-H*.27,W*.013,Math.PI,0);ctx.fill();
+      // Janelinha da torre
+      ctx.fillStyle='rgba(0,0,0,.3)';
+      ctx.fillRect(chx+W*.028,vy-H*.255,W*.009,H*.018);
+    }
+  }
+
+  // ——————————————————————————————————————————
+  // CAMADA 3: COLINAS ONDULADAS (0.15×)
+  // Vegetação típica caatinga (verde-âmbar)
+  // ——————————————————————————————————————————
+  // Colinas traseiras (mais escuras, mais distantes)
+  {
+    const period=W*.95;
+    const off=(scrollX*.15)%period;
+    const ph=groundY-H*.24,vh=groundY-H*.13;
+    const startX=-(off+period);
+    ctx.fillStyle='rgba(72,138,46,.26)';
+    ctx.beginPath();
+    ctx.moveTo(startX,groundY);
+    ctx.lineTo(startX,vh);
+    for(let r=0;r<7;r++){
+      const hx=startX+r*period;
+      ctx.bezierCurveTo(hx+period*.15,vh,hx+period*.3,ph,hx+period*.45,ph);
+      ctx.bezierCurveTo(hx+period*.6,ph,hx+period*.75,vh,hx+period,vh);
+    }
+    ctx.lineTo(startX+7*period,groundY);
+    ctx.closePath();ctx.fill();
+  }
+  // Colinas dianteiras (mais vívidas, mais próximas)
+  {
+    const period=W*.75;
+    const off=(scrollX*.22)%period;
+    const ph=groundY-H*.16,vh=groundY-H*.07;
+    const startX=-(off+period);
+    ctx.fillStyle='rgba(55,120,38,.2)';
+    ctx.beginPath();
+    ctx.moveTo(startX,groundY);
+    ctx.lineTo(startX,vh);
+    for(let r=0;r<8;r++){
+      const hx=startX+r*period;
+      ctx.bezierCurveTo(hx+period*.15,vh,hx+period*.3,ph,hx+period*.45,ph);
+      ctx.bezierCurveTo(hx+period*.6,ph,hx+period*.75,vh,hx+period,vh);
+    }
+    ctx.lineTo(startX+8*period,groundY);
+    ctx.closePath();ctx.fill();
+  }
+
+  // ——————————————————————————————————————————
+  // CHÃO — gradiente terra sertaneja
+  // ——————————————————————————————————————————
   const gnd=ctx.createLinearGradient(0,groundY,0,H);
-  gnd.addColorStop(0,'#b45309');gnd.addColorStop(.3,'#92400e');gnd.addColorStop(1,'#78350f');
+  gnd.addColorStop(0,'#c25a0a');
+  gnd.addColorStop(.14,'#a3450b');
+  gnd.addColorStop(.38,'#8b380a');
+  gnd.addColorStop(1,'#5c1f04');
   ctx.fillStyle=gnd;ctx.fillRect(0,groundY,W,H-groundY);
-  ctx.strokeStyle='rgba(120,53,15,.55)';ctx.lineWidth=1.5;
-  for(let i=0;i<14;i++){const gx=(i*W*.075-scrollX*.07)%W;ctx.beginPath();ctx.moveTo(gx,groundY+6);ctx.lineTo(gx+22,groundY+14);ctx.lineTo(gx+12,groundY+24);ctx.stroke();}
-  ctx.fillStyle='rgba(21,128,61,.3)';
-  for(let i=0;i<7;i++){const bx=((i*W*.16+scrollX*.12)%W)-20,by=groundY;ctx.beginPath();ctx.roundRect(bx,by-48,12,48,4);ctx.fill();ctx.beginPath();ctx.roundRect(bx-11,by-32,11,9,2);ctx.fill();ctx.beginPath();ctx.roundRect(bx+12,by-38,11,9,2);ctx.fill();}
+  // Brilho quente da superfície
+  ctx.fillStyle='rgba(251,146,60,.22)';ctx.fillRect(0,groundY,W,5);
+  // Camada de poeira
+  ctx.fillStyle='rgba(217,119,6,.07)';ctx.fillRect(0,groundY,W,24);
+
+  // ——————————————————————————————————————————
+  // CAMADA 4: CERCA DE MADEIRA (0.35×)
+  // Mourões verticais + ripas horizontais
+  // ——————————————————————————————————————————
+  {
+    const sp=130;
+    const off=(scrollX*.35)%sp;
+    // Ripas primeiro (ficam atrás dos mourões)
+    ctx.strokeStyle='#7c3200';ctx.lineWidth=5;ctx.lineCap='butt';
+    ctx.beginPath();ctx.moveTo(0,groundY-50);ctx.lineTo(W,groundY-50);ctx.stroke();
+    ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(0,groundY-28);ctx.lineTo(W,groundY-28);ctx.stroke();
+    // Mourões
+    for(let i=-1;i<W/sp+2;i++){
+      const fx=i*sp-off;
+      ctx.fillStyle='#92400e';ctx.fillRect(fx-4,groundY-70,8,70);
+      ctx.fillStyle='#b45309';ctx.fillRect(fx-5,groundY-72,10,5);
+      ctx.strokeStyle='rgba(0,0,0,.18)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(fx+1,groundY-65);ctx.lineTo(fx+1,groundY-5);ctx.stroke();
+      ctx.strokeStyle='rgba(255,255,255,.08)';
+      ctx.beginPath();ctx.moveTo(fx-2,groundY-65);ctx.lineTo(fx-2,groundY-5);ctx.stroke();
+    }
+  }
+
+  // Textura do chão (trilhas de cascos)
+  ctx.strokeStyle='rgba(120,53,15,.32)';ctx.lineWidth=1;
+  for(let i=0;i<16;i++){
+    const gx=((i*W*.065-scrollX*.04)%W+W)%W;
+    ctx.beginPath();ctx.moveTo(gx,groundY+5);ctx.lineTo(gx+22,groundY+15);ctx.stroke();
+  }
+  // Pedrinhas
+  ctx.fillStyle='rgba(90,55,30,.5)';
+  for(let i=0;i<10;i++){
+    const px=((i*139+scrollX*.07)%W+W)%W;
+    const py=groundY+9+i%18;
+    ctx.beginPath();ctx.ellipse(px,py,4+i%4,2+i%2,i*.7,0,Math.PI*2);ctx.fill();
+  }
+
+  // ——————————————————————————————————————————
+  // CAMADA 5: PRIMEIRO PLANO — flores + arbustos (0.65×)
+  // Girassóis do sertão + vegetação rasteira
+  // ——————————————————————————————————————————
+  {
+    const sp=165;
+    const off=(scrollX*.65)%sp;
+    for(let i=-1;i<W/sp+2;i++){
+      const fx=i*sp-off;
+      if(i%3===0){
+        // Cluster de girassóis
+        for(let f=0;f<6;f++){
+          const flx=fx+f*22-50;
+          const fly=groundY-7-Math.abs(f-2)*4;
+          ctx.strokeStyle='#15803d';ctx.lineWidth=2;
+          ctx.beginPath();ctx.moveTo(flx,fly+20);ctx.lineTo(flx,fly);ctx.stroke();
+          ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(flx,fly,6,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle='#92400e';ctx.beginPath();ctx.arc(flx,fly,2.5,0,Math.PI*2);ctx.fill();
+        }
+      } else if(i%3===1){
+        // Arbusto de caatinga
+        ctx.fillStyle='rgba(21,128,61,.52)';
+        ctx.beginPath();ctx.ellipse(fx,groundY-11,25,14,0,0,Math.PI*2);ctx.fill();
+        ctx.beginPath();ctx.ellipse(fx+22,groundY-7,16,10,.1,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='rgba(21,128,61,.32)';
+        ctx.beginPath();ctx.ellipse(fx-18,groundY-6,12,8,-.1,0,Math.PI*2);ctx.fill();
+      } else {
+        // Pedra + graminha seca
+        ctx.fillStyle='rgba(100,70,40,.6)';
+        ctx.beginPath();ctx.ellipse(fx,groundY-8,18,10,.2,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='rgba(21,128,61,.28)';
+        ctx.beginPath();ctx.ellipse(fx,groundY-15,8,6,0,0,Math.PI*2);ctx.fill();
+      }
+    }
+  }
+
+  // Cactos de fundo (distância média, parallax original mantido)
+  ctx.fillStyle='rgba(21,128,61,.28)';
+  for(let i=0;i<6;i++){
+    const bx=((i*W*.17+scrollX*.12)%W)-20,by=groundY;
+    ctx.beginPath();ctx.roundRect(bx,by-54,13,54,5);ctx.fill();
+    ctx.beginPath();ctx.roundRect(bx-14,by-36,14,10,3);ctx.fill();
+    ctx.beginPath();ctx.roundRect(bx+13,by-42,13,10,3);ctx.fill();
+  }
+
+  // ——————————————————————————————————————————
+  // COLETÁVEIS (inalterado)
+  // ——————————————————————————————————————————
   collectibles.forEach(it=>{
     const by=Math.sin(it.bob)*10;
     const pr=28+Math.sin(it.pulse)*3;
@@ -424,6 +664,10 @@ function render(now){
     ctx.font=`800 ${Math.max(10,Math.round(pr*.38))}px 'Nunito',system-ui`;
     ctx.fillText(`R$${it.val}`,it.x,it.y+by-pr-8);
   });
+
+  // ——————————————————————————————————————————
+  // OBSTÁCULOS (inalterado)
+  // ——————————————————————————————————————————
   obstacles.forEach(ob=>{
     if(ob.type==='cactus'||ob.type==='cactus2'){
       ctx.fillStyle=ob.clr;
@@ -440,14 +684,23 @@ function render(now){
       ctx.fillStyle='rgba(0,0,0,.7)';ctx.beginPath();ctx.ellipse(ob.x+ob.w/2,groundY+5,ob.w/2,9,0,0,Math.PI*2);ctx.fill();
     }
   });
+
+  // ——————————————————————————————————————————
+  // PERSONAGEM + FLOATS (inalterado)
+  // ——————————————————————————————————————————
   drawTropeiro(now);floats.forEach(f=>f.draw());
+
+  // Flash de dano
   if(player.hitFlash>0){ctx.fillStyle=`rgba(239,68,68,${player.hitFlash*.3})`;ctx.fillRect(0,44,W,H);}
+
+  // Rótulo de distância
   ctx.fillStyle='rgba(0,0,0,.55)';ctx.beginPath();ctx.roundRect(W*.25,H*.78,W*.5,28,8);ctx.fill();
   ctx.fillStyle='#fef3c7';
   ctx.font=`700 ${Math.max(12,Math.round(W*.032))}px 'Nunito',system-ui`;
   ctx.textAlign='center';
   ctx.fillText(`🗺️ Canindé → Itabaiana: ${Math.floor(dist)}m`,W*.5,H*.78+19);
 }
+
 function drawTropeiro(t){
   const x=player.x,y=player.y;
   const jump=!player.grounded;
