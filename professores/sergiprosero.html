@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SergiPróspero</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f0e8;--fg:#1a1a1a;--accent:#065f46;--gold:#b45309}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--fg);min-height:100vh}
+@media(prefers-color-scheme:dark){:root{--bg:#1a1a1a;--fg:#f5f0e8}body{background:var(--bg);color:var(--fg)}}
+
+/* NAV */
+.top-bar{background:#065f46;color:white;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;position:sticky;top:0;z-index:10}
+.top-bar h1{font-family:'Playfair Display',serif;font-size:18px;font-weight:900}
+.tabs{display:flex;gap:2px;overflow-x:auto;flex-wrap:nowrap}
+.tab{background:rgba(255,255,255,.15);border:none;color:white;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap;transition:.15s}
+.tab.active,.tab:hover{background:rgba(255,255,255,.3)}
+.print-btn{background:#d97706;color:white;border:none;padding:6px 14px;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap}
+.print-btn:hover{background:#b45309}
+
+/* SECTIONS */
+.section{display:none;padding:16px;max-width:1200px;margin:0 auto}
+.section.active{display:block}
+
+/* ===== BOARD ===== */
+.board-wrap{overflow:auto;padding:8px}
+.board{display:inline-flex;flex-direction:column;border:3px solid #1a1a1a;background:#d1fae5;font-family:'Inter',sans-serif}
+.b-row{display:flex}
+.b-mid{display:flex}
+.b-col{display:flex;flex-direction:column}
+
+/* Square base */
+.sq{border:1px solid #374151;position:relative;overflow:hidden;background:white;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:2px;text-align:center}
+.sq-corner{width:72px;height:72px;padding:4px;justify-content:center;gap:2px}
+.sq-h{width:48px;height:72px;font-size:5.5px}
+.sq-v{width:72px;height:48px;font-size:5.5px;flex-direction:row;justify-content:flex-start;gap:3px;padding:2px 3px}
+
+/* Color bands */
+.cband{flex-shrink:0;border-radius:1px}
+.sq-h .cband{width:100%;height:11px;order:-1}
+.sq-v .cband{height:100%;width:11px}
+
+/* Square content */
+.sq-nm{font-weight:700;line-height:1.15;word-break:break-word;text-align:center;font-size:5.5px}
+.sq-v .sq-nm{text-align:left;font-size:5px}
+.sq-pr{font-size:5px;font-weight:700;color:#374151;margin-top:1px}
+.sq-ic{font-size:16px;line-height:1}
+.sq-corner .sq-ic{font-size:22px}
+.sq-sub{font-size:4.5px;color:#6b7280;line-height:1.1}
+
+/* Corner colors */
+.sq-inicio{background:linear-gradient(135deg,#fef3c7,#fde68a)}
+.sq-sebrae{background:#e0f2fe}
+.sq-feira{background:#d1fae5}
+.sq-sebrae2{background:#ede9fe}
+.sq-desafio{background:#fef2f2}
+.sq-ideia{background:#fffbeb}
+.sq-imposto{background:#fee2e2}
+.sq-bonus{background:#f0fdf4}
+.sq-servico{background:#ecfeff}
+
+/* Board center */
+.b-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;background:linear-gradient(135deg,#d1fae5,#cffafe,#dbeafe);gap:6px;position:relative;overflow:hidden}
+.b-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:#065f46;line-height:1;text-align:center}
+.b-sub{font-size:9px;color:#047857;font-weight:600;text-align:center;letter-spacing:.5px;text-transform:uppercase}
+.b-bncc{background:white;border-radius:8px;padding:5px 8px;font-size:7px;color:#374151;text-align:center;line-height:1.4;border:1px solid #d1fae5;max-width:200px}
+.b-logo{font-size:40px;line-height:1}
+.b-map{opacity:.12;position:absolute;font-size:120px;pointer-events:none;user-select:none}
+
+/* Legend */
+.b-legend{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;margin-top:4px}
+.b-leg{display:flex;align-items:center;gap:2px;font-size:6px;color:#374151}
+.b-leg-dot{width:8px;height:8px;border-radius:2px}
+
+/* ===== PROPERTY CARDS ===== */
+.cards-section{padding:8mm 6mm}
+.cards-title{font-family:'Playfair Display',serif;font-size:20px;color:#065f46;margin-bottom:12px;font-weight:700}
+.cards-grid{display:flex;flex-wrap:wrap;gap:4mm}
+.prop-card{width:85mm;min-height:52mm;border:1.5px solid #333;border-radius:5px;overflow:hidden;background:white;display:flex;flex-direction:column;font-size:8px;flex-shrink:0}
+.pc-head{min-height:16mm;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;padding:4px 6px;text-align:center;gap:2px}
+.pc-name{font-size:11px;font-weight:800;line-height:1.1}
+.pc-region{font-size:8px;opacity:.9;font-weight:500}
+.pc-attraction{font-size:7px;opacity:.8;font-style:italic}
+.pc-body{flex:1;padding:4px 6px;display:flex;flex-direction:column;gap:1.5px}
+.pc-row{display:flex;justify-content:space-between;border-bottom:.5px solid #e5e7eb;padding:1.5px 0;font-size:7.5px}
+.pc-label{color:#4b5563}
+.pc-val{font-weight:700;color:#111}
+.pc-footer{padding:3px 6px;background:#f9fafb;border-top:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;font-size:7px}
+.pc-price{font-weight:800;font-size:9px}
+.pc-bncc{background:#065f4615;color:#065f46;border-radius:3px;padding:1px 4px;font-weight:700;font-size:6.5px}
+
+/* Service card */
+.serv-card{width:85mm;min-height:52mm;border:1.5px solid #0891b2;border-radius:5px;overflow:hidden;background:#ecfeff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;text-align:center;gap:4px;flex-shrink:0}
+.serv-ic{font-size:28px}
+.serv-name{font-weight:800;font-size:12px;color:#0e7490;line-height:1.2}
+.serv-desc{font-size:8px;color:#164e63;line-height:1.4}
+.serv-rule{font-size:7.5px;color:#0e7490;background:white;border-radius:4px;padding:4px 8px;border:1px solid #a5f3fc;line-height:1.4}
+.serv-price{font-weight:800;font-size:10px;color:#0e7490}
+
+/* ===== CHANCE/COMMUNITY CARDS ===== */
+.chance-grid{display:flex;flex-wrap:wrap;gap:3mm;padding:8mm 6mm}
+.chance-card{width:65mm;min-height:40mm;border:1.5px solid #333;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;flex-shrink:0}
+.cc-head{padding:5px 7px;display:flex;align-items:center;gap:5px;color:white;font-weight:800;font-size:9px}
+.cc-head-ic{font-size:16px}
+.cc-body{flex:1;padding:6px 8px;display:flex;flex-direction:column;justify-content:space-between;gap:4px}
+.cc-text{font-size:8.5px;line-height:1.5;color:#1a1a1a}
+.cc-action{font-weight:800;font-size:9px;padding:4px 6px;border-radius:4px;text-align:center}
+.cc-bncc{font-size:6.5px;color:#6b7280;text-align:right}
+
+/* ===== MONEY ===== */
+.money-wrap{padding:8mm 6mm}
+.money-title{font-family:'Playfair Display',serif;font-size:20px;color:#065f46;margin-bottom:10px;font-weight:700}
+.notes-grid{display:flex;flex-wrap:wrap;gap:4mm}
+.note{width:95mm;height:46mm;border-radius:6px;border:2px solid;display:flex;overflow:hidden;flex-shrink:0;position:relative}
+.note-left{width:22mm;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;transform:rotate(180deg);font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;opacity:.8}
+.note-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px;gap:4px;position:relative}
+.note-value{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;line-height:1}
+.note-name{font-size:8px;font-weight:700;text-align:center;text-transform:uppercase;letter-spacing:1px;opacity:.85}
+.note-ic{font-size:20px;opacity:.6;position:absolute;right:6px;bottom:4px}
+.note-serial{font-size:6px;opacity:.4;position:absolute;left:6px;bottom:4px;font-weight:600;letter-spacing:.5px}
+.note-right{width:14mm;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;font-size:18px;font-weight:900;opacity:.35}
+
+/* ===== PAWNS ===== */
+.pawns-wrap{padding:8mm 6mm}
+.pawns-grid{display:flex;flex-wrap:wrap;gap:6mm}
+.pawn-card{width:38mm;min-height:50mm;border:1.5px solid #374151;border-radius:6px;overflow:hidden;background:white;display:flex;flex-direction:column;align-items:center;padding:6px;gap:3px;flex-shrink:0;text-align:center}
+.pawn-fig{width:30mm;height:35mm;display:flex;align-items:center;justify-content:center}
+.pawn-name{font-weight:800;font-size:8.5px;line-height:1.2;color:#1a1a1a}
+.pawn-hint{font-size:7px;color:#6b7280;line-height:1.3}
+.cut-line{border:1.5px dashed #94a3b8;border-radius:8px}
+
+/* ===== DICE ===== */
+.dice-wrap{padding:8mm 6mm}
+.dice-net{display:inline-block;position:relative}
+.dice-face{width:32mm;height:32mm;border:1.5px solid #374151;display:inline-flex;align-items:center;justify-content:center;position:absolute;background:white;font-size:22px;font-weight:900;border-radius:3px}
+
+/* ===== RULES ===== */
+.rules-wrap{padding:8mm 6mm;max-width:190mm}
+.rules-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:#065f46;margin-bottom:4px}
+.rules-sub{font-size:12px;color:#374151;margin-bottom:16px}
+.rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.rules-box{background:white;border-radius:8px;padding:12px;border-left:4px solid;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.rules-box h3{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.rules-box ul{list-style:none;display:flex;flex-direction:column;gap:5px}
+.rules-box li{font-size:9.5px;line-height:1.5;padding-left:12px;position:relative}
+.rules-box li::before{content:"▸";position:absolute;left:0;color:inherit}
+.rules-box p{font-size:9.5px;line-height:1.5}
+
+/* ===== PRINT ===== */
+@media print{
+  .top-bar,.print-btn{display:none!important}
+  .section{display:block!important;padding:0}
+  .print-section{page-break-before:always}
+  .print-section:first-of-type{page-break-before:auto}
+  body{background:white}
+  .board-wrap{padding:4mm}
+  .cards-section,.money-wrap,.pawns-wrap,.dice-wrap,.rules-wrap,.chance-grid{padding:4mm 3mm}
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>🗺️ SergiPróspero</h1>
+  <div class="tabs" id="tabs">
+    <button class="tab active" onclick="showTab('regras')">📋 Regras</button>
+    <button class="tab" onclick="showTab('tabuleiro')">🎲 Tabuleiro</button>
+    <button class="tab" onclick="showTab('propriedades')">🏘️ Propriedades</button>
+    <button class="tab" onclick="showTab('cartas')">🃏 Cartas</button>
+    <button class="tab" onclick="showTab('dinheiro')">💵 Dinheiro</button>
+    <button class="tab" onclick="showTab('peoes')">🧍 Peões e Dado</button>
+  </div>
+  <button class="print-btn" onclick="window.print()">🖨️ Imprimir Tudo</button>
+</div>
+
+<!-- ==================== REGRAS ==================== -->
+<div id="sec-regras" class="section active">
+<div class="rules-wrap print-section">
+  <div class="rules-title">SergiPróspero</div>
+  <div class="rules-sub">O Jogo do Empreendedor Sergipano · Alinhado à BNCC · 2–6 jogadores · 30–50 min</div>
+
+  <div style="background:#065f46;color:white;border-radius:10px;padding:12px 16px;margin-bottom:14px;font-size:9.5px;line-height:1.6">
+    <strong>Objetivo:</strong> Seja o empreendedor mais próspero de Sergipe! Compre municípios e pontos turísticos, construa empresas e cobre aluguel dos adversários. O último com dinheiro vence. Cada decisão está conectada a uma competência da BNCC.
+  </div>
+
+  <div class="rules-grid">
+    <div class="rules-box" style="border-color:#065f46">
+      <h3 style="color:#065f46">Preparação</h3>
+      <ul>
+        <li>Escolha um peão por jogador e posicione no <strong>INÍCIO</strong></li>
+        <li>Distribua R$1.500 a cada jogador: 2×R$500 + 2×R$200 + 2×R$100 + 2×R$50</li>
+        <li>Separe as cartas de <strong>Ideia de Negócio</strong> e <strong>Desafio do Mercado</strong> em dois montes</li>
+        <li>O banco guarda as cartas de propriedade</li>
+        <li>O jogador mais jovem começa</li>
+      </ul>
+    </div>
+    <div class="rules-box" style="border-color:#2563eb">
+      <h3 style="color:#2563eb">No Seu Turno</h3>
+      <ul>
+        <li>Role o dado e avance o número de casas</li>
+        <li>Passe pelo <strong>INÍCIO</strong>: receba R$200</li>
+        <li>Caia em propriedade livre: pode comprar pagando o preço ao banco</li>
+        <li>Caia em propriedade de outro: pague o aluguel indicado</li>
+        <li>Caia em carta: compre a carta no topo do monte</li>
+        <li>Caia em imposto: pague ao banco</li>
+      </ul>
+    </div>
+    <div class="rules-box" style="border-color:#d97706">
+      <h3 style="color:#d97706">Empresas</h3>
+      <ul>
+        <li>Dono de <strong>todo o grupo</strong> (mesma cor)? Cobra aluguel duplo, sem empresa</li>
+        <li>Construa até <strong>4 empresas</strong> por propriedade do grupo (R$50 cada)</li>
+        <li>Aluguel aumenta conforme o número de empresas (veja cartão)</li>
+        <li>Venda empresa ao banco por R$25 (metade do valor)</li>
+        <li>Hipoteca: receba metade do preço — sem aluguel até quitar</li>
+      </ul>
+    </div>
+    <div class="rules-box" style="border-color:#7c3aed">
+      <h3 style="color:#7c3aed">Pontos Turísticos</h3>
+      <ul>
+        <li>São 4 serviços: Cânion do Xingó, Delta do S. Francisco, Praia do Saco, Orla de Aracaju</li>
+        <li>Aluguel: R$25 (1 serviço), R$50 (2), R$100 (3), R$200 (4 serviços)</li>
+        <li>Não constroem empresas</li>
+      </ul>
+    </div>
+    <div class="rules-box" style="border-color:#ef4444">
+      <h3 style="color:#ef4444">SEBRAE e Mais-Valia</h3>
+      <ul>
+        <li><strong>Consultoria SEBRAE</strong>: apenas passando ou visitando — sem penalidade</li>
+        <li><strong>Vá ao SEBRAE</strong>: receba mentoria = pule 1 turno aguardando (nada a pagar)</li>
+        <li><strong>Mais-Valia</strong>: receba o bônus indicado do banco</li>
+        <li><strong>Feira Livre</strong>: descanse, não pague nada</li>
+      </ul>
+    </div>
+    <div class="rules-box" style="border-color:#059669">
+      <h3 style="color:#059669">Falência e BNCC</h3>
+      <ul>
+        <li>Não conseguiu pagar uma dívida? Venda empresas e hipoteque</li>
+        <li>Se ainda assim não puder pagar: está falido, saia do jogo</li>
+        <li>Vencedor: último jogador restante, ou maior patrimônio ao fim de 50 min</li>
+        <li>Após o jogo, discuta: quais decisões econômicas foram mais importantes? <em>(BNCC 1, 2, 5, 7, 9)</em></li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top:14px;padding:10px;background:#fef9c3;border-radius:8px;border:1px solid #fde68a;font-size:8.5px;line-height:1.6">
+    <strong>Conexão pedagógica:</strong> Cada carta de Ideia de Negócio e Desafio do Mercado menciona uma competência BNCC. O professor pode pausar o jogo ao sortear uma carta e pedir que o grupo reflita sobre a situação antes de continuar. As propriedades seguem regiões reais de Sergipe — ótima oportunidade para trabalhar Geografia, História e Cultura Regional.
+  </div>
+</div>
+</div>
+
+<!-- ==================== TABULEIRO ==================== -->
+<div id="sec-tabuleiro" class="section">
+<div class="board-wrap">
+<div class="board print-section" id="board"><!-- rendered by JS --></div>
+</div>
+<div style="margin-top:12px;font-size:11px;color:#6b7280;padding:0 8px">
+  💡 Imprima em A4 paisagem (landscape) para melhor resultado. Recomendado: papel A3 ou imprimir em 2 folhas A4 e colar.
+</div>
+</div>
+
+<!-- ==================== PROPRIEDADES ==================== -->
+<div id="sec-propriedades" class="section">
+<div class="cards-section print-section">
+  <div class="cards-title">🏘️ Cartas de Propriedade — Recorte pelas linhas tracejadas</div>
+  <div class="cards-grid" id="prop-cards"><!-- rendered by JS --></div>
+</div>
+</div>
+
+<!-- ==================== CARTAS ==================== -->
+<div id="sec-cartas" class="section">
+<div class="print-section">
+  <div style="padding:8mm 6mm 2mm;font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#065f46">💡 Cartas de Ideia de Negócio</div>
+  <div class="chance-grid" id="ideia-cards"><!-- rendered by JS --></div>
+</div>
+<div class="print-section">
+  <div style="padding:8mm 6mm 2mm;font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#991b1b">🃏 Cartas de Desafio do Mercado</div>
+  <div class="chance-grid" id="desafio-cards"><!-- rendered by JS --></div>
+</div>
+</div>
+
+<!-- ==================== DINHEIRO ==================== -->
+<div id="sec-dinheiro" class="section">
+<div class="money-wrap print-section">
+  <div class="money-title">💵 Dinheiro SergiPróspero — Imprima em papel colorido e recorte</div>
+  <p style="font-size:9px;color:#6b7280;margin-bottom:10px">Cada jogador recebe: 2×R$500 + 2×R$200 + 2×R$100 + 2×R$50 = R$1.500</p>
+  <div class="notes-grid" id="money-notes"><!-- rendered by JS --></div>
+</div>
+</div>
+
+<!-- ==================== PEÕES + DADO ==================== -->
+<div id="sec-peoes" class="section">
+<div class="pawns-wrap print-section">
+  <div class="money-title">🧍 Peões — Recorte, dobre e cole em uma moeda ou botão</div>
+  <p style="font-size:9px;color:#6b7280;margin-bottom:12px">Recorte pela linha tracejada, dobre ao meio e cole em uma moeda de R$1 para ficar em pé no tabuleiro.</p>
+  <div class="pawns-grid" id="peoes"><!-- rendered by JS --></div>
+
+  <div style="margin-top:24px">
+  <div class="money-title">🎲 Dado — Recorte, dobre e cole</div>
+  <p style="font-size:9px;color:#6b7280;margin-bottom:12px">Recorte pelo contorno externo, dobre pelas linhas e cole as abas para montar o cubo.</p>
+  <div id="dice-net"><!-- rendered by JS --></div>
+  </div>
+</div>
+</div>
+
+<script>
+const COLORS = {
+  purple:  {bg:'#7c3aed', label:'Sertão'},
+  cyan:    {bg:'#0891b2', label:'Alto Sertão'},
+  pink:    {bg:'#db2777', label:'Agreste'},
+  orange:  {bg:'#ea580c', label:'Baixo S. Francisco'},
+  red:     {bg:'#dc2626', label:'Centro-Sul'},
+  yellow:  {bg:'#ca8a04', label:'Grande Aracaju'},
+  green:   {bg:'#16a34a', label:'Litoral Sul'},
+  navy:    {bg:'#1d4ed8', label:'Patrimônio Histórico'},
+};
+
+const SQUARES = [
+{pos:1, type:'corner', cls:'sq-inicio', icon:'⭐', name:'INÍCIO', sub:'Passe aqui\nReceba R$200'},
+{pos:2, type:'property', col:'purple', name:'Canindé de\nS. Francisco', attr:'Cânion do Xingó', price:60, rent:[6,30,90,160,250,12]},
+{pos:3, type:'card-desafio', cls:'sq-desafio', icon:'🃏', name:'DESAFIO DO\nMERCADO'},
+{pos:4, type:'property', col:'purple', name:'Poço Redondo', attr:'Sertão Sergipano', price:60, rent:[6,30,90,160,250,12]},
+{pos:5, type:'tax', cls:'sq-imposto', icon:'💸', name:'IMPOSTO\nMUNICIPAL', sub:'-R$200'},
+{pos:6, type:'property', col:'cyan', name:'N.S. da Glória', attr:'Capital do Sertão', price:100, rent:[10,50,150,300,450,20]},
+{pos:7, type:'service', cls:'sq-servico', icon:'🏔️', name:'CÂNION DO\nXINGÓ', sub:'Serviço'},
+{pos:8, type:'property', col:'cyan', name:'Monte Alegre\nde Sergipe', attr:'Alto Sertão', price:100, rent:[10,50,150,300,450,20]},
+{pos:9, type:'card-ideia', cls:'sq-ideia', icon:'💡', name:'IDEIA DE\nNEGÓCIO'},
+{pos:10, type:'property', col:'cyan', name:'Frei Paulo', attr:'Agreste Sergipano', price:120, rent:[12,60,180,360,540,24]},
+{pos:11, type:'corner', cls:'sq-sebrae', icon:'🏢', name:'CONSULTORIA\nSEBRAE', sub:'Apenas visitando'},
+{pos:12, type:'property', col:'pink', name:'Itabaiana', attr:'Capital do Comércio', price:140, rent:[14,70,200,400,600,28]},
+{pos:13, type:'service', cls:'sq-servico', icon:'🌊', name:'DELTA DO\nSÃO FRANCISCO', sub:'Serviço'},
+{pos:14, type:'property', col:'pink', name:'Riachuelo', attr:'Vale do Cotinguiba', price:140, rent:[14,70,200,400,600,28]},
+{pos:15, type:'card-desafio', cls:'sq-desafio', icon:'🃏', name:'DESAFIO DO\nMERCADO'},
+{pos:16, type:'property', col:'pink', name:'Maruim', attr:'Vale do Cotinguiba', price:160, rent:[16,80,220,440,660,32]},
+{pos:17, type:'card-ideia', cls:'sq-ideia', icon:'💡', name:'IDEIA DE\nNEGÓCIO'},
+{pos:18, type:'property', col:'orange', name:'Propriá', attr:'Baixo S. Francisco', price:180, rent:[18,90,250,500,700,36]},
+{pos:19, type:'bonus', cls:'sq-bonus', icon:'💰', name:'MAIS-VALIA', sub:'+R$100'},
+{pos:20, type:'property', col:'orange', name:'Neópolis', attr:'Baixo S. Francisco', price:180, rent:[18,90,250,500,700,36]},
+{pos:21, type:'corner', cls:'sq-feira', icon:'☀️', name:'FEIRA LIVRE', sub:'Respire, sem\npenalidade'},
+{pos:22, type:'property', col:'orange', name:'Porto da Folha', attr:'Baixo S. Francisco', price:200, rent:[20,100,300,600,900,40]},
+{pos:23, type:'card-desafio', cls:'sq-desafio', icon:'🃏', name:'DESAFIO DO\nMERCADO'},
+{pos:24, type:'property', col:'red', name:'Lagarto', attr:'Polo Farmacêutico', price:220, rent:[22,110,330,660,990,44]},
+{pos:25, type:'service', cls:'sq-servico', icon:'🏖️', name:'PRAIA DO SACO', sub:'Serviço'},
+{pos:26, type:'property', col:'red', name:'Tobias Barreto', attr:'Capital do Bordado', price:220, rent:[22,110,330,660,990,44]},
+{pos:27, type:'card-ideia', cls:'sq-ideia', icon:'💡', name:'IDEIA DE\nNEGÓCIO'},
+{pos:28, type:'property', col:'red', name:'Simão Dias', attr:'Terra do Arroz', price:240, rent:[24,120,360,720,1080,48]},
+{pos:29, type:'tax', cls:'sq-imposto', icon:'💸', name:'IMPOSTO\nESTADUAL', sub:'-R$100'},
+{pos:30, type:'property', col:'yellow', name:'São Cristóvão', attr:'4ª Cidade + Antiga BR', price:260, rent:[26,130,390,780,1170,52]},
+{pos:31, type:'corner', cls:'sq-sebrae2', icon:'🏛️', name:'VÁ AO SEBRAE', sub:'Receba mentoria\nPule 1 turno'},
+{pos:32, type:'card-desafio', cls:'sq-desafio', icon:'🃏', name:'DESAFIO DO\nMERCADO'},
+{pos:33, type:'property', col:'yellow', name:'N.S. do Socorro', attr:'Grande Aracaju', price:260, rent:[26,130,390,780,1170,52]},
+{pos:34, type:'service', cls:'sq-servico', icon:'🌴', name:'ORLA DE\nARACAJU', sub:'Serviço'},
+{pos:35, type:'card-ideia', cls:'sq-ideia', icon:'💡', name:'IDEIA DE\nNEGÓCIO'},
+{pos:36, type:'property', col:'green', name:'Estância', attr:'Cidade Jardim de SE', price:300, rent:[30,150,450,900,1300,60]},
+{pos:37, type:'bonus', cls:'sq-bonus', icon:'💰', name:'MAIS-VALIA', sub:'+R$150'},
+{pos:38, type:'property', col:'green', name:'Indiaroba', attr:'Litoral Sul Sergipano', price:320, rent:[32,160,500,1000,1500,64]},
+{pos:39, type:'property', col:'navy', name:'Laranjeiras', attr:'Capital Cultural SE', price:350, rent:[35,175,500,1100,1600,70]},
+{pos:40, type:'property', col:'navy', name:'S. Cristóvão\nCentro Histórico', attr:'Patrimônio Nacional', price:400, rent:[50,200,600,1400,1800,100]},
+];
+
+const IDEIA_CARDS = [
+{text:'Seu produto artesanal viralizou nas redes sociais de Sergipe.', action:'Receba R$150', bncc:2},
+{text:'Participou de feira de empreendedorismo em Aracaju e fechou contratos.', action:'Receba R$100', bncc:9},
+{text:'Lançou linha de cosméticos com insumos nativos da Caatinga sergipana.', action:'Receba R$200', bncc:7},
+{text:'Fez parceria com cooperativa de agricultores de Itabaiana.', action:'Receba R$100', bncc:1},
+{text:'Recebeu consultoria gratuita do SEBRAE Jovem Empreendedor.', action:'Avance até a Consultoria SEBRAE', bncc:1},
+{text:'Descobriu novo canal de venda no Mercado Municipal de Aracaju.', action:'Receba R$120', bncc:5},
+{text:'Criou produto inspirado na cultura junina de Laranjeiras.', action:'Receba R$180', bncc:2},
+{text:'Exportou bordado de Tobias Barreto para comprador de outro estado.', action:'Receba R$250', bncc:4},
+{text:'Ganhou prêmio no Desafio SEBRAE de Jovens Empreendedores.', action:'Receba R$300', bncc:9},
+{text:'Instalou energia solar no empreendimento e reduziu custos.', action:'Receba R$150', bncc:7},
+{text:'Abriu conta digital e reduziu tarifas bancárias do negócio.', action:'Receba R$80', bncc:5},
+{text:'Criou cooperativa de artesãos em São Cristóvão.', action:'Receba R$120', bncc:9},
+{text:'Produto escolhido para kit de souvenirs do Cânion do Xingó.', action:'Receba R$200', bncc:7},
+{text:'Patenteou receita tradicional sergipana de forma coletiva.', action:'Receba R$150', bncc:2},
+{text:'Obteve microcrédito do Banese para expandir o negócio.', action:'Receba R$500. Pague R$600 no próximo turno.', bncc:1},
+{text:'Contratou primeiro funcionário e formalizou o negócio no MEI.', action:'Avance 3 casas', bncc:8},
+];
+
+const DESAFIO_CARDS = [
+{text:'Seca severa no Sertão sergipano reduziu toda a sua produção.', action:'Pague R$100', bncc:7},
+{text:'Cliente inadimplente não pagou fatura de R$300 pelo segundo mês.', action:'Pague R$150', bncc:1},
+{text:'Concorrente abriu loja com preços 20% mais baixos na região.', action:'Pague R$120', bncc:5},
+{text:'Fiscalização encontrou irregularidade trabalhista no negócio.', action:'Pague R$200', bncc:10},
+{text:'Equipamento principal quebrou na semana de maior movimento.', action:'Pague R$180', bncc:8},
+{text:'Alta do dólar encareceu insumos importados do seu ramo.', action:'Pague R$150', bncc:1},
+{text:'Falta de planejamento: você ficou sem estoque na alta temporada.', action:'Pague R$100 e pule 1 turno', bncc:2},
+{text:'Acidente na BR-101 danificou carga a caminho da feira.', action:'Pague R$300', bncc:8},
+{text:'Governo municipal aumentou ISS sobre o seu segmento.', action:'Pague R$250', bncc:10},
+{text:'Seu fornecedor de Itabaiana faliu sem avisar.', action:'Pague R$200 e recue 2 casas', bncc:1},
+{text:'Reclame Aqui: reclamação pública afeta reputação do negócio.', action:'Pague R$120', bncc:4},
+{text:'Cheias do São Francisco interromperam sua rota de entregas.', action:'Pague R$180', bncc:7},
+{text:'Concedeu desconto sem calcular impacto real no lucro mensal.', action:'Pague R$100', bncc:1},
+{text:'Precisou de capital de giro urgente e pagou juros de 10% a.m.', action:'Pague R$250', bncc:5},
+{text:'Colaborador-chave pediu demissão no pico do São João.', action:'Pague R$200', bncc:9},
+{text:'Negligenciou o fluxo de caixa e ficou inadimplente no banco.', action:'Vá direto à Consultoria SEBRAE', bncc:1},
+];
+
+const MONEY_NOTES = [
+{val:50, color:'#b45309', bg:'#fef3c7', icon:'🌾', print:4},
+{val:100, color:'#065f46', bg:'#d1fae5', icon:'🐊', print:4},
+{val:200, color:'#1d4ed8', bg:'#dbeafe', icon:'🏰', print:3},
+{val:500, color:'#7c3aed', bg:'#ede9fe', icon:'🗺️', print:3},
+];
+
+const PEOES = [
+{name:'Artesã de\nLaranjeiras', icon:'🧵', color:'#db2777', desc:'Tecidos e renda\nde Bilro'},
+{name:'Pescador\ndo Xingó', icon:'🎣', color:'#0891b2', desc:'Mestre do\nDourado'},
+{name:'Tropeiro\ndo Sertão', icon:'🫏', color:'#d97706', desc:'Rota Canindé–\nItabaiana'},
+{name:'Agricultora\ndo Agreste', icon:'🌾', color:'#16a34a', desc:'Feira de\nItabaiana'},
+{name:'Chef\nNordestino', icon:'👨‍🍳', color:'#ea580c', desc:'Culinária\nSergipana'},
+{name:'Jovem\nEmpreendedor', icon:'💼', color:'#065f46', desc:'SEBRAE\nJovem SE'},
+];
+
+function sqHTML(s, dir) {
+  const isCorner = dir === 'c';
+  const isH = dir === 'h';
+  const isV = dir === 'v';
+  let cls = `sq sq-${isCorner ? 'corner' : isH ? 'h' : 'v'}`;
+  if (s.cls) cls += ' ' + s.cls;
+  let inner = '';
+  if (s.type === 'property') {
+    const C = COLORS[s.col];
+    const bandStyle = `background:${C.bg}`;
+    const priceStr = `R$${s.price}`;
+    if (isH) {
+      inner = `<div class="cband" style="${bandStyle}"></div><div class="sq-nm">${s.name.replace(/\n/g,'<br>')}</div><div class="sq-pr">${priceStr}</div>`;
+    } else {
+      inner = `<div class="cband" style="${bandStyle}"></div><div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:1px;min-width:0"><div class="sq-nm">${s.name.replace(/\n/g,' ')}</div><div class="sq-pr">${priceStr}</div></div>`;
+    }
+  } else if (s.type === 'service') {
+    if (isH) {
+      inner = `<div class="sq-ic">${s.icon}</div><div class="sq-nm">${s.name.replace(/\n/g,'<br>')}</div><div class="sq-sub">${s.sub}</div>`;
+    } else {
+      inner = `<div class="sq-ic" style="font-size:12px">${s.icon}</div><div class="sq-nm">${s.name.replace(/\n/g,' ')}</div>`;
+    }
+  } else if (s.type === 'corner') {
+    inner = `<div class="sq-ic">${s.icon}</div><div class="sq-nm" style="font-size:7px">${s.name.replace(/\n/g,'<br>')}</div><div class="sq-sub" style="font-size:5.5px">${(s.sub||'').replace(/\n/g,'<br>')}</div>`;
+  } else {
+    if (isH) {
+      inner = `<div class="sq-ic">${s.icon||''}</div><div class="sq-nm">${s.name.replace(/\n/g,'<br>')}</div>${s.sub ? `<div class="sq-pr">${s.sub}</div>` : ''}`;
+    } else {
+      inner = `<div class="sq-ic" style="font-size:11px">${s.icon||''}</div><div class="sq-nm">${s.name.replace(/\n/g,' ')}</div>`;
+    }
+  }
+  return `<div class="${cls}">${inner}</div>`;
+}
+
+function renderBoard() {
+  const sq = SQUARES;
+  const get = (pos) => sq[pos - 1];
+  const bottomPositions = [11,10,9,8,7,6,5,4,3,2,1];
+  let bottomHTML = bottomPositions.map((p,i) => { const s = get(p); const dir = (i===0||i===bottomPositions.length-1)?'c':'h'; return sqHTML(s,dir); }).join('');
+  const leftPositions = [20,19,18,17,16,15,14,13,12];
+  let leftHTML = leftPositions.map(p => sqHTML(get(p),'v')).join('');
+  const topPositions = [21,22,23,24,25,26,27,28,29,30,31];
+  let topHTML = topPositions.map((p,i) => { const s = get(p); const dir = (i===0||i===topPositions.length-1)?'c':'h'; return sqHTML(s,dir); }).join('');
+  const rightPositions = [32,33,34,35,36,37,38,39,40];
+  let rightHTML = rightPositions.map(p => sqHTML(get(p),'v')).join('');
+  const legendHTML = Object.entries(COLORS).map(([k,v]) => `<div class="b-leg"><div class="b-leg-dot" style="background:${v.bg}"></div>${v.label}</div>`).join('');
+  const centerHTML = `<div class="b-map">🗺️</div><div class="b-logo">🗺️</div><div class="b-title">SergiPróspero</div><div class="b-sub">O Jogo do Empreendedor Sergipano</div><div class="b-bncc">Alinhado à BNCC · Compet. 1,2,4,5,7,8,9,10<br>Ensino Fundamental II · 6°–9° ano</div><div class="b-legend" style="margin-top:8px">${legendHTML}</div><div style="font-size:7px;color:#374151;margin-top:4px;text-align:center">🏢=Empresa(R$50)&nbsp;·&nbsp;🏔️=Serviço</div>`;
+  document.getElementById('board').innerHTML = `<div class="b-row">${topHTML}</div><div class="b-mid"><div class="b-col">${leftHTML}</div><div class="b-center">${centerHTML}</div><div class="b-col">${rightHTML}</div></div><div class="b-row">${bottomHTML}</div>`;
+}
+
+function renderPropCards() {
+  const container = document.getElementById('prop-cards');
+  let html = '';
+  SQUARES.filter(s => s.type === 'property').forEach(s => {
+    const C = COLORS[s.col];
+    const r = s.rent;
+    html += `<div class="prop-card"><div class="pc-head" style="background:${C.bg}"><div class="pc-name">${s.name.replace(/\n/g,' ')}</div><div class="pc-region">${C.label} · ${s.attr}</div></div><div class="pc-body"><div class="pc-row" style="font-weight:700;font-size:8px"><span>ALUGUEL</span><span></span></div><div class="pc-row"><span class="pc-label">Sem empresa</span><span class="pc-val">R$${r[0]}</span></div><div class="pc-row"><span class="pc-label">Grupo completo</span><span class="pc-val">R$${r[5]}</span></div><div class="pc-row"><span class="pc-label">🏢 1 empresa</span><span class="pc-val">R$${r[1]}</span></div><div class="pc-row"><span class="pc-label">🏢🏢 2 empresas</span><span class="pc-val">R$${r[2]}</span></div><div class="pc-row"><span class="pc-label">🏢🏢🏢 3 empresas</span><span class="pc-val">R$${r[3]}</span></div><div class="pc-row"><span class="pc-label">🏢🏢🏢🏢 4 empresas</span><span class="pc-val">R$${r[4]}</span></div><div class="pc-row"><span class="pc-label">Empresa custa</span><span class="pc-val">R$50</span></div><div class="pc-row"><span class="pc-label">Hipoteca</span><span class="pc-val">R$${Math.floor(s.price/2)}</span></div></div><div class="pc-footer"><div class="pc-price" style="color:${C.bg}">R$${s.price}</div><div class="pc-bncc">BNCC ${s.col==='navy'||s.col==='green'?'7,10':s.col==='yellow'||s.col==='red'?'8,9':s.col==='orange'?'1,5':s.col==='pink'?'2,4':'1,7'}</div></div></div>`;
+  });
+  const svcData = [{pos:7,icon:'🏔️',name:'Cânion do Xingó',desc:'Maior cânion do Brasil, em Canindé de São Francisco, SE'},{pos:13,icon:'🌊',name:'Delta do São Francisco',desc:'Encontro do Velho Chico com o Atlântico, em Brejo Grande'},{pos:25,icon:'🏖️',name:'Praia do Saco',desc:'Uma das praias mais belas do litoral sul sergipano'},{pos:34,icon:'🌴',name:'Orla de Aracaju',desc:'Calçadão e praias da capital sergipana'}];
+  svcData.forEach(sv => { html += `<div class="serv-card"><div class="serv-ic">${sv.icon}</div><div class="serv-name">${sv.name}</div><div class="serv-desc">${sv.desc}</div><div class="serv-rule">Aluguel: 1 serviço=R$25 · 2=R$50 · 3=R$100 · 4=R$200<br>Não constrói empresas · Hipoteca: R$100</div><div class="serv-price">R$200</div></div>`; });
+  container.innerHTML = html;
+}
+
+function renderChanceCards() {
+  document.getElementById('ideia-cards').innerHTML = IDEIA_CARDS.map(c => `<div class="chance-card"><div class="cc-head" style="background:#d97706"><div class="cc-head-ic">💡</div><div>IDEIA DE NEGÓCIO</div></div><div class="cc-body"><div class="cc-text">${c.text}</div><div><div class="cc-action" style="background:#fef3c7;color:#92400e">${c.action}</div><div class="cc-bncc">Competência BNCC ${c.bncc}</div></div></div></div>`).join('');
+  document.getElementById('desafio-cards').innerHTML = DESAFIO_CARDS.map(c => `<div class="chance-card"><div class="cc-head" style="background:#991b1b"><div class="cc-head-ic">🃏</div><div>DESAFIO DO MERCADO</div></div><div class="cc-body"><div class="cc-text">${c.text}</div><div><div class="cc-action" style="background:#fee2e2;color:#991b1b">${c.action}</div><div class="cc-bncc">Competência BNCC ${c.bncc}</div></div></div></div>`).join('');
+}
+
+function renderMoney() {
+  let html = '';
+  MONEY_NOTES.forEach(n => { for(let i=0;i<n.print;i++){html+=`<div class="note" style="border-color:${n.color};background:${n.bg}"><div class="note-left" style="background:${n.color};color:white">SergiPróspero · SE</div><div class="note-main"><div style="font-size:7px;font-weight:700;color:${n.color};text-transform:uppercase;letter-spacing:1.5px">SergiPróspero</div><div class="note-value" style="color:${n.color}">R$${n.val}</div><div class="note-name" style="color:${n.color}">Reais Sergipanos</div><div class="note-ic">${n.icon}</div></div><div class="note-right" style="color:${n.color}">${n.val}</div></div>`;} });
+  document.getElementById('money-notes').innerHTML = html;
+}
+
+function renderPeoes() {
+  document.getElementById('peoes').innerHTML = PEOES.map(p => `<div class="pawn-card cut-line"><div class="pawn-fig" style="font-size:48px;line-height:1">${p.icon}</div><div class="pawn-name" style="color:${p.color}">${p.name.replace(/\n/g,'<br>')}</div><div class="pawn-hint">${p.desc.replace(/\n/g,'<br>')}</div><div style="font-size:6.5px;color:#94a3b8;margin-top:4px">✂ Recorte · Dobre · Cole em moeda</div></div>`).join('');
+}
+
+function renderDice() {
+  const px = 55;
+  const dots = {1:[[.5,.5]],2:[[.25,.25],[.75,.75]],3:[[.25,.25],[.5,.5],[.75,.75]],4:[[.25,.25],[.75,.25],[.25,.75],[.75,.75]],5:[[.25,.25],[.75,.25],[.5,.5],[.25,.75],[.75,.75]],6:[[.25,.2],[.75,.2],[.25,.5],[.75,.5],[.25,.8],[.75,.8]]};
+  function face(n,x,y){const ds=dots[n].map(([dx,dy])=>`<circle cx="${dx*px}" cy="${dy*px}" r="${px*0.08}" fill="#1a1a1a"/>`).join('');return `<g transform="translate(${x},${y})"><rect width="${px}" height="${px}" fill="white" stroke="#374151" stroke-width="1.5"/>${ds}</g>`;}
+  document.getElementById('dice-net').innerHTML = `<svg width="${px*4}" height="${px*3}" viewBox="0 0 ${px*4} ${px*3}" style="border:1px dashed #94a3b8;border-radius:4px;background:#f8fafc">${face(3,px,0)}${face(2,0,px)}${face(1,px,px)}${face(4,px*2,px)}${face(6,px*3,px)}${face(5,px,px*2)}</svg><p style="font-size:9px;color:#6b7280;margin-top:6px">Recorte o contorno externo · Marque as dobras · Cole as abas · Cole em papelão grosso para firmar</p>`;
+}
+
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+renderBoard();
+renderPropCards();
+renderChanceCards();
+renderMoney();
+renderPeoes();
+renderDice();
+</script>
+</body>
+</html>
