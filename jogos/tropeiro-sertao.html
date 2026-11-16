@@ -342,10 +342,11 @@ const ITEMS=[
   {id:'mel',   nm:'Mel',         em:'🟠',val:7, clr:'#d97706',bg:'#92400e'},
 ];
 const OBST=[
-  {type:'cactus', w:28,h:55,clr:'#15803d'},
-  {type:'rock',   w:44,h:28,clr:'#64748b'},
-  {type:'hole',   w:58,h:14,clr:'#0c0500'},
-  {type:'cactus2',w:44,h:68,clr:'#166534'},
+  {type:'cactus', w:30,h:58,clr:'#15803d'},
+  {type:'rock',   w:48,h:32,clr:'#64748b'},
+  {type:'hole',   w:60,h:14,clr:'#0c0500'},
+  {type:'cactus2',w:46,h:72,clr:'#166534'},
+  {type:'cerca',  w:62,h:60,clr:'#92400e'},
 ];
 const player={x:0,y:0,vy:0,grounded:true,fr:0,hitFlash:0,sc:1,squat:0};
 let groundY=0;
@@ -678,24 +679,9 @@ function render(now){
   });
 
   // ——————————————————————————————————————————
-  // OBSTÁCULOS (inalterado)
+  // FASE B5 — Obstáculos ilustrados em Canvas
   // ——————————————————————————————————————————
-  obstacles.forEach(ob=>{
-    if(ob.type==='cactus'||ob.type==='cactus2'){
-      ctx.fillStyle=ob.clr;
-      ctx.beginPath();ctx.roundRect(ob.x,groundY-ob.h,ob.w,ob.h,6);ctx.fill();
-      ctx.beginPath();ctx.roundRect(ob.x-17,groundY-ob.h*.68,17,11,3);ctx.fill();
-      ctx.beginPath();ctx.roundRect(ob.x+ob.w,groundY-ob.h*.52,15,11,3);ctx.fill();
-      ctx.strokeStyle='#14532d';ctx.lineWidth=1.5;
-      for(let i=0;i<4;i++)ctx.strokeRect(ob.x+5+i*5,groundY-ob.h+i*13,4,1);
-    }else if(ob.type==='rock'){
-      ctx.fillStyle='#78716c';ctx.beginPath();ctx.ellipse(ob.x+ob.w/2,groundY-ob.h/2,ob.w/2,ob.h/2,.1,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#a8a29e';ctx.beginPath();ctx.ellipse(ob.x+ob.w/2-5,groundY-ob.h*.62,ob.w*.24,ob.h*.19,-.2,0,Math.PI*2);ctx.fill();
-    }else if(ob.type==='hole'){
-      ctx.fillStyle='#0c0500';ctx.fillRect(ob.x,groundY,ob.w,32);
-      ctx.fillStyle='rgba(0,0,0,.7)';ctx.beginPath();ctx.ellipse(ob.x+ob.w/2,groundY+5,ob.w/2,9,0,0,Math.PI*2);ctx.fill();
-    }
-  });
+  obstacles.forEach(ob=>drawObstacle(ob));
 
   // ——————————————————————————————————————————
   // PERSONAGEM + FLOATS (inalterado)
@@ -842,6 +828,176 @@ function drawMel(cx,cy,r){
   ctx.beginPath();ctx.ellipse(-rw*.22,-rh*.2,rw*.3,rh*.25,-.3,0,Math.PI*2);ctx.fill();
   ctx.restore();
 }
+// ═══════════════════════════════════════════════════
+//  FASE B5 — Obstáculos ilustrados em Canvas
+// ═══════════════════════════════════════════════════
+
+// Mandacaru — cactus icônico da Caatinga
+function drawMandacaru(x,groundY,w,h){
+  ctx.save();
+  const cx=x+w/2;
+  // Sombra no chão
+  ctx.fillStyle='rgba(0,0,0,.18)';
+  ctx.beginPath();ctx.ellipse(cx,groundY+4,w*.65,5,0,0,Math.PI*2);ctx.fill();
+  // Tronco principal — gradiente verde musgo
+  const tg=ctx.createLinearGradient(cx-w/2,0,cx+w/2,0);
+  tg.addColorStop(0,'#14532d');tg.addColorStop(.3,'#15803d');tg.addColorStop(.65,'#166534');tg.addColorStop(1,'#0f4a24');
+  ctx.fillStyle=tg;
+  ctx.beginPath();
+  ctx.moveTo(cx-w/2,groundY);
+  ctx.bezierCurveTo(cx-w/2-2,groundY-h*.4,cx-w/2,groundY-h*.7,cx-w*.3,groundY-h);
+  ctx.bezierCurveTo(cx,groundY-h-4,cx+w*.3,groundY-h,cx+w/2,groundY-h*.7);
+  ctx.bezierCurveTo(cx+w/2+2,groundY-h*.4,cx+w/2,groundY,cx+w/2,groundY);
+  ctx.closePath();ctx.fill();
+  // Costelas verticais (textura do mandacaru)
+  ctx.strokeStyle='rgba(0,80,20,.35)';ctx.lineWidth=1.5;
+  for(let i=0;i<4;i++){
+    const rx=cx-w*.28+i*w*.18;
+    ctx.beginPath();ctx.moveTo(rx,groundY-4);ctx.bezierCurveTo(rx,groundY-h*.4,rx,groundY-h*.7,rx+2,groundY-h+4);ctx.stroke();
+  }
+  // Braço esquerdo — sobe e curva
+  const ag1=ctx.createLinearGradient(cx-w,0,cx-w*.2,0);
+  ag1.addColorStop(0,'#14532d');ag1.addColorStop(.5,'#15803d');ag1.addColorStop(1,'#166534');
+  ctx.fillStyle=ag1;
+  ctx.beginPath();
+  ctx.moveTo(cx-w*.35,groundY-h*.52);
+  ctx.bezierCurveTo(cx-w*.7,groundY-h*.5,cx-w,groundY-h*.5,cx-w*.9,groundY-h*.75);
+  ctx.bezierCurveTo(cx-w*.82,groundY-h*.92,cx-w*.6,groundY-h*.92,cx-w*.5,groundY-h*.75);
+  ctx.bezierCurveTo(cx-w*.45,groundY-h*.62,cx-w*.28,groundY-h*.58,cx-w*.28,groundY-h*.45);
+  ctx.closePath();ctx.fill();
+  // Braço direito — mais curto
+  const ag2=ctx.createLinearGradient(cx+w*.2,0,cx+w*.9,0);
+  ag2.addColorStop(0,'#166534');ag2.addColorStop(.5,'#15803d');ag2.addColorStop(1,'#14532d');
+  ctx.fillStyle=ag2;
+  ctx.beginPath();
+  ctx.moveTo(cx+w*.3,groundY-h*.38);
+  ctx.bezierCurveTo(cx+w*.65,groundY-h*.35,cx+w*.95,groundY-h*.38,cx+w*.88,groundY-h*.58);
+  ctx.bezierCurveTo(cx+w*.8,groundY-h*.7,cx+w*.58,groundY-h*.68,cx+w*.5,groundY-h*.5);
+  ctx.bezierCurveTo(cx+w*.42,groundY-h*.4,cx+w*.28,groundY-h*.32,cx+w*.28,groundY-h*.28);
+  ctx.closePath();ctx.fill();
+  // Espinhos
+  ctx.strokeStyle='#fef9c3';ctx.lineWidth=1;ctx.lineCap='round';
+  [[cx,groundY-h+5],[cx-w*.8,groundY-h*.72],[cx-w*.5,groundY-h*.82],[cx+w*.7,groundY-h*.5],[cx+w*.4,groundY-h*.65]].forEach(([sx,sy])=>{
+    for(let a=0;a<6;a++){
+      const ang=a*(Math.PI/3)+(sy*.1);
+      ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(sx+Math.cos(ang)*5,sy+Math.sin(ang)*4);ctx.stroke();
+    }
+  });
+  ctx.restore();
+}
+
+// Pedra granítica — sertão nordestino
+function drawPedra(x,groundY,w,h){
+  ctx.save();
+  const cx=x+w/2;
+  // Sombra
+  ctx.fillStyle='rgba(0,0,0,.2)';
+  ctx.beginPath();ctx.ellipse(cx,groundY+4,w*.7,6,0,0,Math.PI*2);ctx.fill();
+  // Pedra maior atrás
+  const rg=ctx.createLinearGradient(cx-w*.6,groundY-h*1.1,cx+w*.6,groundY);
+  rg.addColorStop(0,'#9ca3af');rg.addColorStop(.4,'#78716c');rg.addColorStop(1,'#44403c');
+  ctx.fillStyle=rg;
+  ctx.beginPath();
+  ctx.moveTo(cx-w*.55,groundY);
+  ctx.bezierCurveTo(cx-w*.7,groundY-h*.4,cx-w*.6,groundY-h*1.1,cx-w*.1,groundY-h*1.1);
+  ctx.bezierCurveTo(cx+w*.5,groundY-h*1.1,cx+w*.65,groundY-h*.5,cx+w*.55,groundY);
+  ctx.closePath();ctx.fill();
+  // Plano de clivagem (linha diagonal característica do granito)
+  ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(cx-w*.2,groundY-h*1.05);ctx.lineTo(cx+w*.3,groundY-h*.35);ctx.stroke();
+  // Destaque de luz
+  ctx.fillStyle='rgba(255,255,255,.18)';
+  ctx.beginPath();ctx.ellipse(cx-w*.18,groundY-h*.82,w*.22,h*.18,-.5,0,Math.PI*2);ctx.fill();
+  // Pedra menor na frente
+  const rg2=ctx.createLinearGradient(cx-w*.1,groundY-h*.55,cx+w*.35,groundY);
+  rg2.addColorStop(0,'#a8a29e');rg2.addColorStop(1,'#57534e');
+  ctx.fillStyle=rg2;
+  ctx.beginPath();
+  ctx.moveTo(cx-w*.12,groundY);
+  ctx.bezierCurveTo(cx-w*.22,groundY-h*.45,cx-w*.05,groundY-h*.62,cx+w*.22,groundY-h*.55);
+  ctx.bezierCurveTo(cx+w*.42,groundY-h*.5,cx+w*.38,groundY-h*.2,cx+w*.32,groundY);
+  ctx.closePath();ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.12)';
+  ctx.beginPath();ctx.ellipse(cx+w*.05,groundY-h*.38,w*.14,h*.12,-.3,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+
+// Buraco / rachadura no chão seco
+function drawBuraco(x,groundY,w,h){
+  ctx.save();
+  // Borda superior da rachadura (terra rachada)
+  ctx.fillStyle='#1c0a02';
+  ctx.beginPath();
+  ctx.moveTo(x-5,groundY);
+  ctx.bezierCurveTo(x+w*.1,groundY-6,x+w*.3,groundY-3,x+w*.5,groundY-7);
+  ctx.bezierCurveTo(x+w*.7,groundY-4,x+w*.9,groundY-8,x+w+5,groundY);
+  ctx.lineTo(x+w+5,groundY+30);ctx.lineTo(x-5,groundY+30);
+  ctx.closePath();ctx.fill();
+  // Interior escuro
+  const hg=ctx.createRadialGradient(x+w/2,groundY+8,2,x+w/2,groundY+8,w*.55);
+  hg.addColorStop(0,'#000');hg.addColorStop(.6,'#0c0500');hg.addColorStop(1,'#1a0802');
+  ctx.fillStyle=hg;
+  ctx.beginPath();ctx.ellipse(x+w/2,groundY+5,w/2,10,0,0,Math.PI*2);ctx.fill();
+  // Bordas esfareladas (terra)
+  ctx.fillStyle='#78350f';
+  [[x+2,groundY-1],[x+w*.35,groundY-5],[x+w*.65,groundY-3],[x+w-4,groundY-6]].forEach(([bx,by])=>{
+    ctx.beginPath();ctx.arc(bx,by,2.5+Math.sin(bx)*.5,0,Math.PI*2);ctx.fill();
+  });
+  // Rachados no solo ao redor
+  ctx.strokeStyle='rgba(80,30,0,.5)';ctx.lineWidth=1;ctx.lineCap='round';
+  [[x-8,groundY-2,x-16,groundY-6],[x+w+6,groundY-3,x+w+14,groundY-8],
+   [x+w*.2,groundY-8,x+w*.1,groundY-16],[x+w*.75,groundY-6,x+w*.82,groundY-14]].forEach(([x1,y1,x2,y2])=>{
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  });
+  ctx.restore();
+}
+
+// Cerca de arame farpado — símbolo do sertão
+function drawCerca(x,groundY,w,h){
+  ctx.save();
+  // Sombras dos mourões
+  ctx.fillStyle='rgba(0,0,0,.2)';
+  ctx.beginPath();ctx.ellipse(x+8,groundY+4,6,3,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(x+w-8,groundY+4,6,3,0,0,Math.PI*2);ctx.fill();
+  // Mourão esquerdo (madeira bruta)
+  const pg=ctx.createLinearGradient(x,0,x+16,0);
+  pg.addColorStop(0,'#5c2d0a');pg.addColorStop(.4,'#78350f');pg.addColorStop(.7,'#92400e');pg.addColorStop(1,'#5c2d0a');
+  ctx.fillStyle=pg;ctx.beginPath();ctx.roundRect(x,groundY-h,16,h+10,3);ctx.fill();
+  // Veios da madeira
+  ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=1;
+  for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(x+4+i*4,groundY-h+5);ctx.lineTo(x+5+i*4,groundY);ctx.stroke();}
+  // Ponta de estaca no topo
+  ctx.fillStyle='#44200a';
+  ctx.beginPath();ctx.moveTo(x,groundY-h);ctx.lineTo(x+8,groundY-h-14);ctx.lineTo(x+16,groundY-h);ctx.closePath();ctx.fill();
+  // Mourão direito
+  ctx.fillStyle=pg;ctx.beginPath();ctx.roundRect(x+w-16,groundY-h,16,h+10,3);ctx.fill();
+  for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(x+w-12+i*4,groundY-h+5);ctx.lineTo(x+w-11+i*4,groundY);ctx.stroke();}
+  ctx.fillStyle='#44200a';
+  ctx.beginPath();ctx.moveTo(x+w-16,groundY-h);ctx.lineTo(x+w-8,groundY-h-14);ctx.lineTo(x+w,groundY-h);ctx.closePath();ctx.fill();
+  // Arames (3 fios)
+  [.3,.55,.78].forEach(frac=>{
+    const wy=groundY-h*frac;
+    ctx.strokeStyle='#9ca3af';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(x+16,wy);
+    ctx.bezierCurveTo(x+w*.35,wy+2,x+w*.65,wy-1,x+w-16,wy);ctx.stroke();
+    // Farpas ao longo do arame
+    ctx.strokeStyle='#64748b';ctx.lineWidth=1;
+    for(let fx=x+22;fx<x+w-20;fx+=14){
+      const foff=Math.sin(fx*.3)*1.5;
+      ctx.beginPath();ctx.moveTo(fx,wy+foff-4);ctx.lineTo(fx+3,wy+foff+2);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(fx+2,wy+foff+2);ctx.lineTo(fx-1,wy+foff-4);ctx.stroke();
+    }
+  });
+  ctx.restore();
+}
+
+function drawObstacle(ob){
+  if(ob.type==='cactus'||ob.type==='cactus2') drawMandacaru(ob.x,groundY,ob.w,ob.h);
+  else if(ob.type==='rock')  drawPedra(ob.x,groundY,ob.w,ob.h);
+  else if(ob.type==='hole')  drawBuraco(ob.x,groundY,ob.w,ob.h);
+  else if(ob.type==='cerca') drawCerca(ob.x,groundY,ob.w,ob.h);
+}
+
 function drawCollectible(id,x,y,r){
   if(id==='umbu')drawUmbu(x,y,r);
   else if(id==='rap')drawRapadura(x,y,r);
