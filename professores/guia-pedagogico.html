@@ -8,16 +8,29 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 body{font-family:'Inter',sans-serif}
+.tab-btn{transition:all .18s;border-bottom:3px solid transparent;}
+.tab-btn.active{border-bottom-color:currentColor;font-weight:700;}
+.game-card{transition:all .18s;cursor:pointer;border:2px solid transparent;}
+.game-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.13);}
+.game-card.selected{border-color:#fff;box-shadow:0 0 0 3px rgba(0,0,0,.18);}
+.ans-line{border-bottom:1.5px solid #94a3b8;min-height:28px;margin-bottom:4px;}
+#panel{display:none;}
+#panel.show{display:block;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
 @media print{
   .np{display:none!important}
+  #main-content{display:none!important}
+  #print-sheet{display:block!important}
+  body{background:white!important;margin:0;padding:0}
   .pb{page-break-before:always}
-  body{background:white!important}
-  .pcard{break-inside:avoid}
 }
+#print-sheet{display:none;}
 </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
 
+<!-- NAV -->
 <div class="np sticky top-0 z-10 bg-blue-700 text-white px-4 py-2.5 flex items-center justify-between text-sm shadow-md">
   <a href="../index.html" class="flex items-center gap-1.5 hover:underline">
     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
@@ -25,12 +38,17 @@ body{font-family:'Inter',sans-serif}
   </a>
   <div class="flex items-center gap-2">
     <a href="ficha-observacao.html" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-xs font-semibold transition-colors">📋 Ficha de Observação</a>
-    <button onclick="window.print()" class="bg-white text-blue-700 font-bold px-3 py-1 rounded text-xs hover:bg-blue-50">🖨️ Imprimir / PDF</button>
+    <button onclick="window.print()" class="bg-white text-blue-700 font-bold px-3 py-1 rounded text-xs hover:bg-blue-50">🖨️ Imprimir</button>
   </div>
 </div>
 
-<div class="max-w-4xl mx-auto px-4 py-8">
+<!-- PRINT SHEET (hidden, shown only on print) -->
+<div id="print-sheet"></div>
 
+<!-- MAIN -->
+<div id="main-content" class="max-w-5xl mx-auto px-4 py-8">
+
+  <!-- Hero -->
   <div class="bg-gradient-to-br from-blue-700 to-indigo-900 text-white rounded-2xl p-8 mb-8 shadow-xl">
     <div class="text-5xl mb-4">📚</div>
     <h1 class="text-3xl font-extrabold mb-1">Guia Pedagógico</h1>
@@ -40,17 +58,18 @@ body{font-family:'Inter',sans-serif}
       <span class="bg-white/15 border border-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">10 jogos disponíveis</span>
       <span class="bg-white/15 border border-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">Alinhado à BNCC 2024</span>
       <span class="bg-white/15 border border-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">Acesso gratuito</span>
-      <span class="bg-white/15 border border-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">Sem cadastro</span>
     </div>
   </div>
 
+  <!-- Sobre -->
   <section class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-5">
     <h2 class="text-xl font-extrabold mb-3">Sobre a plataforma</h2>
     <p class="text-gray-600 leading-relaxed mb-3">O <strong>EmpreendeJovem</strong> é uma plataforma gratuita de jogos educativos para desenvolver competências empreendedoras alinhadas à BNCC. Os jogos simulam situações reais — desde pescaria no Cânion do Xingó até montar uma empresa — incentivando pensamento crítico, tomada de decisão e cooperação.</p>
     <p class="text-gray-600 leading-relaxed">Jogue diretamente no navegador, sem instalação ou cadastro, em tablets, computadores ou celulares. Recomendamos aplicar em laboratório, em duplas ou individualmente.</p>
   </section>
 
-  <section id="bncc" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-5">
+  <!-- Mapa BNCC -->
+  <section class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-5">
     <h2 class="text-xl font-extrabold mb-4">🎯 Mapa de competências BNCC</h2>
     <div class="overflow-x-auto rounded-xl border border-gray-200">
       <table class="w-full text-sm">
@@ -66,8 +85,8 @@ body{font-family:'Inter',sans-serif}
           <tr class="bg-gray-50/50"><td class="p-3 font-medium">🌍 EcoNegócio</td><td class="p-3 text-center"><span class="bg-pink-100 text-pink-700 px-1.5 py-0.5 rounded text-xs font-bold">7, 10</span></td><td class="p-3 text-center text-gray-500 text-xs">Inovação</td><td class="p-3 text-center text-gray-500 text-xs">6°–9°</td></tr>
           <tr class="hover:bg-gray-50"><td class="p-3 font-medium">🎣 Pesca no São Francisco <span class="text-teal-600 text-xs">🌵SE</span></td><td class="p-3 text-center"><span class="bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded text-xs font-bold">1, 5, 7</span></td><td class="p-3 text-center text-gray-500 text-xs">Negócios</td><td class="p-3 text-center text-gray-500 text-xs">6°–7°</td></tr>
           <tr class="bg-gray-50/50"><td class="p-3 font-medium">🎉 Barraca do São João <span class="text-violet-600 text-xs">🌵SE</span></td><td class="p-3 text-center"><span class="bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded text-xs font-bold">2, 5, 8</span></td><td class="p-3 text-center text-gray-500 text-xs">Negócios</td><td class="p-3 text-center text-gray-500 text-xs">6°–8°</td></tr>
-          <tr class="hover:bg-gray-50"><td class="p-3 font-medium">🦏 Tropeiro do Sertão <span class="text-amber-600 text-xs">🌵SE</span></td><td class="p-3 text-center"><span class="bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-xs font-bold">1, 5, 7</span></td><td class="p-3 text-center text-gray-500 text-xs">Negócios</td><td class="p-3 text-center text-gray-500 text-xs">6°–7°</td></tr>
-          <tr class="bg-gray-50/50"><td class="p-3 font-medium">🎦 Ateliê de Laranjeiras <span class="text-orange-600 text-xs">🌵SE</span></td><td class="p-3 text-center"><span class="bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded text-xs font-bold">2, 4, 9</span></td><td class="p-3 text-center text-gray-500 text-xs">Inovação</td><td class="p-3 text-center text-gray-500 text-xs">6°–8°</td></tr>
+          <tr class="hover:bg-gray-50"><td class="p-3 font-medium">🫏 Tropeiro do Sertão <span class="text-amber-600 text-xs">🌵SE</span></td><td class="p-3 text-center"><span class="bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-xs font-bold">1, 5, 7</span></td><td class="p-3 text-center text-gray-500 text-xs">Negócios</td><td class="p-3 text-center text-gray-500 text-xs">6°–7°</td></tr>
+          <tr class="bg-gray-50/50"><td class="p-3 font-medium">🎨 Ateliê de Laranjeiras <span class="text-orange-600 text-xs">🌵SE</span></td><td class="p-3 text-center"><span class="bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded text-xs font-bold">2, 4, 9</span></td><td class="p-3 text-center text-gray-500 text-xs">Inovação</td><td class="p-3 text-center text-gray-500 text-xs">6°–8°</td></tr>
         </tbody>
       </table>
     </div>
@@ -75,22 +94,19 @@ body{font-family:'Inter',sans-serif}
     <div class="mt-4 p-4 bg-gray-50 rounded-xl text-xs text-gray-600">
       <p class="font-bold text-gray-700 mb-2">Competências gerais da BNCC abordadas:</p>
       <div class="grid grid-cols-2 gap-1">
-        <p><strong>1</strong> — Conhecimento</p>
-        <p><strong>2</strong> — Pensamento científico, crítico e criativo</p>
-        <p><strong>4</strong> — Comunicação e argumentação</p>
-        <p><strong>5</strong> — Cultura digital e tecnologia</p>
-        <p><strong>7</strong> — Sustentabilidade e responsabilidade</p>
-        <p><strong>8</strong> — Autoconhecimento e autocuidado</p>
-        <p><strong>9</strong> — Empatia e cooperação</p>
-        <p><strong>10</strong> — Responsabilidade e cidadania</p>
+        <p><strong>1</strong> — Conhecimento</p><p><strong>2</strong> — Pensamento científico, crítico e criativo</p>
+        <p><strong>4</strong> — Comunicação e argumentação</p><p><strong>5</strong> — Cultura digital e tecnologia</p>
+        <p><strong>7</strong> — Sustentabilidade e responsabilidade</p><p><strong>8</strong> — Autoconhecimento e autocuidado</p>
+        <p><strong>9</strong> — Empatia e cooperação</p><p><strong>10</strong> — Responsabilidade e cidadania</p>
       </div>
     </div>
   </section>
 
+  <!-- 3 momentos -->
   <section class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
     <h2 class="text-xl font-extrabold mb-4">⏱️ Os 3 momentos pedagógicos</h2>
     <div class="grid md:grid-cols-3 gap-4">
-      <div class="bg-blue-50 border-l-4 border-blue-500 rounded-r-xl p-4 pcard">
+      <div class="bg-blue-50 border-l-4 border-blue-500 rounded-r-xl p-4">
         <h3 class="font-bold text-blue-800 mb-2 text-sm">ANTES DO JOGO · 10–15 min</h3>
         <ul class="text-sm text-blue-900 space-y-1.5">
           <li>• Apresente o contexto real do jogo</li>
@@ -99,7 +115,7 @@ body{font-family:'Inter',sans-serif}
           <li>• Demonstre brevemente as mecânicas na projeção</li>
         </ul>
       </div>
-      <div class="bg-green-50 border-l-4 border-green-500 rounded-r-xl p-4 pcard">
+      <div class="bg-green-50 border-l-4 border-green-500 rounded-r-xl p-4">
         <h3 class="font-bold text-green-800 mb-2 text-sm">DURANTE O JOGO · 20–30 min</h3>
         <ul class="text-sm text-green-900 space-y-1.5">
           <li>• Permita jogo individual ou em duplas/trios</li>
@@ -108,190 +124,953 @@ body{font-family:'Inter',sans-serif}
           <li>• Incentive sem dar respostas diretas</li>
         </ul>
       </div>
-      <div class="bg-orange-50 border-l-4 border-orange-500 rounded-r-xl p-4 pcard">
+      <div class="bg-orange-50 border-l-4 border-orange-500 rounded-r-xl p-4">
         <h3 class="font-bold text-orange-800 mb-2 text-sm">DEPOIS DO JOGO · 15–20 min</h3>
         <ul class="text-sm text-orange-900 space-y-1.5">
           <li>• Conduza o debate com as perguntas sugeridas</li>
           <li>• Relacione à vida real e ao entorno dos alunos</li>
           <li>• Peça registro escrito (caderno, portfólio)</li>
-          <li>• Proponha atividade complementar como tarefa</li>
+          <li>• Aplique a folha de atividades como avaliação</li>
         </ul>
       </div>
     </div>
   </section>
 
-  <h2 class="text-2xl font-extrabold mb-5" id="jogos">🎮 Guia por jogo</h2>
+  <!-- ═══ GUIA POR JOGO ═══ -->
+  <h2 class="text-2xl font-extrabold mb-2" id="jogos">🎮 Guia por Jogo</h2>
+  <p class="text-gray-500 text-sm mb-5">Selecione um jogo para ver objetivos, sugestões em sala, perguntas de debate e atividades para imprimir.</p>
 
-  <!-- Jogo 1 -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden pcard">
-    <div class="bg-gradient-to-r from-blue-600 to-blue-800 px-5 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <span class="text-3xl">🚀</span>
-        <div><h3 class="text-lg font-extrabold text-white">Missão Empresarial</h3><p class="text-white/70 text-xs">Negócios · 6° ao 9° ano</p></div>
-      </div>
-      <div class="flex gap-1"><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 2</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 9</span></div>
-    </div>
-    <div class="p-5 grid md:grid-cols-3 gap-4 text-sm">
-      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">📌 Objetivos</h4><ul class="text-gray-600 space-y-1"><li>• Simular criação de empresa e decisões iniciais</li><li>• Desenvolver pensamento estratégico</li><li>• Compreender planejamento antes de empreender</li></ul></div>
-      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">🏫 Em sala</h4><ul class="text-gray-600 space-y-1"><li>• <em>Antes:</em> “Que negócio você abriria e por quê?”</li><li>• <em>Durante:</em> Observe as escolhas de ramo/produto</li><li>• <em>Depois:</em> Relacionar com empresas locais conhecidas</li></ul></div>
-      <div><h4 class="font-bold text-orange-600 text-xs uppercase tracking-wide mb-2">💬 Debate</h4><ol class="text-gray-600 space-y-1 list-decimal ml-4"><li>Que desafios encontrou ao montar a empresa?</li><li>O que levou em conta ao escolher o ramo?</li><li>Como uma empresa beneficia a comunidade?</li></ol></div>
-    </div>
+  <!-- Seletor de jogos -->
+  <div id="selector" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
+    <!-- renderizado via JS -->
   </div>
 
-  <!-- Jogo 2 -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden pcard">
-    <div class="bg-gradient-to-r from-purple-600 to-purple-800 px-5 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <span class="text-3xl">💰</span>
-        <div><h3 class="text-lg font-extrabold text-white">Banco do Futuro</h3><p class="text-white/70 text-xs">Finanças · 7° ao 9° ano</p></div>
-      </div>
-      <div class="flex gap-1"><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 1</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 5</span></div>
-    </div>
-    <div class="p-5 grid md:grid-cols-3 gap-4 text-sm">
-      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">📌 Objetivos</h4><ul class="text-gray-600 space-y-1"><li>• Compreender juros, investimento e poupança</li><li>• Simular decisões financeiras básicas</li><li>• Desenvolver educação financeira na prática</li></ul></div>
-      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">🏫 Em sala</h4><ul class="text-gray-600 space-y-1"><li>• <em>Antes:</em> Fale sobre planejamento financeiro familiar</li><li>• <em>Durante:</em> Observe: impulsivo ou calculado?</li><li>• <em>Depois:</em> Discutir metas financeiras pessoais</li></ul></div>
-      <div><h4 class="font-bold text-orange-600 text-xs uppercase tracking-wide mb-2">💬 Debate</h4><ol class="text-gray-600 space-y-1 list-decimal ml-4"><li>Qual a diferença entre poupar e investir?</li><li>Por que os juros podem ser prejudiciais?</li><li>Como você planeja suas compras no dia a dia?</li></ol></div>
-    </div>
+  <!-- Painel do jogo selecionado -->
+  <div id="panel" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+    <!-- renderizado via JS -->
   </div>
 
-  <!-- Jogo 3 -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden pcard">
-    <div class="bg-gradient-to-r from-green-600 to-green-800 px-5 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <span class="text-3xl">💡</span>
-        <div><h3 class="text-lg font-extrabold text-white">IdeaLab</h3><p class="text-white/70 text-xs">Inovação · 6° ao 8° ano</p></div>
-      </div>
-      <div class="flex gap-1"><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 2</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 4</span></div>
-    </div>
-    <div class="p-5 grid md:grid-cols-3 gap-4 text-sm">
-      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">📌 Objetivos</h4><ul class="text-gray-600 space-y-1"><li>• Aplicar Design Thinking a problemas reais</li><li>• Desenvolver criatividade e comunicação</li><li>• Praticar trabalho colaborativo</li></ul></div>
-      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">🏫 Em sala</h4><ul class="text-gray-600 space-y-1"><li>• <em>Antes:</em> “Que problema você resolveria na escola?”</li><li>• <em>Durante:</em> Observe a colaboração entre colegas</li><li>• <em>Depois:</em> Apresentações breves das soluções</li></ul></div>
-      <div><h4 class="font-bold text-orange-600 text-xs uppercase tracking-wide mb-2">💬 Debate</h4><ol class="text-gray-600 space-y-1 list-decimal ml-4"><li>Que problema identificou no jogo?</li><li>Como chegou à solução escolhida?</li><li>Qual ideia você aplicaria na sua escola?</li></ol></div>
-    </div>
-  </div>
-
-  <!-- Jogo 4 -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden pcard">
-    <div class="bg-gradient-to-r from-orange-500 to-orange-700 px-5 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <span class="text-3xl">👑</span>
-        <div><h3 class="text-lg font-extrabold text-white">CEO por um Dia</h3><p class="text-white/70 text-xs">Liderança · 8° ao 9° ano</p></div>
-      </div>
-      <div class="flex gap-1"><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 8</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 9</span></div>
-    </div>
-    <div class="p-5 grid md:grid-cols-3 gap-4 text-sm">
-      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">📌 Objetivos</h4><ul class="text-gray-600 space-y-1"><li>• Simular tomada de decisão como líder</li><li>• Compreender consequências das escolhas</li><li>• Desenvolver empatia e resiliência</li></ul></div>
-      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">🏫 Em sala</h4><ul class="text-gray-600 space-y-1"><li>• <em>Antes:</em> Qualidades de um bom líder</li><li>• <em>Durante:</em> Observe resiliência após erros</li><li>• <em>Depois:</em> Discutir dilemas éticos empresariais</li></ul></div>
-      <div><h4 class="font-bold text-orange-600 text-xs uppercase tracking-wide mb-2">💬 Debate</h4><ol class="text-gray-600 space-y-1 list-decimal ml-4"><li>Qual foi a decisão mais difícil?</li><li>Como a liderança afeta uma equipe?</li><li>Como você reagiu quando algo deu errado?</li></ol></div>
-    </div>
-  </div>
-
-  <!-- Jogo 5 -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden pcard">
-    <div class="bg-gradient-to-r from-cyan-600 to-cyan-800 px-5 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <span class="text-3xl">🛒</span>
-        <div><h3 class="text-lg font-extrabold text-white">Mercado Virtual</h3><p class="text-white/70 text-xs">Negócios · 6° ao 9° ano</p></div>
-      </div>
-      <div class="flex gap-1"><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 1</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 7</span></div>
-    </div>
-    <div class="p-5 grid md:grid-cols-3 gap-4 text-sm">
-      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">📌 Objetivos</h4><ul class="text-gray-600 space-y-1"><li>• Simular oferta, demanda e formação de preço</li><li>• Compreender dinâmica de compra e venda</li><li>• Refletir sobre consumo consciente</li></ul></div>
-      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">🏫 Em sala</h4><ul class="text-gray-600 space-y-1"><li>• <em>Antes:</em> Preços na feira ou mercado local</li><li>• <em>Durante:</em> Estratégias de precificação adotadas</li><li>• <em>Depois:</em> Análise de mercado real da cidade</li></ul></div>
-      <div><h4 class="font-bold text-orange-600 text-xs uppercase tracking-wide mb-2">💬 Debate</h4><ol class="text-gray-600 space-y-1 list-decimal ml-4"><li>O que faz o preço de algo aumentar ou cair?</li><li>Quando vale comprar mais barato?</li><li>Como o consumo afeta o meio ambiente?</li></ol></div>
-    </div>
-  </div>
-
-  <!-- Jogo 6 -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden pcard">
-    <div class="bg-gradient-to-r from-emerald-600 to-green-900 px-5 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <span class="text-3xl">🌍</span>
-        <div><h3 class="text-lg font-extrabold text-white">EcoNegócio</h3><p class="text-white/70 text-xs">Inovação · 6° ao 9° ano</p></div>
-      </div>
-      <div class="flex gap-1"><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 7</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 10</span></div>
-    </div>
-    <div class="p-5 grid md:grid-cols-3 gap-4 text-sm">
-      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">📌 Objetivos</h4><ul class="text-gray-600 space-y-1"><li>• Criar negócio sustentável com lucro</li><li>• Relacionar negócios e meio ambiente</li><li>• Desenvolver responsabilidade social</li></ul></div>
-      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">🏫 Em sala</h4><ul class="text-gray-600 space-y-1"><li>• <em>Antes:</em> Empresas sustentáveis da região</li><li>• <em>Durante:</em> Escolhas de matéria-prima e impacto</li><li>• <em>Depois:</em> Projetos ambientais locais</li></ul></div>
-      <div><h4 class="font-bold text-orange-600 text-xs uppercase tracking-wide mb-2">💬 Debate</h4><ol class="text-gray-600 space-y-1 list-decimal ml-4"><li>É possível lucrar e cuidar do ambiente?</li><li>Que impacto seu negócio teve na natureza?</li><li>Que empresa sustentável você criaria em Sergipe?</li></ol></div>
-    </div>
-  </div>
-
-  <!-- Sergipe games label -->
-  <p class="text-xs font-bold text-teal-700 uppercase tracking-widest mb-3 mt-6">🌵 Jogos com contexto cultural sergipano</p>
-
-  <!-- Jogo 7 -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden pcard">
-    <div class="bg-gradient-to-r from-teal-600 to-teal-800 px-5 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <span class="text-3xl">🎣</span>
-        <div><h3 class="text-lg font-extrabold text-white">Pesca no São Francisco</h3><p class="text-white/70 text-xs">Negócios · 6° ao 7° ano · Cânion do Xingó, SE</p></div>
-      </div>
-      <div class="flex gap-1"><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 1</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 5</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 7</span></div>
-    </div>
-    <div class="p-5 grid md:grid-cols-3 gap-4 text-sm">
-      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">📌 Objetivos</h4><ul class="text-gray-600 space-y-1"><li>• Compreender valor comercial de recursos naturais</li><li>• Relacionar pesca artesanal e renda familiar</li><li>• Valorizar a cultura do São Francisco</li></ul></div>
-      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">🏫 Em sala</h4><ul class="text-gray-600 space-y-1"><li>• <em>Antes:</em> Cânion do Xingó e pesca artesanal</li><li>• <em>Durante:</em> Estratégia de quais peixes priorizar</li><li>• <em>Depois:</em> Pesca x preservação ambiental</li></ul></div>
-      <div><h4 class="font-bold text-orange-600 text-xs uppercase tracking-wide mb-2">💬 Debate</h4><ol class="text-gray-600 space-y-1 list-decimal ml-4"><li>Por que o Dourado vale mais que a Tilápia?</li><li>O que aconteceria se os peixes acabassem?</li><li>Como pescar de forma sustentável?</li></ol></div>
-    </div>
-  </div>
-
-  <!-- Jogo 8 -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden pcard">
-    <div class="bg-gradient-to-r from-violet-600 to-violet-800 px-5 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <span class="text-3xl">🎉</span>
-        <div><h3 class="text-lg font-extrabold text-white">Barraca do São João</h3><p class="text-white/70 text-xs">Negócios · 6° ao 8° ano · Laranjeiras, SE</p></div>
-      </div>
-      <div class="flex gap-1"><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 2</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 5</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 8</span></div>
-    </div>
-    <div class="p-5 grid md:grid-cols-3 gap-4 text-sm">
-      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">📌 Objetivos</h4><ul class="text-gray-600 space-y-1"><li>• Simular atendimento ao cliente em evento cultural</li><li>• Desenvolver agilidade e tomada de decisão</li><li>• Valorizar tradição do São João sergipano</li></ul></div>
-      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">🏫 Em sala</h4><ul class="text-gray-600 space-y-1"><li>• <em>Antes:</em> São João em Laranjeiras (patrimônio)</li><li>• <em>Durante:</em> Como lidar com erros e corrigi-los</li><li>• <em>Depois:</em> Custo dos ingredientes vs. preço cobrado</li></ul></div>
-      <div><h4 class="font-bold text-orange-600 text-xs uppercase tracking-wide mb-2">💬 Debate</h4><ol class="text-gray-600 space-y-1 list-decimal ml-4"><li>O que foi mais difícil de gerenciar?</li><li>Como se organizar com muitos pedidos?</li><li>Como eventos culturais geram renda?</li></ol></div>
-    </div>
-  </div>
-
-  <!-- Jogo 9 -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden pcard">
-    <div class="bg-gradient-to-r from-amber-600 to-amber-800 px-5 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <span class="text-3xl">🦏</span>
-        <div><h3 class="text-lg font-extrabold text-white">Tropeiro do Sertão</h3><p class="text-white/70 text-xs">Negócios · 6° ao 7° ano · Caatinga Sergipana</p></div>
-      </div>
-      <div class="flex gap-1"><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 1</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 5</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 7</span></div>
-    </div>
-    <div class="p-5 grid md:grid-cols-3 gap-4 text-sm">
-      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">📌 Objetivos</h4><ul class="text-gray-600 space-y-1"><li>• Contextualizar comércio itinerante no Sertão</li><li>• Compreender custo-benefício na coleta</li><li>• Valorizar cultura e identidade sergipana</li></ul></div>
-      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">🏫 Em sala</h4><ul class="text-gray-600 space-y-1"><li>• <em>Antes:</em> Tropeiros e comércio histórico no Sertão</li><li>• <em>Durante:</em> Estratégia de coleta vs. risco de obstáculo</li><li>• <em>Depois:</em> Canindé e Itabaiana como polos de comércio</li></ul></div>
-      <div><h4 class="font-bold text-orange-600 text-xs uppercase tracking-wide mb-2">💬 Debate</h4><ol class="text-gray-600 space-y-1 list-decimal ml-4"><li>Que estratégia usou para coletar mais?</li><li>O que o jogo ensina sobre tomar riscos?</li><li>Que produtos regionais você conhece?</li></ol></div>
-    </div>
-  </div>
-
-  <!-- Jogo 10 -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden pcard">
-    <div class="bg-gradient-to-r from-orange-500 to-orange-700 px-5 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <span class="text-3xl">🎦</span>
-        <div><h3 class="text-lg font-extrabold text-white">Ateliê de Laranjeiras</h3><p class="text-white/70 text-xs">Inovação · 6° ao 8° ano · Laranjeiras, SE</p></div>
-      </div>
-      <div class="flex gap-1"><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 2</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 4</span><span class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC 9</span></div>
-    </div>
-    <div class="p-5 grid md:grid-cols-3 gap-4 text-sm">
-      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">📌 Objetivos</h4><ul class="text-gray-600 space-y-1"><li>• Simular produção artesanal e atendimento</li><li>• Compreender receita e combinação de materiais</li><li>• Valorizar patrimônio cultural de Laranjeiras</li></ul></div>
-      <div><h4 class="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">🏫 Em sala</h4><ul class="text-gray-600 space-y-1"><li>• <em>Antes:</em> Artesanato sergipano e Laranjeiras</li><li>• <em>Durante:</em> Descoberta das receitas por experimentação</li><li>• <em>Depois:</em> Custo de produção vs. preço de venda</li></ul></div>
-      <div><h4 class="font-bold text-orange-600 text-xs uppercase tracking-wide mb-2" id="debates">💬 Debate</h4><ol class="text-gray-600 space-y-1 list-decimal ml-4"><li>Como descobriu as combinações certas?</li><li>Por que o artesanato tem valor cultural?</li><li>Como o artesão deve precificar seu produto?</li></ol></div>
-    </div>
-  </div>
-
-  <!-- Footer links -->
-  <div class="np mt-8 bg-gray-100 rounded-2xl p-5 flex flex-wrap gap-3 justify-center">
+  <!-- Footer -->
+  <div class="np mt-4 bg-gray-100 rounded-2xl p-5 flex flex-wrap gap-3 justify-center">
     <a href="ficha-observacao.html" class="inline-flex items-center gap-2 bg-blue-600 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-colors">📋 Ficha de Observação</a>
     <a href="../index.html#jogos" class="inline-flex items-center gap-2 bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-gray-800 transition-colors">🎮 Ver os Jogos</a>
-    <button onclick="window.print()" class="inline-flex items-center gap-2 bg-green-600 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-green-700 transition-colors">🖨️ Imprimir Guia</button>
   </div>
-
 </div>
+
+<script>
+const GAMES = [
+  {
+    id:'missao', emoji:'🚀', name:'Missão Empresarial', subject:'Negócios', grades:'6° ao 9° ano',
+    loc:'', bncc:['2','9'], grad:'from-blue-600 to-blue-800', accent:'#1d4ed8', accentLight:'#eff6ff',
+    desc:'Simule a criação e gestão de uma empresa do zero, tomando decisões sobre ramo, produto, equipe e marketing.',
+    objectives:[
+      'Compreender as etapas de abertura e formalização de um negócio',
+      'Desenvolver pensamento estratégico na escolha de ramo e produto',
+      'Identificar os fatores que influenciam o sucesso ou fracasso de uma empresa',
+      'Relacionar planejamento empresarial com resultados financeiros',
+      'Praticar tomada de decisão sob condições de incerteza e risco',
+      'Reconhecer a importância do empreendedorismo para a economia local'
+    ],
+    emSala:{
+      antes:[
+        'Exiba imagens de empresas locais conhecidas pelos alunos e pergunte: "O que foi necessário para abrir esse negócio?"',
+        'Introduza os conceitos de planejamento, capital inicial e risco empresarial com exemplos do cotidiano',
+        'Proponha: "Se você tivesse R$ 10.000, que negócio abriria na sua cidade? Por quê?"',
+        'Explique que o jogo simulará decisões reais que empreendedores enfrentam na prática'
+      ],
+      durante:[
+        'Observe quais critérios os alunos usam para escolher o ramo — intuição, análise ou imitação de colegas',
+        'Registre na Ficha de Observação quem demonstra raciocínio estratégico e quem age por impulso',
+        'Incentive quem tiver dificuldade a reformular a estratégia em vez de desistir',
+        'Questione sem dar resposta: "Por que você acha que esse produto vai vender mais?"'
+      ],
+      depois:[
+        'Peça que cada aluno apresente em 1 minuto: o negócio que criou, as decisões tomadas e o resultado',
+        'Relacione os erros do jogo a erros reais de empreendedores iniciantes (falta de pesquisa, capital mal distribuído)',
+        'Proponha: "Pesquise uma empresa que faliu e outra que cresceu na sua cidade. O que foi diferente?"',
+        'Oriente o registro no caderno: "Liste 3 lições que o jogo te ensinou sobre abrir um negócio"'
+      ],
+      dica:'Forme grupos que misturem alunos com perfis distintos (cauteloso + arrojado) para enriquecer as estratégias.'
+    },
+    debate:[
+      {q:'Que desafios você encontrou ao montar sua empresa no jogo?', f:'Explore: foi mais difícil o planejamento inicial ou as decisões do dia a dia?'},
+      {q:'O que levou você a escolher esse ramo de negócio? Foi uma boa escolha?', f:'Relacione com a pesquisa de mercado — como saber se um negócio tem demanda?'},
+      {q:'Em que momento você sentiu que estava perdendo dinheiro? O que fez para reverter?', f:'Conecte ao conceito de fluxo de caixa e ponto de equilíbrio.'},
+      {q:'Que qualidades um empreendedor precisa ter que o jogo não consegue ensinar?', f:'Leve para: persistência, networking, liderança de equipe real.'},
+      {q:'Como uma empresa beneficia (ou pode prejudicar) a comunidade ao redor?', f:'Explore responsabilidade social, geração de empregos e impacto ambiental.'},
+      {q:'Se você fosse abrir um negócio real amanhã, o que faria diferente do jogo?', f:'Incentive a pesquisa sobre SEBRAE Jovem e programas de apoio ao empreendedorismo.'},
+      {q:'Por que tantas empresas fecham nos primeiros dois anos? O que o jogo mostra sobre isso?', f:'Relacione com estatísticas reais do IBGE sobre sobrevivência de empresas.'}
+    ],
+    activities:{
+      intro:'A abertura de um negócio exige planejamento, pesquisa de mercado e coragem para tomar decisões difíceis. No jogo Missão Empresarial você vivenciou essa jornada. Agora, responda às questões abaixo com base na sua experiência.',
+      svg:`<svg viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:320px">
+        <rect width="320" height="120" fill="#eff6ff" rx="12"/>
+        <rect x="20" y="70" width="40" height="40" fill="#1d4ed8" rx="4"/>
+        <rect x="80" y="50" width="40" height="60" fill="#2563eb" rx="4"/>
+        <rect x="140" y="30" width="40" height="80" fill="#3b82f6" rx="4"/>
+        <rect x="200" y="45" width="40" height="65" fill="#2563eb" rx="4"/>
+        <rect x="260" y="20" width="40" height="90" fill="#1d4ed8" rx="4"/>
+        <text x="160" y="14" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="bold">Crescimento do Negócio</text>
+        <line x1="10" y1="110" x2="310" y2="110" stroke="#93c5fd" stroke-width="1.5"/>
+      </svg>`,
+      questions:[
+        'Descreva o negócio que você criou no jogo: qual era o ramo, o produto principal e o público-alvo.',
+        'Cite duas decisões que você tomou durante o jogo e explique por que as tomou dessa forma.',
+        'O que é "planejamento empresarial" e por que ele é importante antes de abrir um negócio?',
+        'Na sua cidade, identifique um negócio local de sucesso. Que fatores você acredita que contribuíram para esse sucesso?',
+        'Se você tivesse R$ 5.000 para investir em um negócio real, o que abriria e por quê? Explique sua estratégia.'
+      ]
+    }
+  },
+  {
+    id:'banco', emoji:'💰', name:'Banco do Futuro', subject:'Finanças', grades:'7° ao 9° ano',
+    loc:'', bncc:['1','5'], grad:'from-purple-600 to-purple-800', accent:'#7c3aed', accentLight:'#f5f3ff',
+    desc:'Tome decisões financeiras reais: poupar, investir, contrair empréstimos e lidar com imprevistos.',
+    objectives:[
+      'Distinguir conceitos de poupança, investimento, juros e dívida',
+      'Simular planejamento financeiro pessoal em diferentes cenários de vida',
+      'Compreender como os juros compostos afetam positiva e negativamente as finanças',
+      'Desenvolver hábitos de consumo consciente e responsável',
+      'Relacionar educação financeira com qualidade de vida e autonomia',
+      'Identificar armadilhas financeiras comuns (cartão de crédito, empréstimos fáceis)'
+    ],
+    emSala:{
+      antes:[
+        'Pergunte: "Alguém aqui já viu os pais preocupados com dinheiro no fim do mês? O que causa isso?"',
+        'Apresente um exemplo simples de juros compostos: R$100 a 10% ao mês vira quanto em 1 ano?',
+        'Exiba uma conta de cartão de crédito real (com dados omitidos) e discuta os encargos',
+        'Introduza a Regra 50-30-20: necessidades, desejos e poupança'
+      ],
+      durante:[
+        'Observe se os alunos priorizam gastos supérfluos sobre necessidades básicas',
+        'Registre quem tende a poupar e quem gasta tudo — será base para o debate posterior',
+        'Questione: "Se você pegou um empréstimo, já calculou quanto vai pagar no total?"',
+        'Incentive a criação de uma reserva de emergência antes de investir'
+      ],
+      depois:[
+        'Compare os resultados finais: quem poupou mais tem mais segurança no longo prazo?',
+        'Peça que calculem: se pouparem R$50/mês por 10 anos com 0,5% a.m., quanto acumulam?',
+        'Relacione com sonhos reais dos alunos: viagem, faculdade, primeiro carro',
+        'Proponha que criem um "Plano Financeiro Pessoal" para os próximos 3 meses como tarefa'
+      ],
+      dica:'Use dinheiro de brinquedo ou fichas coloridas como recursos físicos para tornar o conceito mais concreto para turmas mais jovens.'
+    },
+    debate:[
+      {q:'Qual é a diferença entre poupar e investir? Dê um exemplo de cada.', f:'Explore: poupança protege, investimento multiplica — mas ambos exigem disciplina.'},
+      {q:'Por que os juros podem ser seus aliados ou seus inimigos?', f:'Juros a favor: investimentos. Juros contra: dívidas. Qual situação é mais comum para jovens?'},
+      {q:'Você já comprou algo por impulso e se arrependeu? O que poderia ter feito diferente?', f:'Conecte ao conceito de planejamento de compras e lista de prioridades.'},
+      {q:'Por que tantas famílias ficam endividadas mesmo com renda estável?', f:'Explore: falta de planejamento, armadilhas do crédito, consumismo cultural.'},
+      {q:'O que é "reserva de emergência" e por que ela é importante antes de qualquer investimento?', f:'Meta: 3 a 6 meses de despesas guardados em conta de fácil acesso.'},
+      {q:'Como a educação financeira poderia mudar a vida de famílias na sua comunidade?', f:'Leve para: redução de dívidas, mais investimento em educação, menos desigualdade.'},
+      {q:'Que hábito financeiro você gostaria de desenvolver a partir de hoje?', f:'Encerre com um compromisso concreto — anotar gastos, poupar uma parte do mesada etc.'}
+    ],
+    activities:{
+      intro:'Saber lidar com dinheiro é uma habilidade essencial para toda a vida. No jogo Banco do Futuro você tomou decisões financeiras com consequências reais. Responda às questões abaixo com atenção.',
+      svg:`<svg viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:320px">
+        <rect width="320" height="120" fill="#f5f3ff" rx="12"/>
+        <circle cx="80" cy="60" r="38" fill="#7c3aed" opacity=".15"/>
+        <circle cx="80" cy="60" r="28" fill="#7c3aed" opacity=".25"/>
+        <circle cx="80" cy="60" r="18" fill="#7c3aed"/>
+        <text x="80" y="65" text-anchor="middle" font-size="16" fill="white" font-weight="bold">R$</text>
+        <text x="180" y="30" font-size="10" fill="#6d28d9" font-weight="bold">Poupança</text>
+        <line x1="170" y1="38" x2="260" y2="38" stroke="#a78bfa" stroke-width="6" stroke-linecap="round"/>
+        <text x="180" y="58" font-size="10" fill="#6d28d9" font-weight="bold">Investimento</text>
+        <line x1="170" y1="66" x2="290" y2="66" stroke="#7c3aed" stroke-width="6" stroke-linecap="round"/>
+        <text x="180" y="86" font-size="10" fill="#6d28d9" font-weight="bold">Dívida</text>
+        <line x1="170" y1="94" x2="225" y2="94" stroke="#c4b5fd" stroke-width="6" stroke-linecap="round"/>
+        <text x="4" y="115" font-size="8" fill="#8b5cf6">Educação Financeira</text>
+      </svg>`,
+      questions:[
+        'Explique com suas palavras a diferença entre poupar e investir. Qual dos dois você praticou mais no jogo?',
+        'O que são juros? Como eles podem ajudar ou atrapalhar quem os usa? Dê um exemplo de cada situação.',
+        'Descreva uma decisão financeira que você tomou no jogo e que teve resultado negativo. O que faria diferente?',
+        'Liste três hábitos financeiros saudáveis que uma pessoa jovem pode adotar ainda hoje, sem precisar de muito dinheiro.',
+        'Imagine que você recebeu R$1.000 de presente. Como dividiria esse dinheiro entre gastar, poupar e investir? Justifique sua escolha.'
+      ]
+    }
+  },
+  {
+    id:'idealab', emoji:'💡', name:'IdeaLab', subject:'Inovação', grades:'6° ao 8° ano',
+    loc:'', bncc:['2','4'], grad:'from-green-600 to-green-800', accent:'#16a34a', accentLight:'#f0fdf4',
+    desc:'Aplique Design Thinking para identificar problemas reais e criar soluções criativas e viáveis.',
+    objectives:[
+      'Compreender as etapas do Design Thinking: empatia, definição, ideação, prototipação e teste',
+      'Desenvolver criatividade como ferramenta de resolução de problemas',
+      'Praticar comunicação clara e argumentação na apresentação de ideias',
+      'Identificar problemas reais na comunidade e propor soluções viáveis',
+      'Trabalhar colaborativamente respeitando diferentes perspectivas',
+      'Compreender que inovação não exige alta tecnologia — exige observação e empatia'
+    ],
+    emSala:{
+      antes:[
+        'Exiba exemplos simples de inovação: o canudo dobrável, o velcro, o post-it — todos nasceram de observação do cotidiano',
+        'Pergunte: "Qual problema da sua escola ou bairro você mais gostaria de resolver?"',
+        'Explique brevemente as 5 etapas do Design Thinking com exemplos práticos',
+        'Forme grupos heterogêneos — a diversidade de perspectivas enriquece as soluções'
+      ],
+      durante:[
+        'Observe se os alunos se fixam na primeira ideia ou exploram múltiplas soluções',
+        'Incentive a fase de empatia: "Você perguntou para quem teria esse problema como se sente?"',
+        'Registre quem lidera, quem colabora e quem se isola — dados valiosos para avaliação',
+        'Questione protótipos: "Como você testaria se isso realmente funciona?"'
+      ],
+      depois:[
+        'Realize uma "feira de soluções": cada grupo apresenta em 2 minutos o problema e a solução',
+        'A turma vota na solução mais viável, mais criativa e mais necessária (três categorias)',
+        'Relacione com startups brasileiras que nasceram de problemas simples (Nubank, iFood, 99)',
+        'Proponha: "Como você poderia prototipar sua solução com materiais que tem em casa?"'
+      ],
+      dica:'Permita que os alunos saiam da sala para observar o ambiente escolar e identificar problemas reais durante a fase de empatia.'
+    },
+    debate:[
+      {q:'Qual problema você identificou no jogo? Por que ele era importante de resolver?', f:'Incentive que pensem em problemas coletivos, não apenas pessoais.'},
+      {q:'Como você chegou à solução final? Quantas ideias teve antes de chegar a ela?', f:'Valorize o processo de iteração — a primeira ideia raramente é a melhor.'},
+      {q:'O que é empatia e por que ela é essencial para criar soluções úteis?', f:'Conecte: sem entender quem tem o problema, qualquer solução pode ser inútil.'},
+      {q:'Qual ideia de um colega você achou mais criativa? Por que ela se destacou?', f:'Desenvolve generosidade intelectual e capacidade de reconhecer boas ideias.'},
+      {q:'É possível inovar sem tecnologia? Dê um exemplo da sua cidade ou região.', f:'Feiras do agricultor com app de pedido, artesanato com venda online etc.'},
+      {q:'Que problema da sua escola ou bairro você aplicaria o Design Thinking para resolver?', f:'Encaminhe para um projeto prático interdisciplinar com outras disciplinas.'},
+      {q:'Por que grandes empresas como Google e Apple usam Design Thinking no desenvolvimento de produtos?', f:'Porque coloca o usuário no centro — não a tecnologia nem o lucro imediato.'}
+    ],
+    activities:{
+      intro:'Inovar é encontrar novas soluções para problemas reais. O Design Thinking é um método usado por empresas do mundo todo para criar produtos e serviços que realmente funcionam. Use o que aprendeu no IdeaLab para responder.',
+      svg:`<svg viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:320px">
+        <rect width="320" height="120" fill="#f0fdf4" rx="12"/>
+        <circle cx="40" cy="60" r="22" fill="#16a34a" opacity=".2"/>
+        <text x="40" y="65" text-anchor="middle" font-size="9" fill="#166534" font-weight="bold">EMPATIA</text>
+        <line x1="62" y1="60" x2="82" y2="60" stroke="#16a34a" stroke-width="2" marker-end="url(#arr)"/>
+        <circle cx="104" cy="60" r="22" fill="#16a34a" opacity=".35"/>
+        <text x="104" y="65" text-anchor="middle" font-size="9" fill="#166534" font-weight="bold">DEFINIR</text>
+        <line x1="126" y1="60" x2="146" y2="60" stroke="#16a34a" stroke-width="2"/>
+        <circle cx="168" cy="60" r="22" fill="#16a34a" opacity=".5"/>
+        <text x="168" y="58" text-anchor="middle" font-size="9" fill="#166534" font-weight="bold">IDEA-</text>
+        <text x="168" y="69" text-anchor="middle" font-size="9" fill="#166534" font-weight="bold">ÇÃO</text>
+        <line x1="190" y1="60" x2="210" y2="60" stroke="#16a34a" stroke-width="2"/>
+        <circle cx="232" cy="60" r="22" fill="#16a34a" opacity=".7"/>
+        <text x="232" y="58" text-anchor="middle" font-size="9" fill="white" font-weight="bold">PROTO-</text>
+        <text x="232" y="69" text-anchor="middle" font-size="9" fill="white" font-weight="bold">TIPO</text>
+        <line x1="254" y1="60" x2="274" y2="60" stroke="#16a34a" stroke-width="2"/>
+        <circle cx="296" cy="60" r="22" fill="#16a34a"/>
+        <text x="296" y="65" text-anchor="middle" font-size="9" fill="white" font-weight="bold">TESTE</text>
+      </svg>`,
+      questions:[
+        'Descreva o problema que você escolheu resolver no jogo. Por que esse problema é importante para as pessoas afetadas?',
+        'Explique as 5 etapas do Design Thinking com suas palavras e dê um exemplo de cada uma.',
+        'O que é empatia? Como ela influencia a criação de uma boa solução para um problema?',
+        'Descreva a solução que você criou no jogo. Ela seria viável na vida real? O que precisaria mudar?',
+        'Identifique um problema real da sua escola ou comunidade e esboce uma solução usando o método Design Thinking (pode usar texto ou desenho).'
+      ]
+    }
+  },
+  {
+    id:'ceo', emoji:'👑', name:'CEO por um Dia', subject:'Liderança', grades:'8° ao 9° ano',
+    loc:'', bncc:['8','9'], grad:'from-orange-500 to-orange-700', accent:'#ea580c', accentLight:'#fff7ed',
+    desc:'Assuma o papel de CEO e tome decisões estratégicas que afetam equipe, lucro e reputação da empresa.',
+    objectives:[
+      'Compreender o papel e as responsabilidades de um líder organizacional',
+      'Identificar como decisões do gestor impactam colaboradores, clientes e resultados',
+      'Desenvolver empatia ao enfrentar dilemas éticos empresariais',
+      'Praticar resiliência frente a consequências negativas de escolhas',
+      'Reconhecer a diferença entre liderança autoritária e liderança colaborativa',
+      'Relacionar autoconhecimento e autocuidado com eficiência na liderança'
+    ],
+    emSala:{
+      antes:[
+        'Pergunte: "Quem vocês consideram um grande líder — na escola, na cidade, no país? Por quê?"',
+        'Discuta a diferença entre chefe e líder: imposição x inspiração, hierarquia x colaboração',
+        'Apresente dilemas éticos empresariais reais: demitir para cortar custos vs. manter o time',
+        'Explique que o jogo coloca o aluno diante de decisões que têm certo, errado e "depende"'
+      ],
+      durante:[
+        'Observe como os alunos reagem quando uma decisão gera consequência negativa — paralisam, desistem ou adaptam?',
+        'Registre quem demonstra consideração pelo impacto humano das decisões vs. foco puramente em lucro',
+        'Questione: "Sua equipe estaria feliz com as decisões que você tomou? Por quê?"',
+        'Incentive quem errou a tentar uma estratégia diferente na segunda rodada'
+      ],
+      depois:[
+        'Peça que cada aluno cite a decisão mais difícil e o que a tornou difícil',
+        'Conduza um debate sobre ética empresarial: o lucro justifica qualquer decisão?',
+        'Relacione com casos reais: líderes que destruíram empresas por falta de ética (Enron, Americanas)',
+        'Proponha: "Escreva as 5 qualidades do líder que você quer ser quando adulto"'
+      ],
+      dica:'Para 9° ano: conecte com conceitos de Filosofia (ética de Kant vs. utilitarismo) — cada decisão tem uma base filosófica.'
+    },
+    debate:[
+      {q:'Qual foi a decisão mais difícil que você tomou como CEO? O que a tornou difícil?', f:'Dilemas éticos não têm resposta certa — valorize a reflexão, não a resposta perfeita.'},
+      {q:'É possível ser um bom líder e também uma boa pessoa? Elas se contradizem alguma vez?', f:'Explore casos em que valores pessoais e exigências corporativas entram em conflito.'},
+      {q:'Como você reagiu quando uma decisão sua gerou resultado negativo? O que aprendeu com isso?', f:'Resiliência e aprendizado com erros são competências fundamentais do líder.'},
+      {q:'Que impacto as decisões do CEO têm nos funcionários de nível mais baixo da empresa?', f:'Desenvolve empatia por trabalhadores que raramente participam das decisões que os afetam.'},
+      {q:'Qual é a diferença entre ser um "chefe" e ser um "líder"?', f:'Chefe usa autoridade formal; líder usa influência e inspiração — embora ambos possam coexistir.'},
+      {q:'Por que empresas com líderes éticos tendem a ter mais sucesso no longo prazo?', f:'Reputação, retenção de talentos, confiança de clientes e evitar escândalos.'},
+      {q:'Que tipo de líder você quer ser? Cite um exemplo de como aplicaria isso no dia a dia da escola.', f:'Conecte liderança empresarial com representação de turma, liderança esportiva etc.'}
+    ],
+    activities:{
+      intro:'Liderar é uma das habilidades mais valorizadas no mundo profissional e também na vida pessoal. No jogo CEO por um Dia você enfrentou decisões difíceis. Use essa experiência para refletir.',
+      svg:`<svg viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:320px">
+        <rect width="320" height="120" fill="#fff7ed" rx="12"/>
+        <circle cx="160" cy="45" r="22" fill="#ea580c"/>
+        <text x="160" y="50" text-anchor="middle" font-size="11" fill="white" font-weight="bold">CEO</text>
+        <line x1="148" y1="67" x2="110" y2="90" stroke="#ea580c" stroke-width="2"/>
+        <line x1="160" y1="67" x2="160" y2="90" stroke="#ea580c" stroke-width="2"/>
+        <line x1="172" y1="67" x2="210" y2="90" stroke="#ea580c" stroke-width="2"/>
+        <circle cx="110" cy="100" r="10" fill="#fed7aa"/>
+        <text x="110" y="104" text-anchor="middle" font-size="8" fill="#7c2d12">EQUIPE</text>
+        <circle cx="160" cy="100" r="10" fill="#fed7aa"/>
+        <text x="160" y="104" text-anchor="middle" font-size="8" fill="#7c2d12">CLIEN.</text>
+        <circle cx="210" cy="100" r="10" fill="#fed7aa"/>
+        <text x="210" y="104" text-anchor="middle" font-size="8" fill="#7c2d12">LUCRO</text>
+        <text x="160" y="14" text-anchor="middle" font-size="10" fill="#c2410c" font-weight="bold">Cadeia de Decisão</text>
+      </svg>`,
+      questions:[
+        'Descreva a decisão mais difícil que você tomou como CEO no jogo e explique o raciocínio por trás dela.',
+        'Qual a diferença entre um "chefe" e um "líder"? Dê exemplos de comportamento de cada um.',
+        'Como as decisões de um CEO afetam diferentes pessoas dentro e fora da empresa?',
+        'Cite um exemplo real (de notícia, filme ou história) de um líder que tomou uma decisão antiética. Quais foram as consequências?',
+        'Escreva cinco qualidades que você considera essenciais em um bom líder e justifique cada uma.'
+      ]
+    }
+  },
+  {
+    id:'mercado', emoji:'🛒', name:'Mercado Virtual', subject:'Negócios', grades:'6° ao 9° ano',
+    loc:'', bncc:['1','7'], grad:'from-cyan-600 to-cyan-800', accent:'#0891b2', accentLight:'#ecfeff',
+    desc:'Gerencie uma loja virtual: precifique produtos, administre estoque e equilibre oferta e demanda.',
+    objectives:[
+      'Compreender os conceitos de oferta, demanda e formação de preço',
+      'Simular gestão de estoque e consequências da falta ou excesso de produtos',
+      'Desenvolver habilidade de precificação levando em conta custos e concorrência',
+      'Refletir sobre consumo consciente e suas relações com o meio ambiente',
+      'Compreender como o comércio eletrônico transformou o varejo brasileiro',
+      'Identificar estratégias de marketing digital aplicáveis a pequenos negócios'
+    ],
+    emSala:{
+      antes:[
+        'Leve uma embalagem de produto do cotidiano e discuta: qual é o custo, qual é o preço, qual é a margem?',
+        'Pergunte: "Por que a mesma camiseta pode custar R$20 numa loja e R$300 em outra?"',
+        'Apresente dados sobre o crescimento do e-commerce no Brasil (fonte: ABCOMM)',
+        'Discuta como aplicativos como Shopee, Mercado Livre e Amazon mudaram os hábitos de compra'
+      ],
+      durante:[
+        'Observe as estratégias de precificação: quem cobra mais e por quê? Quem tenta ser o mais barato?',
+        'Registre quem monitora o estoque proativamente vs. quem age só quando acaba',
+        'Questione: "Se dois produtos têm o mesmo preço, o que faz o cliente escolher um ou outro?"',
+        'Incentive que percebam a diferença entre preço de custo, preço de venda e lucro real'
+      ],
+      depois:[
+        'Calcule junto com a turma: se um produto custa R$10 e é vendido por R$18, qual é a margem de lucro?',
+        'Discuta: um mercado local vs. uma grande rede — quais as vantagens de cada um para o consumidor e para a cidade?',
+        'Relacione com a loja de um familiar ou empresa local que os alunos conheçam',
+        'Proponha: "Crie a vitrine virtual de um produto que você venderia — com preço, foto e descrição"'
+      ],
+      dica:'Peça que os alunos pesquisem o preço do mesmo produto em 3 lojas diferentes antes da aula — a pesquisa de campo enriquece muito o debate.'
+    },
+    debate:[
+      {q:'O que faz o preço de um produto subir ou cair? Dê um exemplo do cotidiano.', f:'Explore: escassez, sazonalidade (preço do tomate), câmbio, crise de matéria-prima.'},
+      {q:'Quando vale comprar o mais barato? Quando o preço mais alto é justificado?', f:'Qualidade, durabilidade, garantia, suporte — o preço total de posse às vezes surpreende.'},
+      {q:'Como o comércio eletrônico afeta as lojas físicas da sua cidade?', f:'Fechamento de lojas locais vs. conveniência; impacto em empregos locais.'},
+      {q:'O que é "consumo consciente"? Como você pode praticá-lo no dia a dia?', f:'Reparar antes de jogar fora, comprar local, verificar procedência e condições de trabalho.'},
+      {q:'Por que algumas marcas cobram muito mais por produtos similares aos concorrentes?', f:'Branding, experiência do cliente, posicionamento — o preço comunicado diz algo sobre o produto.'},
+      {q:'Como um pequeno comerciante local pode competir com grandes redes e plataformas online?', f:'Atendimento personalizado, produto local único, entrega rápida, relacionamento com cliente.'},
+      {q:'Qual seria o impacto de todo mundo da sua cidade comprar apenas de lojas locais?', f:'Circulação de dinheiro na economia local, geração de empregos, fortalecimento da comunidade.'}
+    ],
+    activities:{
+      intro:'Compreender como os mercados funcionam é essencial para ser um consumidor consciente e, quem sabe, um empreendedor bem-sucedido. No jogo Mercado Virtual você gerenciou uma loja e tomou decisões reais de negócio.',
+      svg:`<svg viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:320px">
+        <rect width="320" height="120" fill="#ecfeff" rx="12"/>
+        <rect x="20" y="20" width="130" height="80" fill="#0891b2" rx="8" opacity=".15"/>
+        <text x="85" y="42" text-anchor="middle" font-size="10" fill="#0e7490" font-weight="bold">OFERTA</text>
+        <line x1="30" y1="90" x2="140" y2="50" stroke="#0891b2" stroke-width="2.5"/>
+        <text x="30" y="104" font-size="8" fill="#0e7490">baixo</text>
+        <text x="120" y="104" font-size="8" fill="#0e7490">alto</text>
+        <rect x="170" y="20" width="130" height="80" fill="#0891b2" rx="8" opacity=".15"/>
+        <text x="235" y="42" text-anchor="middle" font-size="10" fill="#0e7490" font-weight="bold">DEMANDA</text>
+        <line x1="180" y1="50" x2="290" y2="90" stroke="#0891b2" stroke-width="2.5"/>
+        <text x="175" y="104" font-size="8" fill="#0e7490">baixo</text>
+        <text x="268" y="104" font-size="8" fill="#0e7490">alto</text>
+        <text x="160" y="14" text-anchor="middle" font-size="9" fill="#0e7490">Lei da Oferta e Demanda</text>
+      </svg>`,
+      questions:[
+        'Explique com suas palavras o que é "lei da oferta e demanda" e como ela influenciou suas decisões no jogo.',
+        'O que é margem de lucro? Se um produto custa R$12 para ser feito e é vendido por R$20, qual é a margem percentual?',
+        'Descreva uma estratégia que você usou no jogo para atrair mais clientes. Ela funcionou? Por quê?',
+        'O que é consumo consciente? Liste três práticas de consumo consciente que você poderia adotar.',
+        'Compare uma loja local da sua cidade com uma grande plataforma online: quais são as vantagens e desvantagens de cada uma para o consumidor e para a comunidade?'
+      ]
+    }
+  },
+  {
+    id:'eco', emoji:'🌍', name:'EcoNegócio', subject:'Inovação', grades:'6° ao 9° ano',
+    loc:'', bncc:['7','10'], grad:'from-emerald-600 to-green-900', accent:'#059669', accentLight:'#ecfdf5',
+    desc:'Crie um negócio sustentável equilibrando lucro, impacto ambiental e responsabilidade social.',
+    objectives:[
+      'Compreender o conceito de desenvolvimento sustentável e sua relação com o empreendedorismo',
+      'Identificar práticas empresariais que conciliam rentabilidade e preservação ambiental',
+      'Refletir sobre o impacto das escolhas de produção na natureza e na comunidade',
+      'Conhecer exemplos reais de negócios verdes no Brasil e no Nordeste',
+      'Desenvolver responsabilidade socioambiental como valor pessoal e profissional',
+      'Compreender como o consumidor consciente influencia as práticas das empresas'
+    ],
+    emSala:{
+      antes:[
+        'Exiba imagens do bioma Caatinga antes e depois do desmatamento — impacto visual poderoso',
+        'Pergunte: "Você já usou um produto feito de material reciclado? Sabia que era?"',
+        'Apresente exemplos de negócios sustentáveis do Nordeste: cooperativas de catadores, agroextrativismo do açaí, artesanato com resíduos',
+        'Introduza os ODS (Objetivos de Desenvolvimento Sustentável) da ONU relevantes ao tema'
+      ],
+      durante:[
+        'Observe se os alunos sacrificam o lucro por sustentabilidade ou vice-versa — base para debate',
+        'Registre quem descobre que é possível ter ambos simultaneamente com boa estratégia',
+        'Questione: "Sua cadeia de fornecimento tem impacto ambiental? Você poderia substituir algum insumo?"',
+        'Incentive que calculem o "custo ambiental" de cada decisão, não apenas o financeiro'
+      ],
+      depois:[
+        'Peça que os alunos pesquisem uma empresa sergipana ou nordestina com práticas sustentáveis',
+        'Calcule junto: quanto menor o desperdício, maior o lucro — sustentabilidade como eficiência',
+        'Relacione com a Política Nacional de Resíduos Sólidos e obrigações legais das empresas',
+        'Proponha: "Crie um infográfico mostrando o ciclo de vida de um produto do jogo"'
+      ],
+      dica:'Traga embalagens vazias de produtos e discuta: o que pode ser reciclado, reutilizado ou reduzido? A aula prática antecipa os conceitos do jogo.'
+    },
+    debate:[
+      {q:'É possível ter lucro e cuidar do meio ambiente ao mesmo tempo? Como?', f:'Eficiência energética, redução de desperdício, economia circular — sustentabilidade como negócio.'},
+      {q:'Que impacto o negócio que você criou no jogo teve no meio ambiente?', f:'Foque na cadeia: matéria-prima, produção, transporte, descarte — cada etapa tem impacto.'},
+      {q:'Por que consumidores estão cada vez mais dispostos a pagar mais por produtos sustentáveis?', f:'Consciência ambiental, certificações, rastreabilidade — o "verde" virou diferencial competitivo.'},
+      {q:'Que empresa sustentável você criaria em Sergipe usando recursos locais do estado?', f:'Caatinga, artesanato, turismo ecológico, fruticultura irrigada — o potencial é enorme.'},
+      {q:'Como a falta de sustentabilidade de uma empresa pode prejudicar sua imagem e seus resultados?', f:'Boicote do consumidor, multas ambientais, dificuldade de atrair investidores e talentos.'},
+      {q:'O que são "negócios de impacto" e como eles diferem das empresas tradicionais?', f:'Negócios de impacto têm resultado socioambiental como missão central, não apenas como "extra".'},
+      {q:'Como você pode, como consumidor de hoje, incentivar empresas a adotarem práticas mais sustentáveis?', f:'Escolhas de compra, avaliações públicas, engajamento nas redes sociais — o consumidor tem poder.'}
+    ],
+    activities:{
+      intro:'A sustentabilidade não é apenas uma responsabilidade ambiental — é também um diferencial de negócios. No jogo EcoNegócio você descobriu como conciliar lucro e cuidado com o planeta.',
+      svg:`<svg viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:320px">
+        <rect width="320" height="120" fill="#ecfdf5" rx="12"/>
+        <circle cx="130" cy="60" r="45" fill="#059669" opacity=".18"/>
+        <circle cx="190" cy="60" r="45" fill="#0891b2" opacity=".18"/>
+        <ellipse cx="160" cy="60" rx="28" ry="30" fill="#059669" opacity=".3"/>
+        <text x="92" y="55" font-size="9" fill="#065f46" font-weight="bold">LUCRO</text>
+        <text x="84" y="67" font-size="8" fill="#065f46">financeiro</text>
+        <text x="195" y="55" font-size="9" fill="#0e7490" font-weight="bold">PLANETA</text>
+        <text x="193" y="67" font-size="8" fill="#0e7490">ambiental</text>
+        <text x="145" y="57" font-size="9" fill="#166534" font-weight="bold">ECO</text>
+        <text x="143" y="68" font-size="9" fill="#166534" font-weight="bold">NEGÓCIO</text>
+        <text x="160" y="14" text-anchor="middle" font-size="10" fill="#047857" font-weight="bold">Negócio Sustentável</text>
+      </svg>`,
+      questions:[
+        'O que é desenvolvimento sustentável? Como esse conceito se aplica ao mundo dos negócios?',
+        'Descreva o negócio sustentável que você criou no jogo: qual era o produto, como era produzido e qual impacto ambiental ele tinha?',
+        'Cite dois exemplos reais de empresas brasileiras que conciliam lucro e sustentabilidade. O que elas fazem de diferente?',
+        'Como um consumidor comum pode influenciar empresas a adotarem práticas mais sustentáveis?',
+        'Projete um negócio sustentável que poderia ser criado em Sergipe usando recursos naturais ou culturais do estado. Descreva o produto, o impacto ambiental e como geraria renda.'
+      ]
+    }
+  },
+  {
+    id:'pesca', emoji:'🎣', name:'Pesca no São Francisco', subject:'Negócios', grades:'6° ao 7° ano',
+    loc:'Cânion do Xingó, SE', bncc:['1','5','7'], grad:'from-teal-600 to-teal-800', accent:'#0d9488', accentLight:'#f0fdfa',
+    desc:'Gerencie a pesca artesanal no Cânion do Xingó equilibrando produção, venda e preservação do rio.',
+    objectives:[
+      'Compreender o valor econômico e cultural da pesca artesanal no Rio São Francisco',
+      'Relacionar recursos naturais, renda familiar e sustentabilidade ambiental',
+      'Identificar diferentes espécies de peixes do São Francisco e seus valores comerciais',
+      'Desenvolver raciocínio estratégico: pescar mais agora vs. preservar para o futuro',
+      'Valorizar a cultura ribeirinha e a identidade do sertão nordestino',
+      'Compreender como a crise hídrica afeta o sustento de comunidades tradicionais'
+    ],
+    emSala:{
+      antes:[
+        'Exiba um mapa do Rio São Francisco e do Cânion do Xingó — localize Canindé de São Francisco no mapa de Sergipe',
+        'Pergunte: "Alguém já foi ao Xingó ou conhece um pescador? Como é a vida deles?"',
+        'Apresente dados sobre a pesca artesanal no Nordeste e quantas famílias dependem do São Francisco',
+        'Discuta a crise hídrica: o que acontece com os pescadores quando o rio seca?'
+      ],
+      durante:[
+        'Observe se os alunos pescam indiscriminadamente ou respeitam limites de captura',
+        'Registre quem desenvolve estratégia (pescar espécies mais valiosas) vs. quem pesca ao acaso',
+        'Questione: "Se você pesca o Dourado muito jovem, o que acontece com a população desse peixe?"',
+        'Incentive quem tiver pontuação baixa a rever a estratégia de captura e venda'
+      ],
+      depois:[
+        'Compare o valor de cada peixe: por que o Dourado vale muito mais que a Tilápia?',
+        'Discuta piracema: por que há épocas em que pescar é proibido? Quem define isso?',
+        'Relacione com o debate atual sobre a Transposição do São Francisco e seus impactos',
+        'Proponha: "Entreviste um pescador ou agricultor familiar da sua região sobre seu trabalho"'
+      ],
+      dica:'Se possível, convide um representante da colônia de pescadores local para uma visita — o impacto é transformador para alunos do ensino fundamental.'
+    },
+    debate:[
+      {q:'Por que o Dourado vale muito mais que a Tilápia? O que determina o valor de um peixe no mercado?', f:'Escassez, sabor, dificuldade de criação em cativeiro, valor cultural — o mercado precifica tudo isso.'},
+      {q:'O que aconteceria com as comunidades ribeirinhas se os peixes do São Francisco desaparecessem?', f:'Fim do sustento de famílias, migração para cidades, perda da identidade cultural — um ciclo trágico.'},
+      {q:'Como é possível pescar de forma sustentável? O que isso significa na prática?', f:'Respeitar a piracema, não pescar juvenis, usar malhas corretas, respeitar cotas por espécie.'},
+      {q:'A Transposição do Rio São Francisco foi boa ou ruim para Sergipe? Para quem?', f:'Questão complexa e regional — ótima para debate com múltiplas perspectivas (agricultor, pescador, morador da seca).'},
+      {q:'Como o turismo no Cânion do Xingó pode beneficiar os pescadores artesanais locais?', f:'Pesca esportiva, restaurantes com cardápio regional, artesanato, hospedagem — turismo que gera renda local.'},
+      {q:'O que você aprendeu sobre o Rio São Francisco que não sabia antes?', f:'Personalize — conecte o conhecimento novo com a identidade regional do aluno.'},
+      {q:'Como as mudanças climáticas afetam a vida de quem depende de um rio para sobreviver?', f:'Seca, cheias, mudança no ciclo dos peixes — conecte ciências com realidade socioeconômica.'}
+    ],
+    activities:{
+      intro:'O Rio São Francisco é o "rio da integração nacional" e sustenta milhares de famílias ribeirinhas no Nordeste. No jogo Pesca no São Francisco você vivenciou os desafios de um pescador artesanal do Cânion do Xingó.',
+      svg:`<svg viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:320px">
+        <rect width="320" height="120" fill="#f0fdfa" rx="12"/>
+        <rect x="0" y="70" width="320" height="50" fill="#0d9488" opacity=".2" rx="0"/>
+        <path d="M0,70 Q40,55 80,70 Q120,85 160,70 Q200,55 240,70 Q280,85 320,70" fill="none" stroke="#0d9488" stroke-width="2.5"/>
+        <ellipse cx="90" cy="88" rx="18" ry="8" fill="#0d9488" opacity=".5"/>
+        <ellipse cx="90" cy="88" rx="10" ry="5" fill="#0d9488"/>
+        <ellipse cx="210" cy="82" rx="12" ry="5" fill="#0d9488" opacity=".7"/>
+        <text x="90" y="92" text-anchor="middle" font-size="7" fill="white">Dourado</text>
+        <text x="210" y="86" text-anchor="middle" font-size="7" fill="white">Tilápia</text>
+        <path d="M160,10 L180,30 L200,20 L190,40 L210,45 L185,55 L190,70 L160,65 L130,70 L135,55 L110,45 L130,40 L120,20 L140,30 Z" fill="#b45309" opacity=".3"/>
+        <text x="162" y="45" text-anchor="middle" font-size="8" fill="#78350f" font-weight="bold">Xingó</text>
+        <text x="160" y="14" text-anchor="middle" font-size="9" fill="#0f766e" font-weight="bold">Rio São Francisco — Sergipe</text>
+      </svg>`,
+      questions:[
+        'Descreva o Cânion do Xingó: onde fica, qual é sua importância para Sergipe e quais atividades econômicas ele sustenta.',
+        'Por que o Dourado é mais valioso comercialmente que a Tilápia? Quais fatores determinam o preço de um peixe?',
+        'O que é "piracema"? Por que a proibição de pesca em determinadas épocas é importante para os próprios pescadores?',
+        'Como a crise hídrica no Rio São Francisco impacta a vida das famílias que dependem da pesca artesanal?',
+        'Proponha uma forma de desenvolver o turismo no Cânion do Xingó que beneficie os pescadores artesanais locais sem prejudicar o meio ambiente.'
+      ]
+    }
+  },
+  {
+    id:'saojoao', emoji:'🎉', name:'Barraca do São João', subject:'Negócios', grades:'6° ao 8° ano',
+    loc:'Laranjeiras, SE', bncc:['2','5','8'], grad:'from-violet-600 to-violet-800', accent:'#7c3aed', accentLight:'#fdf4ff',
+    desc:'Gerencie uma barraca de quitutes juninos em Laranjeiras: atenda pedidos, controle estoque e maximize o lucro.',
+    objectives:[
+      'Compreender conceitos básicos de gestão de um pequeno negócio em evento cultural',
+      'Desenvolver agilidade na tomada de decisão sob pressão de tempo e demanda',
+      'Valorizar a tradição do São João como patrimônio cultural e econômico sergipano',
+      'Relacionar custo de ingredientes, trabalho e preço de venda com margem de lucro',
+      'Praticar organização e planejamento para atender múltiplos clientes simultaneamente',
+      'Desenvolver autoconhecimento ao lidar com erros e situações de alta pressão'
+    ],
+    emSala:{
+      antes:[
+        'Exiba imagens do São João de Laranjeiras (patrimônio cultural de Sergipe) e discuta sua importância',
+        'Pergunte: "Alguém aqui já trabalhou em barraca junina ou ajudou a família em alguma venda?"',
+        'Calcule junto: se um caldo de milho leva R$2 de ingredientes e é vendido por R$8, qual é a margem?',
+        'Apresente o conceito de ponto de equilíbrio: quantas unidades preciso vender para pagar os custos?'
+      ],
+      durante:[
+        'Observe como os alunos lidam com pedidos simultâneos — organização vs. caos',
+        'Registre quem erra mais nos pedidos vs. quem acerta: há padrão? (perfis, estratégias)',
+        'Questione: "Você está priorizando os pedidos de maior margem ou só os mais fáceis?"',
+        'Incentive pausas estratégicas: às vezes desacelerar para não errar é mais lucrativo'
+      ],
+      depois:[
+        'Peça que calculem o lucro total: receita — custo dos ingredientes — custo fixo da barraca',
+        'Discuta: qual quitute teve maior margem? Por que ainda assim pode não ser o melhor para vender?',
+        'Relacione com a economia do São João de Caruaru, Campina Grande e Laranjeiras: volume e impacto',
+        'Proponha: "Pesquise a história do São João em Sergipe e escreva um texto sobre sua importância cultural e econômica"'
+      ],
+      dica:'Traga amostras de alimentos juninos para a aula — a experiência sensorial ativa a memória afetiva e enriquece a reflexão cultural.'
+    },
+    debate:[
+      {q:'O que foi mais difícil de gerenciar na barraca: o estoque, o atendimento ou os erros? Por quê?', f:'Gestão de múltiplas variáveis simultaneamente é habilidade central em qualquer negócio.'},
+      {q:'Como você se sentiu quando errou um pedido e perdeu dinheiro? O que fez para se recuperar?', f:'Resiliência e autocuidado — errar faz parte, o importante é aprender e ajustar.'},
+      {q:'Como eventos culturais como o São João geram renda para toda uma cidade?', f:'Cadeia: produção de alimentos, transporte, hospedagem, artesanato, música, serviços.'},
+      {q:'Por que o São João de Laranjeiras é patrimônio cultural de Sergipe? O que torna uma festa um patrimônio?', f:'Continuidade histórica, identidade coletiva, memória afetiva, rituais compartilhados.'},
+      {q:'O que é "custo fixo" e "custo variável"? Cite um exemplo de cada na barraca do jogo.', f:'Fixo: aluguel do espaço, equipamentos. Variável: ingredientes, embalagens — muda com o volume vendido.'},
+      {q:'Como você melhoraria a organização da barraca se pudesse jogar novamente?', f:'Incentive o pensamento de processos: fila de pedidos, pré-preparo, divisão de tarefas.'},
+      {q:'Que valores culturais nordestinos o jogo transmite além do aspecto econômico?', f:'Coletividade, alegria, resistência, identidade regional, valorização do saber-fazer tradicional.'}
+    ],
+    activities:{
+      intro:'O São João é uma das festas mais importantes do Brasil, especialmente no Nordeste. Em Laranjeiras, Sergipe, ela é patrimônio cultural. No jogo Barraca do São João você gerenciou um negócio no coração dessa tradição.',
+      svg:`<svg viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:320px">
+        <rect width="320" height="120" fill="#fdf4ff" rx="12"/>
+        <polygon points="20,100 160,20 300,100" fill="#7c3aed" opacity=".2"/>
+        <polygon points="40,100 160,30 280,100" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="6,3"/>
+        <rect x="80" y="65" width="160" height="40" fill="#7c3aed" opacity=".15"/>
+        <rect x="80" y="65" width="160" height="10" fill="#7c3aed" opacity=".4"/>
+        <text x="160" y="90" text-anchor="middle" font-size="10" fill="#6d28d9" font-weight="bold">BARRACA</text>
+        <circle cx="80" cy="30" r="6" fill="#f59e0b"/>
+        <circle cx="130" cy="20" r="6" fill="#ef4444"/>
+        <circle cx="180" cy="25" r="6" fill="#f59e0b"/>
+        <circle cx="230" cy="18" r="6" fill="#10b981"/>
+        <circle cx="270" cy="30" r="6" fill="#ef4444"/>
+        <text x="160" y="14" text-anchor="middle" font-size="9" fill="#6d28d9" font-weight="bold">São João de Laranjeiras</text>
+      </svg>`,
+      questions:[
+        'Descreva o São João de Laranjeiras: o que o torna um patrimônio cultural de Sergipe?',
+        'O que são "custos fixos" e "custos variáveis"? Dê exemplos de cada um em uma barraca junina.',
+        'Como você calcula o lucro de uma venda? Se um caldo custa R$3 para fazer e é vendido por R$10, qual é a margem de lucro?',
+        'Que habilidades você precisou desenvolver para gerenciar bem a barraca no jogo? Como essas habilidades se aplicam à vida real?',
+        'Como o São João beneficia economicamente não só quem tem barraca, mas toda a cadeia de serviços de uma cidade? Dê exemplos.'
+      ]
+    }
+  },
+  {
+    id:'tropeiro', emoji:'🫏', name:'Tropeiro do Sertão', subject:'Negócios', grades:'6° ao 7° ano',
+    loc:'Caatinga Sergipana', bncc:['1','5','7'], grad:'from-amber-600 to-amber-800', accent:'#d97706', accentLight:'#fffbeb',
+    desc:'Conduza um jumento pela Caatinga de Canindé a Itabaiana coletando produtos regionais e desviando de obstáculos.',
+    objectives:[
+      'Compreender o papel histórico dos tropeiros no comércio do sertão nordestino',
+      'Identificar os produtos regionais da Caatinga e seu valor econômico e cultural',
+      'Relacionar custo-benefício na tomada de decisão sob risco e pressão',
+      'Valorizar a cultura e a identidade do sertão sergipano',
+      'Compreender a importância das rotas comerciais no desenvolvimento regional',
+      'Reconhecer na Caatinga um bioma único e ameaçado que sustenta comunidades'
+    ],
+    emSala:{
+      antes:[
+        'Exiba um mapa de Sergipe mostrando a rota Canindé de São Francisco → N.S. da Glória → Frei Paulo → Itabaiana',
+        'Pergunte: "O que é um tropeiro? Alguém já ouviu histórias de tropeiros na família?"',
+        'Apresente os produtos do jogo — umbu, rapadura, caju, queijo, mel — e discuta sua origem e uso',
+        'Mostre imagens da Caatinga em diferentes épocas: seca e chuva — a resistência do bioma'
+      ],
+      durante:[
+        'Observe se os alunos tentam coletar tudo ou priorizam os itens de maior valor',
+        'Registre quem desenvolve percepção de risco (pular obstáculos) e controle motor fino',
+        'Questione: "Qual produto vale a pena correr mais risco para coletar?"',
+        'Incentive quem perder vidas rapidamente a jogar mais devagar e com mais estratégia'
+      ],
+      depois:[
+        'Calcule junto: se umbu = R$5, rapadura = R$8, caju = R$6, queijo = R$10, mel = R$12 — qual rota de coleta maximiza o ganho?',
+        'Discuta: Canindé e Itabaiana como polos comerciais do sertão — o que eles comercializam hoje?',
+        'Relacione com a cultura vaqueira, o couro e a música do sertão (baião, forró de raiz)',
+        'Proponha: "Pesquise um produto típico do sertão sergipano e crie um folder de venda para ele"'
+      ],
+      dica:'O jogo pode ser conectado a aulas de Geografia (biomas, rotas), História (tropeirismo) e Língua Portuguesa (literatura de cordel do sertão).'
+    },
+    debate:[
+      {q:'Que estratégia você usou para coletar o maior valor possível? Funcionou?', f:'Risco calculado vs. aversão ao risco — qual abordagem gerou mais resultado no longo prazo?'},
+      {q:'O que o jogo ensina sobre tomar riscos em negócios e na vida?', f:'Risco zero = ganho zero. Risco excessivo = perda de tudo. Equilíbrio é a habilidade-chave.'},
+      {q:'Que produtos regionais da Caatinga você conhece e consome no dia a dia?', f:'Personalize — umbu, caju, mel de abelha, queijo coalho, rapadura, cachaça artesanal.'},
+      {q:'Por que o queijo coalho e a rapadura são patrimônios culturais do Nordeste?', f:'Produção artesanal, sabor único, impossível de replicar industrialmente com a mesma qualidade.'},
+      {q:'Como os tropeiros contribuíram para o desenvolvimento econômico do sertão no passado?', f:'Integração de mercados, circulação de mercadorias, formação de feiras e cidades, difusão cultural.'},
+      {q:'A Caatinga está ameaçada. O que acontece com as comunidades sertanejas se ela desaparecer?', f:'Fim da vegetação provedora (alimento, remédios, madeira), desertificação, migração em massa.'},
+      {q:'Como o turismo cultural e gastronômico pode valorizar os produtos da Caatinga?', f:'Circuitos gastronômicos, feiras de agricultura familiar, indicações geográficas — exemplo: Queijo do Marajó.'}
+    ],
+    activities:{
+      intro:'Os tropeiros foram os primeiros comerciantes itinerantes do sertão nordestino, conectando vilas e cidades com suas mulas carregadas de produtos. No jogo Tropeiro do Sertão você trilhou a rota da Caatinga Sergipana.',
+      svg:`<svg viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:320px">
+        <rect width="320" height="120" fill="#fffbeb" rx="12"/>
+        <rect x="0" y="90" width="320" height="30" fill="#b45309" opacity=".2"/>
+        <line x1="10" y1="90" x2="310" y2="90" stroke="#92400e" stroke-width="1.5" stroke-dasharray="8,4"/>
+        <circle cx="20" cy="90" r="5" fill="#d97706"/>
+        <text x="20" y="110" text-anchor="middle" font-size="7" fill="#92400e">Canindé</text>
+        <circle cx="110" cy="90" r="4" fill="#d97706"/>
+        <text x="110" y="110" text-anchor="middle" font-size="7" fill="#92400e">Glória</text>
+        <circle cx="200" cy="90" r="4" fill="#d97706"/>
+        <text x="200" y="110" text-anchor="middle" font-size="7" fill="#92400e">Frei Paulo</text>
+        <circle cx="300" cy="90" r="5" fill="#d97706"/>
+        <text x="300" y="110" text-anchor="middle" font-size="7" fill="#92400e">Itabaiana</text>
+        <text x="90" y="30" font-size="20" text-anchor="middle">🌵</text>
+        <text x="150" y="45" font-size="20" text-anchor="middle">🫏</text>
+        <text x="210" y="30" font-size="20" text-anchor="middle">🌵</text>
+        <text x="260" y="50" font-size="16" text-anchor="middle">🌵</text>
+        <text x="40" y="55" font-size="16" text-anchor="middle">🌵</text>
+        <text x="160" y="14" text-anchor="middle" font-size="9" fill="#92400e" font-weight="bold">Rota do Tropeiro — Caatinga Sergipana</text>
+      </svg>`,
+      questions:[
+        'Quem eram os tropeiros? Qual foi sua importância para o desenvolvimento econômico do sertão nordestino?',
+        'Cite e descreva três produtos típicos da Caatinga presentes no jogo. Por que eles têm valor econômico e cultural?',
+        'O que é "custo-benefício"? Como esse conceito aparece nas decisões que você tomou no jogo?',
+        'A Caatinga é o único bioma exclusivamente brasileiro. Por que sua preservação é importante para as comunidades sertanejas?',
+        'Trace mentalmente a rota Canindé → Itabaiana no mapa de Sergipe. Que cidades e regiões estão nessa rota? O que elas têm em comum economicamente?'
+      ]
+    }
+  },
+  {
+    id:'atelie', emoji:'🎨', name:'Ateliê de Laranjeiras', subject:'Inovação', grades:'6° ao 8° ano',
+    loc:'Laranjeiras, SE', bncc:['2','4','9'], grad:'from-orange-500 to-rose-700', accent:'#ea580c', accentLight:'#fff7ed',
+    desc:'Gerencie um ateliê artesanal em Laranjeiras: descubra combinações de materiais, atenda clientes e precifique sua arte.',
+    objectives:[
+      'Compreender o valor econômico e cultural do artesanato sergipano',
+      'Desenvolver raciocínio por experimentação: tentativa, erro e descoberta de combinações',
+      'Relacionar custo de produção artesanal com precificação justa e viável',
+      'Valorizar o patrimônio histórico e cultural de Laranjeiras como polo artístico',
+      'Praticar comunicação e argumentação na apresentação e venda de produtos artesanais',
+      'Compreender como a cooperação e a troca de conhecimento fortalecem comunidades criativas'
+    ],
+    emSala:{
+      antes:[
+        'Exiba imagens do centro histórico de Laranjeiras e do seu artesanato típico (cerâmica, renda, bordado)',
+        'Pergunte: "Alguém tem um objeto artesanal em casa? De onde vem? Quem fez?"',
+        'Discuta: qual é o valor de algo feito à mão vs. produzido em fábrica — além do preço?',
+        'Apresente o Conselho Regional de Artesanato de Sergipe e o Programa Artesanato Solidário'
+      ],
+      durante:[
+        'Observe como os alunos descobrem as combinações: metodicamente ou por acaso?',
+        'Registre quem compartilha descobertas com colegas vs. quem guarda como "segredo"',
+        'Questione: "Como você sabe quanto cobrar por algo que levou 2 horas para fazer?"',
+        'Incentive a reflexão: "Que história esse objeto conta? Como você explicaria isso a um cliente?"'
+      ],
+      depois:[
+        'Peça que calculem o preço justo: material + tempo de trabalho (calculado em R$/hora) + margem',
+        'Discuta: por que o artesanato sergipano não é mais valorizado internacionalmente como o de outros estados?',
+        'Relacione com indicações geográficas: Renda de Bilro do Ceará, Cerâmica de Mauá — como Sergipe pode fazer o mesmo?',
+        'Proponha: "Crie um cartão de visita para um artesão fictício de Laranjeiras, com nome, produto e slogan"'
+      ],
+      dica:'Leve amostras de artesanato sergipano para a aula — tato e visão aumentam o engajamento. Se possível, convide um artesão local para uma palestra curta.'
+    },
+    debate:[
+      {q:'Como você descobriu as combinações de materiais no jogo? Foi por tentativa e erro ou por lógica?', f:'Ambos são válidos — metodologia científica e intuição criativa coexistem na inovação.'},
+      {q:'Por que um produto feito à mão pode (e deve) custar mais que um produzido em fábrica?', f:'Tempo, habilidade, unicidade, história — o artesão vende também a sua história e identidade.'},
+      {q:'O que é "patrimônio cultural imaterial"? O artesanato se enquadra nisso? Por quê?', f:'Sim — é o saber-fazer transmitido entre gerações, não apenas o objeto físico em si.'},
+      {q:'Como o artesanato pode ser um negócio sustentável e lucrativo para jovens empreendedores?', f:'Plataformas como Etsy, feiras de design, turismo criativo — o mercado de handmade cresce globalmente.'},
+      {q:'Que estratégia você usaria para vender artesanato de Laranjeiras para compradores de outros estados?', f:'Marketing digital, story telling da peça, parcerias com hotéis e guias turísticos, certificação de origem.'},
+      {q:'Como a cooperação entre artesãos (cooperativa) é mais vantajosa que a competição individual?', f:'Compra coletiva de materiais, divisão de custos de feiras, troca de técnicas, força na negociação.'},
+      {q:'Por que preservar o patrimônio histórico de Laranjeiras é também uma estratégia econômica?', f:'Turismo cultural, valorização de imóveis, identidade de marca da cidade — história é ativo econômico.'}
+    ],
+    activities:{
+      intro:'Laranjeiras é conhecida como a "capital cultural de Sergipe". Seu centro histórico, festas e artesanato são patrimônios que geram identidade e renda. No jogo Ateliê de Laranjeiras você gerenciou um negócio artesanal nessa cidade especial.',
+      svg:`<svg viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:320px">
+        <rect width="320" height="120" fill="#fff7ed" rx="12"/>
+        <rect x="20" y="30" width="80" height="80" fill="#ea580c" opacity=".15" rx="6"/>
+        <rect x="30" y="40" width="60" height="60" fill="none" stroke="#ea580c" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <text x="60" y="78" text-anchor="middle" font-size="28">🏺</text>
+        <rect x="120" y="30" width="80" height="80" fill="#ea580c" opacity=".15" rx="6"/>
+        <text x="160" y="78" text-anchor="middle" font-size="28">🧶</text>
+        <rect x="220" y="30" width="80" height="80" fill="#ea580c" opacity=".15" rx="6"/>
+        <text x="260" y="78" text-anchor="middle" font-size="28">🪡</text>
+        <text x="60" y="120" text-anchor="middle" font-size="8" fill="#c2410c">Cerâmica</text>
+        <text x="160" y="120" text-anchor="middle" font-size="8" fill="#c2410c">Bordado</text>
+        <text x="260" y="120" text-anchor="middle" font-size="8" fill="#c2410c">Renda</text>
+        <text x="160" y="20" text-anchor="middle" font-size="9" fill="#c2410c" font-weight="bold">Artesanato de Laranjeiras</text>
+      </svg>`,
+      questions:[
+        'O que é patrimônio cultural imaterial? Cite dois exemplos de Laranjeiras ou de Sergipe que se enquadrem nessa categoria.',
+        'Como se calcula o preço justo de um produto artesanal? Quais fatores devem ser considerados além do custo dos materiais?',
+        'Descreva o processo de descoberta que você vivenciou no jogo. Que habilidade isso exercitou em você?',
+        'De que forma o artesanato pode ser um negócio viável e lucrativo para um jovem empreendedor no século XXI?',
+        'Como você usaria as redes sociais para promover o artesanato de Laranjeiras para compradores de outros estados ou países? Descreva sua estratégia.'
+      ]
+    }
+  }
+];
+
+let selectedId = null;
+let activeTab = 'obj';
+
+function renderSelector(){
+  const sel = document.getElementById('selector');
+  sel.innerHTML = GAMES.map(g=>`
+    <button onclick="selectGame('${g.id}')" class="game-card bg-gradient-to-br ${g.grad} text-white rounded-xl p-3 text-left ${selectedId===g.id?'selected':''}" id="card-${g.id}">
+      <div class="text-3xl mb-1.5">${g.emoji}</div>
+      <div class="font-bold text-sm leading-tight">${g.name}</div>
+      <div class="text-white/70 text-xs mt-1">${g.subject}</div>
+      <div class="text-white/60 text-xs">${g.grades}</div>
+      ${g.loc?`<div class="text-white/50 text-xs mt-0.5">📍 ${g.loc}</div>`:''}
+    </button>
+  `).join('');
+}
+
+function selectGame(id){
+  selectedId = id;
+  activeTab = 'obj';
+  renderSelector();
+  renderPanel();
+  document.getElementById('panel').classList.add('show');
+  document.getElementById('panel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function setTab(tab){
+  activeTab = tab;
+  ['obj','sala','debate','ativ'].forEach(t=>{
+    document.getElementById('tc-'+t).classList.toggle('active',t===tab);
+    document.getElementById('tb-'+t).classList.toggle('active',t===tab);
+  });
+}
+
+function renderPanel(){
+  const g = GAMES.find(x=>x.id===selectedId);
+  if(!g) return;
+  const panel = document.getElementById('panel');
+  panel.innerHTML = `
+    <!-- Header -->
+    <div class="bg-gradient-to-r ${g.grad} px-6 py-5 flex items-start justify-between">
+      <div class="flex items-center gap-4">
+        <span class="text-5xl">${g.emoji}</span>
+        <div>
+          <h3 class="text-xl font-extrabold text-white">${g.name}</h3>
+          <p class="text-white/75 text-sm">${g.subject} · ${g.grades}${g.loc?' · '+g.loc:''}</p>
+          <p class="text-white/60 text-xs mt-1 max-w-md">${g.desc}</p>
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-1 justify-end shrink-0 ml-4">
+        ${g.bncc.map(b=>`<span class="bg-white/25 text-white text-xs font-bold px-2 py-0.5 rounded">BNCC ${b}</span>`).join('')}
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="border-b border-gray-200 flex overflow-x-auto" style="background:#f9fafb">
+      <button id="tb-obj"   onclick="setTab('obj')"   class="tab-btn px-5 py-3 text-sm font-semibold text-blue-700 active"   style="color:${g.accent}">📌 Objetivos</button>
+      <button id="tb-sala"  onclick="setTab('sala')"  class="tab-btn px-5 py-3 text-sm font-semibold text-gray-500">🏫 Em Sala</button>
+      <button id="tb-debate"onclick="setTab('debate')"class="tab-btn px-5 py-3 text-sm font-semibold text-gray-500">💬 Debate</button>
+      <button id="tb-ativ"  onclick="setTab('ativ')"  class="tab-btn px-5 py-3 text-sm font-semibold text-gray-500">📄 Atividades</button>
+    </div>
+
+    <!-- Tab contents -->
+    <div class="p-5">
+      <!-- OBJETIVOS -->
+      <div id="tc-obj" class="tab-content active">
+        <div class="grid md:grid-cols-2 gap-3 mb-4">
+          ${g.objectives.map((o,i)=>`
+            <div class="flex gap-3 items-start p-3 rounded-xl" style="background:${g.accentLight}">
+              <span class="font-extrabold text-sm mt-0.5" style="color:${g.accent}">${i+1}.</span>
+              <span class="text-sm text-gray-700 leading-relaxed">${o}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div class="bg-gray-50 rounded-xl p-4 text-sm text-gray-600 border border-gray-200">
+          <p class="font-bold text-gray-700 mb-2">Competências BNCC trabalhadas neste jogo:</p>
+          <div class="flex flex-wrap gap-2">
+            ${g.bncc.map(b=>`<span class="font-semibold px-2 py-1 rounded-lg text-xs" style="background:${g.accentLight};color:${g.accent}">Competência ${b}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- EM SALA -->
+      <div id="tc-sala" class="tab-content">
+        <div class="space-y-5">
+          ${['antes','durante','depois'].map((m,mi)=>{
+            const labels={antes:['ANTES DO JOGO','10–15 min','bg-blue-50 border-blue-400','text-blue-800'],durante:['DURANTE O JOGO','20–30 min','bg-green-50 border-green-400','text-green-800'],depois:['DEPOIS DO JOGO','15–20 min','bg-orange-50 border-orange-400','text-orange-800']};
+            const [lbl,time,bg,tc] = labels[m];
+            return `<div class="${bg} border-l-4 rounded-r-xl p-4">
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="font-bold text-sm ${tc}">${lbl}</h4>
+                <span class="text-xs ${tc} opacity-70">⏱ ${time}</span>
+              </div>
+              <ul class="space-y-2">
+                ${g.emSala[m].map(item=>`<li class="flex gap-2 text-sm"><span class="mt-0.5">▸</span><span>${item}</span></li>`).join('')}
+              </ul>
+            </div>`;
+          }).join('')}
+          <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-sm">
+            <p class="font-bold text-yellow-800 mb-1">💡 Dica do professor</p>
+            <p class="text-yellow-900">${g.emSala.dica}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEBATE -->
+      <div id="tc-debate" class="tab-content">
+        <p class="text-sm text-gray-500 mb-4">Perguntas para conduzir o debate pós-jogo. As dicas de aprofundamento ajudam a explorar cada tema com mais profundidade.</p>
+        <div class="space-y-3">
+          ${g.debate.map((d,i)=>`
+            <div class="border border-gray-200 rounded-xl overflow-hidden">
+              <div class="p-4" style="background:${g.accentLight}">
+                <div class="flex gap-3 items-start">
+                  <span class="font-extrabold text-sm mt-0.5 shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs" style="background:${g.accent}">${i+1}</span>
+                  <p class="font-semibold text-gray-800 text-sm">${d.q}</p>
+                </div>
+              </div>
+              <div class="px-4 py-2.5 bg-white border-t border-gray-100 flex gap-2 items-start">
+                <span class="text-xs text-gray-400 font-bold uppercase tracking-wide shrink-0 mt-0.5">Aprofunde:</span>
+                <p class="text-xs text-gray-500">${d.f}</p>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- ATIVIDADES -->
+      <div id="tc-ativ" class="tab-content">
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-5 flex items-start gap-3">
+          <span class="text-2xl">📄</span>
+          <div>
+            <p class="font-bold text-blue-800 text-sm">Folha de Atividades para Impressão</p>
+            <p class="text-blue-700 text-sm mt-1">Gere uma folha com 5 questões e ilustração para distribuir aos alunos após o jogo. Adequada para avaliação formativa ou registro no portfólio.</p>
+          </div>
+        </div>
+
+        <!-- Preview das questões -->
+        <div class="mb-5">
+          <h4 class="font-bold text-gray-700 mb-3 text-sm">📋 Prévia das questões:</h4>
+          <div class="space-y-2">
+            ${g.activities.questions.map((q,i)=>`
+              <div class="flex gap-3 items-start p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <span class="font-bold text-sm shrink-0" style="color:${g.accent}">${i+1}.</span>
+                <p class="text-sm text-gray-700">${q}</p>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="text-center">
+          <button onclick="printActivities('${g.id}')" class="inline-flex items-center gap-2 text-white font-bold px-8 py-3 rounded-xl shadow-lg hover:opacity-90 transition-opacity text-sm" style="background:${g.accent}">
+            🖨️ Gerar PDF / Imprimir Atividades
+          </button>
+          <p class="text-xs text-gray-500 mt-2">Abrirá a caixa de diálogo de impressão do navegador. Salve como PDF ou imprima diretamente.</p>
+        </div>
+      </div>
+    </div>
+  `;
+  // reinit tab state
+  ['obj','sala','debate','ativ'].forEach(t=>{
+    const el = document.getElementById('tb-'+t);
+    if(el){
+      el.classList.toggle('active', t===activeTab);
+      el.style.borderBottomColor = t===activeTab ? g.accent : 'transparent';
+      el.style.color = t===activeTab ? g.accent : '#6b7280';
+    }
+    const tc = document.getElementById('tc-'+t);
+    if(tc) tc.classList.toggle('active', t===activeTab);
+  });
+}
+
+function printActivities(id){
+  const g = GAMES.find(x=>x.id===id);
+  if(!g) return;
+  const sheet = document.getElementById('print-sheet');
+  sheet.innerHTML = `
+    <div style="font-family:Georgia,serif;max-width:720px;margin:0 auto;padding:32px 28px;color:#1a1a1a;">
+      <!-- Cabeçalho -->
+      <div style="border-bottom:3px solid ${g.accent};padding-bottom:16px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px;">
+          <span style="font-size:40px;line-height:1;">${g.emoji}</span>
+          <div>
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:2px;color:${g.accent};font-family:Arial,sans-serif;font-weight:700;">EmpreendeJovem · Folha de Atividades</div>
+            <h1 style="font-size:22px;font-weight:700;margin:4px 0 2px;">${g.name}</h1>
+            <div style="font-size:11px;color:#555;font-family:Arial,sans-serif;">${g.subject} · ${g.grades}${g.loc?' · '+g.loc:''} · BNCC ${g.bncc.join(', ')}</div>
+          </div>
+        </div>
+        <!-- Dados do aluno -->
+        <div style="display:grid;grid-template-columns:2fr 1fr 0.7fr;gap:16px;margin-top:12px;font-family:Arial,sans-serif;font-size:11px;">
+          <div>Nome: <span style="display:inline-block;border-bottom:1px solid #333;width:200px;">&nbsp;</span></div>
+          <div>Turma: <span style="display:inline-block;border-bottom:1px solid #333;width:80px;">&nbsp;</span></div>
+          <div>Data: <span style="display:inline-block;border-bottom:1px solid #333;width:80px;">&nbsp;</span></div>
+        </div>
+      </div>
+
+      <!-- Ilustração + contexto -->
+      <div style="display:flex;gap:18px;margin-bottom:20px;align-items:flex-start;">
+        <div style="flex:0 0 auto;">
+          ${g.activities.svg}
+        </div>
+        <div style="flex:1;background:#f8f9fa;border-left:4px solid ${g.accent};padding:12px 14px;border-radius:0 8px 8px 0;font-size:12px;line-height:1.6;font-family:Arial,sans-serif;">
+          <p style="font-weight:700;color:${g.accent};font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 6px;">Contexto</p>
+          <p style="margin:0;color:#333;">${g.activities.intro}</p>
+        </div>
+      </div>
+
+      <!-- Questões -->
+      <div style="font-family:Arial,sans-serif;">
+        ${g.activities.questions.map((q,i)=>`
+          <div style="margin-bottom:22px;page-break-inside:avoid;">
+            <div style="display:flex;gap:10px;margin-bottom:8px;">
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:${g.accent};color:white;font-weight:700;font-size:12px;flex-shrink:0;">${i+1}</span>
+              <p style="margin:0;font-size:13px;font-weight:600;color:#1a1a1a;line-height:1.5;">${q}</p>
+            </div>
+            <div style="margin-left:32px;">
+              <div style="border-bottom:1px solid #ccc;min-height:24px;margin-bottom:5px;"></div>
+              <div style="border-bottom:1px solid #ccc;min-height:24px;margin-bottom:5px;"></div>
+              <div style="border-bottom:1px solid #ccc;min-height:24px;margin-bottom:5px;"></div>
+              ${i===4?'<div style="border-bottom:1px solid #ccc;min-height:24px;margin-bottom:5px;"></div>':''}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <!-- Rodapé -->
+      <div style="border-top:1px solid #ddd;padding-top:10px;margin-top:16px;display:flex;justify-content:space-between;font-size:10px;color:#888;font-family:Arial,sans-serif;">
+        <span>EmpreendeJovem · financeiroetica01-art.github.io/jogos-empreendedorismo-bncc/</span>
+        <span>🌵 Acesso gratuito · Alinhado à BNCC 2024</span>
+      </div>
+    </div>
+  `;
+  window.print();
+}
+
+// Init
+renderSelector();
+</script>
 </body>
 </html>
