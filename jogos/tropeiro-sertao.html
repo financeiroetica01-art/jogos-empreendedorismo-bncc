@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -14,9 +14,23 @@ canvas{display:block;touch-action:none}
 
 #hud{
   position:fixed;top:0;left:0;right:0;height:44px;
-  background:linear-gradient(90deg,#180501 0%,#2d1004 20%,#3d1505 50%,#2d1004 80%,#180501 100%);
-  border-bottom:2px solid #d97706;
-  box-shadow:0 2px 14px rgba(217,119,6,.35),0 1px 4px rgba(0,0,0,.5);
+  /* Painel de madeira nordestino — veios + nós */
+  background:
+    repeating-linear-gradient(
+      88deg,
+      transparent 0px, transparent 6px,
+      rgba(0,0,0,.06) 6px, rgba(0,0,0,.06) 7px,
+      transparent 7px, transparent 14px
+    ),
+    repeating-linear-gradient(
+      92deg,
+      transparent 0px, transparent 22px,
+      rgba(255,255,255,.03) 22px, rgba(255,255,255,.03) 23px
+    ),
+    linear-gradient(180deg,#8B4513 0%,#A0522D 25%,#7B3A14 50%,#8B4513 75%,#6B2F0E 100%);
+  border-bottom:3px solid #5c2d0a;
+  border-top:1px solid rgba(255,200,100,.18);
+  box-shadow:0 3px 12px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,180,80,.15);
   display:flex;align-items:center;
   padding:0 max(8px,env(safe-area-inset-left,0px));
   padding-right:max(8px,env(safe-area-inset-right,0px));
@@ -692,11 +706,54 @@ function render(now){
   if(player.hitFlash>0){ctx.fillStyle=`rgba(239,68,68,${player.hitFlash*.3})`;ctx.fillRect(0,44,W,H);}
 
   // Rótulo de distância
-  ctx.fillStyle='rgba(0,0,0,.55)';ctx.beginPath();ctx.roundRect(W*.25,H*.78,W*.5,28,8);ctx.fill();
-  ctx.fillStyle='#fef3c7';
-  ctx.font=`700 ${Math.max(12,Math.round(W*.032))}px 'Nunito',system-ui`;
-  ctx.textAlign='center';
-  ctx.fillText(`🗺️ Canindé → Itabaiana: ${Math.floor(dist)}m`,W*.5,H*.78+19);
+  // ── FASE B4: Barra de progresso Canindé→Itabaiana ──────────────────────────
+  (function drawProgressBar(){
+    // Rota: Canindé de S.Francisco → N.S. da Glória → Frei Paulo → Itabaiana
+    // Distância total estimada ≈ 320 km; dist em metros no jogo (exibição simbólica)
+    const TOTAL=3200; // metros de jogo para 100%
+    const cities=[
+      {name:'Canindé',pos:0},
+      {name:'Glória',pos:.33},
+      {name:'Frei Paulo',pos:.66},
+      {name:'Itabaiana',pos:1}
+    ];
+    const prog=Math.min(dist/TOTAL,1);
+    const bw=W*.56,bh=16,bx=W*.22,by=H*.78;
+    // Fundo do painel
+    ctx.fillStyle='rgba(10,5,0,.72)';
+    ctx.beginPath();ctx.roundRect(bx-8,by-8,bw+16,bh+32,10);ctx.fill();
+    ctx.strokeStyle='rgba(217,119,6,.45)';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.roundRect(bx-8,by-8,bw+16,bh+32,10);ctx.stroke();
+    // Trilha da barra
+    ctx.fillStyle='#2d1004';
+    ctx.beginPath();ctx.roundRect(bx,by,bw,bh,bh/2);ctx.fill();
+    // Preenchimento (gradiente terra)
+    if(prog>0){
+      const pg=ctx.createLinearGradient(bx,0,bx+bw,0);
+      pg.addColorStop(0,'#92400e');pg.addColorStop(.5,'#d97706');pg.addColorStop(1,'#f59e0b');
+      ctx.fillStyle=pg;
+      ctx.beginPath();ctx.roundRect(bx,by,bw*prog,bh,bh/2);ctx.fill();
+    }
+    // Cidades como pontos na trilha
+    cities.forEach(c=>{
+      const cx2=bx+bw*c.pos;
+      const reached=prog>=c.pos-.01;
+      ctx.fillStyle=reached?'#fef3c7':'#78350f';
+      ctx.beginPath();ctx.arc(cx2,by+bh/2,4,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle=reached?'#d97706':'#3d1505';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.arc(cx2,by+bh/2,4,0,Math.PI*2);ctx.stroke();
+      // Label abaixo do ponto
+      ctx.fillStyle=reached?'#fef3c7':'rgba(254,243,199,.45)';
+      ctx.font=`${Math.max(8,Math.round(W*.018))}px 'Nunito',system-ui`;
+      ctx.textAlign='center';
+      ctx.fillText(c.name,cx2,by+bh+14);
+    });
+    // 🫏 ícone de jumento na posição atual
+    const donkX=bx+bw*prog;
+    ctx.font=`${Math.max(13,Math.round(W*.032))}px serif`;
+    ctx.textAlign='center';
+    ctx.fillText('🫏',donkX,by-2);
+  })();
 }
 
 // ═══════════════════════════════════════════════════
@@ -793,45 +850,112 @@ function drawCollectible(id,x,y,r){
   else if(id==='mel')drawMel(x,y,r);
 }
 
+// ═══════════════════════════════════════════════════
+//  FASE B3 — Jumento nordestino + Tropeiro detalhados
+// ═══════════════════════════════════════════════════
 function drawTropeiro(t){
   const x=player.x,y=player.y;
-  const jump=!player.grounded;
+  const isJump=!player.grounded;
   const bounce=player.grounded?Math.abs(Math.sin(player.fr))*.35:0;
   const sq=player.squat;
   ctx.save();ctx.translate(x,y-44-bounce*(1-sq));
   if(player.hitFlash>0){ctx.shadowColor='#ef4444';ctx.shadowBlur=22;}
-  const stretch=jump?1.18:1-sq*.12;
+  const stretch=isJump?1.18:1-sq*.12;
   ctx.scale(1,stretch);
-  ctx.fillStyle='#a8a29e';ctx.beginPath();ctx.ellipse(0,12,38,20,0,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#9ca3af';ctx.beginPath();ctx.ellipse(-34,0,17,13,-.3,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#9ca3af';ctx.beginPath();ctx.ellipse(-42,-13,5.5,13,.2,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#fca5a5';ctx.beginPath();ctx.ellipse(-42,-13,3.5,9,.2,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#1f2937';ctx.beginPath();ctx.arc(-40,-3,3.5,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(-39,-4,1.8,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#e5e7eb';ctx.beginPath();ctx.ellipse(-46,3,10,8,0,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#6b7280';ctx.beginPath();ctx.arc(-48,2,2.5,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(-44,2,2.5,0,Math.PI*2);ctx.fill();
+
+  // ── JUMENTO ─────────────────────────────────────
+  // Corpo (cinza-pardo, jumento nordestino)
+  const bg=ctx.createLinearGradient(-38,0,38,24);
+  bg.addColorStop(0,'#a08870');bg.addColorStop(.5,'#b89a84');bg.addColorStop(1,'#7d6855');
+  ctx.fillStyle=bg;ctx.beginPath();ctx.ellipse(0,12,38,20,0,0,Math.PI*2);ctx.fill();
+  // Faixa dorsal (característica do jumento)
+  ctx.strokeStyle='rgba(70,45,25,.5)';ctx.lineWidth=5;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(-30,2);ctx.bezierCurveTo(-10,-2,10,-2,30,2);ctx.stroke();
+  // Pescoço
+  ctx.fillStyle='#a08870';
+  ctx.beginPath();ctx.moveTo(-28,-4);ctx.bezierCurveTo(-36,-12,-40,-8,-36,4);
+  ctx.bezierCurveTo(-32,10,-26,10,-22,4);ctx.closePath();ctx.fill();
+  // Cabeça
+  ctx.fillStyle='#9e8a78';ctx.beginPath();ctx.ellipse(-38,2,16,11,-.2,0,Math.PI*2);ctx.fill();
+  // Focinho comprido
+  ctx.fillStyle='#c4aa94';ctx.beginPath();ctx.ellipse(-49,5,10,7,.1,0,Math.PI*2);ctx.fill();
+  // Narinas
+  ctx.fillStyle='#5a3e2b';
+  ctx.beginPath();ctx.ellipse(-52,4,2.5,2,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(-46,4,2.5,2,0,0,Math.PI*2);ctx.fill();
+  // Olho expressivo
+  ctx.fillStyle='#1a0e08';ctx.beginPath();ctx.arc(-36,-3,4,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.75)';ctx.beginPath();ctx.arc(-35,-4.5,2,0,Math.PI*2);ctx.fill();
+  // Orelhas compridas (característica marcante)
+  ctx.fillStyle='#9e8a78';ctx.beginPath();ctx.ellipse(-41,-17,5,15,.15,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#e8a0a0';ctx.beginPath();ctx.ellipse(-41,-17,3,10,.15,0,Math.PI*2);ctx.fill();
+  // Rabo com penacho
+  ctx.strokeStyle='#7d6855';ctx.lineWidth=5;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(36,8);ctx.bezierCurveTo(50,-2,56,10,52,22);ctx.stroke();
+  ctx.strokeStyle='#5a3e2b';ctx.lineWidth=2.5;
+  for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(52,22);ctx.lineTo(54+i*3,30+i*2);ctx.stroke();}
+  // Pernas com cascos
   const legS=player.grounded?Math.sin(player.fr)*.38:0;
-  ctx.strokeStyle='#78716c';ctx.lineWidth=10;ctx.lineCap='round';
-  [[-20,28],[-9,30],[9,30],[20,28]].forEach(([dx,dy],i)=>{
-    const a=(i%2===0?legS:-legS);
-    ctx.save();ctx.translate(dx,dy);ctx.rotate(a);ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,22);ctx.stroke();ctx.restore();
+  [[-20,28,-1],[-9,30,1],[9,30,-1],[20,28,1]].forEach(([dx,dy,s])=>{
+    ctx.save();ctx.translate(dx,dy);ctx.rotate(s*legS);
+    ctx.strokeStyle='#8b7355';ctx.lineWidth=9;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,20);ctx.stroke();
+    ctx.fillStyle='#2d1f0e';ctx.beginPath();ctx.ellipse(0,22,5,3,.1,0,Math.PI*2);ctx.fill();
+    ctx.restore();
   });
-  ctx.strokeStyle='#78716c';ctx.lineWidth=4.5;ctx.lineCap='round';
-  ctx.beginPath();ctx.moveTo(36,6);ctx.bezierCurveTo(52,-4,54,12,50,22);ctx.stroke();
-  ctx.fillStyle='#92400e';ctx.beginPath();ctx.roundRect(-14,18,30,24,5);ctx.fill();
-  ctx.fillStyle='#78350f';ctx.beginPath();ctx.roundRect(-12,20,13,11,2);ctx.fill();ctx.beginPath();ctx.roundRect(6,20,11,11,2);ctx.fill();
-  ctx.save();ctx.translate(0,-22);
-  ctx.strokeStyle='#1e3a5f';ctx.lineWidth=8;ctx.lineCap='round';
-  ctx.beginPath();ctx.moveTo(-13,0);ctx.lineTo(-20,20);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(13,0);ctx.lineTo(20,20);ctx.stroke();
-  ctx.fillStyle='#1e3a5f';ctx.beginPath();ctx.roundRect(-13,-34,26,35,6);ctx.fill();
-  ctx.strokeStyle='#d4a574';ctx.lineWidth=8;
-  ctx.beginPath();ctx.moveTo(-11,-22);ctx.lineTo(-24,-9+Math.sin(t*.002)*5);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(11,-22);ctx.lineTo(24,-10+Math.sin(t*.002)*4);ctx.stroke();
-  ctx.fillStyle='#d4a574';ctx.beginPath();ctx.arc(0,-44,14,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#92400e';ctx.beginPath();ctx.ellipse(0,-57,18,5,.05,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#78350f';ctx.fillRect(-9,-66,18,12);
-  ctx.strokeStyle='#d97706';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-57,13,.3,Math.PI-.3);ctx.stroke();
+  // Cangalha
+  ctx.fillStyle='#78350f';ctx.beginPath();ctx.roundRect(-18,-2,36,10,4);ctx.fill();
+  ctx.fillStyle='#b45309';ctx.beginPath();ctx.roundRect(-16,-4,32,8,3);ctx.fill();
+  // Alforjas
+  ctx.fillStyle='#92400e';ctx.beginPath();ctx.roundRect(-20,6,18,22,5);ctx.fill();
+  ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(-11,8);ctx.lineTo(-11,26);ctx.stroke();
+  ctx.fillStyle='#7c3209';ctx.beginPath();ctx.roundRect(2,6,18,22,5);ctx.fill();
+  ctx.beginPath();ctx.moveTo(11,8);ctx.lineTo(11,26);ctx.stroke();
+  // Rédea (do focinho à mão do tropeiro)
+  const rhy=-38+Math.sin(t*.002)*4;
+  ctx.strokeStyle='rgba(180,120,50,.65)';ctx.lineWidth=1.5;ctx.setLineDash([3,3]);
+  ctx.beginPath();ctx.moveTo(-49,2);ctx.bezierCurveTo(-42,-5,-32,-18,-22,rhy);ctx.stroke();
+  ctx.setLineDash([]);
+
+  // ── TROPEIRO ────────────────────────────────────
+  ctx.save();ctx.translate(0,-28);
+  // Pernas montadas
+  ctx.strokeStyle='#1e3a5f';ctx.lineWidth=9;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(-12,0);ctx.lineTo(-18,22);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(12,0);ctx.lineTo(18,22);ctx.stroke();
+  // Corpo (camisa de linho com listras sutis)
+  const sg=ctx.createLinearGradient(-13,-36,13,2);
+  sg.addColorStop(0,'#1e4a7f');sg.addColorStop(1,'#152d4a');
+  ctx.fillStyle=sg;ctx.beginPath();ctx.roundRect(-13,-36,26,38,6);ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.07)';ctx.lineWidth=2;
+  for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(-10,-30+i*8);ctx.lineTo(10,-30+i*8);ctx.stroke();}
+  // Braços
+  ctx.strokeStyle='#1e3a5f';ctx.lineWidth=7;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(-10,-24);ctx.lineTo(-22,-10+Math.sin(t*.002)*4);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(10,-24);ctx.lineTo(14,-12+Math.sin(t*.002+.5)*3);ctx.stroke();
+  // Mãos nas rédeas
+  ctx.fillStyle='#d4a574';
+  ctx.beginPath();ctx.arc(-22,-10+Math.sin(t*.002)*4,4,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(14,-12+Math.sin(t*.002+.5)*3,4,0,Math.PI*2);ctx.fill();
+  // Cabeça
+  ctx.fillStyle='#d4a574';ctx.beginPath();ctx.arc(0,-50,13,0,Math.PI*2);ctx.fill();
+  // Feições (olhos + bigode sertanejo)
+  ctx.fillStyle='rgba(0,0,0,.5)';
+  ctx.beginPath();ctx.arc(-4,-52,2,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(4,-52,2,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='rgba(80,40,10,.7)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(-4,-47);ctx.bezierCurveTo(-2,-45,2,-45,4,-47);ctx.stroke();
+  // Chapéu de Couro (vaqueiro nordestino — aba larga + copa cônica)
+  ctx.fillStyle='#78350f';
+  ctx.beginPath();ctx.ellipse(0,-63,24,7,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#92400e';
+  ctx.beginPath();ctx.moveTo(-10,-63);ctx.bezierCurveTo(-11,-78,-8,-84,0,-85);
+  ctx.bezierCurveTo(8,-84,11,-78,10,-63);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#5c1f04';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.ellipse(0,-63,24,7,0,.25,Math.PI-.25);ctx.stroke();
+  ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(0,-63,14,.4,Math.PI-.4);ctx.stroke();
   ctx.restore();ctx.restore();
 }
 class FloatTxt{
@@ -899,3 +1023,4 @@ cv.addEventListener('touchstart',e=>{e.preventDefault();jump();},{passive:false}
 </script>
 </body>
 </html>
+
